@@ -1,0 +1,397 @@
+body {
+  font-family: "Merriweather", serif;
+  scroll-behavior: smooth;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "pwid";
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #222;
+}
+a {
+  -webkit-transition: all 0.5s;
+  -moz-transition: all 0.5s;
+  -o-transition: all 0.5s;
+  -ms-transition: all 0.5s;
+  transition: all 0.5s;
+}
+h1 {
+  font-family: -apple-system, BlinkMacSystemFont, "Roboto", sans-serif;
+}
+h2 {
+  font-family: -apple-system, BlinkMacSystemFont, "Roboto", sans-serif;
+}
+h3 {
+  font-family: -apple-system, BlinkMacSystemFont, "Roboto", sans-serif;
+}
+.columns {
+  margin: 0;
+}
+.index {
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+.index .index-item:not(:last-child) {
+  margin-bottom: 1rem;
+}
+.index .index-title {
+  margin-bottom: 0.5em;
+}
+.index .index-title a {
+  color: #222;
+}
+.sidebar {
+  padding: 2rem;
+}
+.post {
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+.title {
+  margin-bottom: 0 !important;
+}
+.post-thumbnail {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  margin: 0 auto 1.5rem;
+  height: 400px !important;
+  overflow: hidden !important;
+}
+.post-thumbnail .thumbnail {
+  width: 100% !important;
+  height: auto !important;
+}
+.content:not(:last-child) {
+  margin-bottom: 4rem;
+}
+.content h2 {
+  font-weight: bold;
+}
+.content p {
+  line-height: 200%;
+  font-size: 1.1em;
+}
+.content strong {
+  background: -webkit-linear-gradient(rgba(0,0,0,0) 61%, #e9f1f8 60%, #e9f1f8 0%);
+  background: -moz-linear-gradient(rgba(0,0,0,0) 61%, #e9f1f8 60%, #e9f1f8 0%);
+  background: -o-linear-gradient(rgba(0,0,0,0) 61%, #e9f1f8 60%, #e9f1f8 0%);
+  background: -ms-linear-gradient(rgba(0,0,0,0) 61%, #e9f1f8 60%, #e9f1f8 0%);
+  background: linear-gradient(rgba(0,0,0,0) 61%, #e9f1f8 60%, #e9f1f8 0%);
+}
+.content img {
+  max-width: 100%;
+}
+.content code {
+  color: #399704 !important;
+  background: none !important;
+  border-radius: 0.25rem;
+  font-family: "Roboto Mono", Monospace;
+}
+.content a[rel=external]::after {
+  content: "\f08e";
+  font-family: "FontAwesome";
+  margin-left: 0.25em;
+  margin-right: 0.25em;
+  font-size: 0.75rem;
+  text-decoration: none !important;
+}
+.archive {
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+.archive-title a {
+  color: #222;
+}
+.archive-title a:hover {
+  text-decoration: underline;
+}
+.navbar {
+  background: #052d49;
+}
+.navbar .navbar-brand a.navbar-item {
+  color: #fff;
+}
+.navbar .navbar-brand a.navbar-item:hover {
+  color: #fff;
+  background: #04263e;
+}
+.content pre,
+.content .highlight {
+  background: rgba(221,210,177,0.149);
+  margin: 0 -1;
+  padding: 15px 0;
+  border-style: dashed;
+  border-color: rgba(219,219,219,0.5);
+  border-width: 1px;
+  overflow: auto;
+  color: #639;
+  font-family: "Roboto Mono", Monospace;
+  line-height: 1.618em;
+}
+.content .highlight .gutter pre {
+  color: #666;
+  font-size: 0.85em;
+}
+.content code {
+  background: #f5f5f5;
+  text-shadow: 0 1px #fff;
+  padding: 0.3em;
+}
+.content pre code {
+  background: none;
+  text-shadow: none;
+  padding: 0;
+}
+.content .highlight pre {
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+.content .highlight table {
+  margin: 0;
+  width: auto;
+}
+.content .highlight td {
+  border: none;
+  padding: 0;
+}
+.content .highlight tr:hover {
+  background-color: #fff;
+}
+.content .highlight figcaption {
+  zoom: 1;
+  font-size: 0.85em;
+  color: #555;
+  line-height: 1em;
+  margin-bottom: 1em;
+}
+.content .highlight figcaption:before,
+.content .highlight figcaption:after {
+  content: "";
+  display: table;
+}
+.content .highlight figcaption:after {
+  clear: both;
+}
+.content .highlight figcaption a {
+  float: right;
+}
+.content .highlight .gutter pre {
+  text-align: right;
+  padding-right: 20px;
+}
+.content .highlight .line {
+  height: 1.618em;
+  padding: 0 0.3em;
+}
+.content pre .title {
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+}
+.content pre .number {
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  -webkit-box-align: inherit;
+  -moz-box-align: inherit;
+  -o-box-align: inherit;
+  -ms-flex-align: inherit;
+  -webkit-align-items: inherit;
+  align-items: inherit;
+  background-color: inherit;
+  height: inherit;
+  display: inherit;
+  padding: inherit;
+  margin-right: inherit;
+  -webkit-box-pack: inherit;
+  -moz-box-pack: inherit;
+  -o-box-pack: inherit;
+  -ms-flex-pack: inherit;
+  -webkit-justify-content: inherit;
+  justify-content: inherit;
+  min-width: inherit;
+  text-align: inherit;
+  vertical-align: inherit;
+}
+.content pre .comment,
+.content pre .title,
+.content pre .template_comment,
+.content pre .header,
+.content pre .javadoc {
+  color: #555;
+}
+.content pre .variable,
+.content pre .attribute,
+.content pre .tag,
+.content pre .regexp,
+.content pre .ruby .constant,
+.content pre .xml .tag .title,
+.content pre .xml .pi,
+.content pre .xml .doctype,
+.content pre .html .doctype,
+.content pre .css .id,
+.content pre .css .class,
+.content pre .css .pseudo,
+.content pre .winutils,
+.content pre .method,
+.content pre .request,
+.content pre .status,
+.content pre .nginx .title,
+.content pre .diff .change,
+.content pre .special,
+.content pre .attr_selector,
+.content pre .important,
+.content pre .subst,
+.content pre .clojure .title,
+.content pre .deletion {
+  color: #8b0000;
+}
+.content pre .number,
+.content pre .preprocessor,
+.content pre .preprocessor .keyword,
+.content pre .built_in,
+.content pre .literal,
+.content pre .params,
+.content pre .constant,
+.content pre .command,
+.content pre .lisp .body,
+.content pre .parent,
+.content pre .haskell .type {
+  color: #ff8c00;
+}
+.content pre .class,
+.content pre .ruby .class .title,
+.content pre .css .rules .attribute,
+.content pre .addition {
+  color: #006400;
+}
+.content pre .string,
+.content pre .value,
+.content pre .inheritance,
+.content pre .ruby .symbol,
+.content pre .symbol .string,
+.content pre .xml .cdata,
+.content pre .function .title {
+  color: #006400;
+}
+.content pre .css .hexcolor,
+.content pre .phpdoc,
+.content pre .tex .formula {
+  color: darkaqua;
+}
+.content pre .function,
+.content pre .python .decorator,
+.content pre .python .title,
+.content pre .ruby .function .title,
+.content pre .ruby .title .keyword,
+.content pre .perl .sub,
+.content pre .javascript .title,
+.content pre .coffeescript .title,
+.content pre .localvars,
+.content pre .chunk,
+.content pre .decorator,
+.content pre .identifier,
+.content pre .vhdl {
+  color: #00008b;
+}
+.content pre .keyword,
+.content pre .javascript .function {
+  color: darkpurple;
+}
+.widget {
+  margin-bottom: 3rem;
+}
+.widget a {
+  color: #222;
+}
+.widget a:hover {
+  text-decoration: underline;
+}
+.widget-title {
+  margin-bottom: 0.75rem;
+}
+.profile .icon {
+  cursor: pointer;
+}
+.profile-avatar .avatar {
+  width: 6rem;
+  height: 6rem;
+  object-fit: cover;
+  border-radius: 50%;
+}
+.archive-list-item {
+  line-height: 200%;
+}
+.archive-list-item > a {
+  margin-right: 0.5em;
+}
+.archive-list-count::before {
+  content: "(";
+}
+.archive-list-count::after {
+  content: ")";
+}
+.recent-post-item .thumbnail-container {
+  width: 6rem;
+  height: 6rem;
+}
+.footer-nav {
+  display: -webkit-box;
+  display: -moz-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: box;
+  display: flex;
+  -webkit-box-pack: justify;
+  -moz-box-pack: justify;
+  -o-box-pack: justify;
+  -ms-flex-pack: justify;
+  -webkit-justify-content: space-between;
+  justify-content: space-between;
+}
+.pagination {
+  display: -webkit-box;
+  display: -moz-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: box;
+  display: flex;
+  -webkit-box-pack: center;
+  -moz-box-pack: center;
+  -o-box-pack: center;
+  -ms-flex-pack: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+.pagination .extend,
+.pagination .page-number {
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  margin: 0.25em;
+  height: 2.25em;
+  min-width: 2.25em;
+  line-height: 2.25em;
+  border: 1px solid rgba(219,219,219,0.5);
+  border-radius: 3px;
+  font-size: 1em;
+  text-align: center;
+}
+.pagination .current {
+  color: #fff;
+  background: #3273dc;
+  border-color: #3273dc;
+}
+.thumbnail {
+  object-fit: cover;
+  height: 20rem;
+  width: auto;
+}
+.thumbnail.is-6x6 {
+  height: 6rem;
+  width: 6rem;
+}
+.thumbnail.is-10x6 {
+  height: 6rem;
+  width: 10.66rem;
+}

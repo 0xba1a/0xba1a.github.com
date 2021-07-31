@@ -1,0 +1,505 @@
+
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-115014323-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-115014323-1');
+  </script>
+  <meta charset="utf-8">
+  <title>perf setup | East River Village</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1">
+  <meta name="description" content="This post describes the necessary setup for Linux-perf. The setup machine is an Ubuntu VM. No custom kernel build.">
+<meta name="keywords" content="setup,ubuntu,kernel,linux,perf">
+<meta property="og:type" content="article">
+<meta property="og:title" content="perf setup">
+<meta property="og:url" content="https://eastrivervillage.com/perf-setup/index.html">
+<meta property="og:site_name" content="East River Village">
+<meta property="og:description" content="This post describes the necessary setup for Linux-perf. The setup machine is an Ubuntu VM. No custom kernel build.">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://eastrivervillage.com/images/batmobile-tank.jpg">
+<meta property="og:updated_time" content="2021-07-31T06:10:58.719Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="perf setup">
+<meta name="twitter:description" content="This post describes the necessary setup for Linux-perf. The setup machine is an Ubuntu VM. No custom kernel build.">
+<meta name="twitter:image" content="https://eastrivervillage.com/images/batmobile-tank.jpg">
+  <link rel="icon" href="/favicon.ico">
+  
+  
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-5LB7LCD');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.1/css/bulma.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Merriweather|Lobster|Lora|Roboto Mono">
+  <link rel="stylesheet" href="/css/style.css">
+  
+<script type="application/ld+json">
+  {
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "headline": "perf setup",
+  "name": "perf setup",
+  "image": "/images/batmobile-tank.jpg",
+  "datePublished": "2020-10-31T15:47:02.000Z",
+  "dateModified": "2021-07-31T06:10:58.719Z",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://eastrivervillage.com/perf-setup/index.html"
+  },
+  "author": {
+    "@type": "Person",
+    "name": "Balakumaran Kannan",
+    "image": "/images/profile_author.jpg",
+    "description": "System software engineer specilied in Linux. Experience spans from ARM32 board bring-up to multi datacenter virtualization stack management. Open source contributer. From Bangalore, India."
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Balakumaran Kannan",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "/images/profile_author.jpg"
+    }
+  }
+}
+</script>
+
+  
+</head>
+</html>
+<body>
+  
+  
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-5LB7LCD');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  <header class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a href="/" class="navbar-item">
+      East River Village
+    </a>
+  </div>
+</header>
+
+  <div class="container">
+    <div class="columns">
+      <div style="overflow:hidden;" class="main column">
+        <article class="post">
+  <figure class="post-thumbnail">
+    
+  <img src="/images/batmobile-tank.jpg" class="thumbnail " alt="perf setup">
+
+
+  </figure>
+  <span>2020-10-31
+</span>
+  <h1 class="title">perf setup</h1>
+  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/setup/">setup</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/ubuntu/">ubuntu</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kernel/">kernel</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/perf/">perf</a>
+    
+  </div>
+
+
+  <div class="content">
+    <p><code>Linux-perf</code> aka <code>perf</code> is versatile, like a batmobile. It has all the tools and functionalities you need. And you’ll feel like a superhero once you master it.</p>
+<p>By default perf comes with may tools that relying on debug and trace symbols exported via <code>procfs</code>. But to add custom probes and probes with line numbers, kernel debug symbols and kernel source is necessary. In this post I’ll walk you through the necessary setup process. I’m using an Ubuntu-20.04 VM running on Virtual box. I’m not going to rebuild and install kernel. The steps will be,</p>
+<ul>
+<li>Install Linux-kernel debug symbols</li>
+<li>Fetch Linux-kernel source</li>
+<li>Install perf</li>
+<li>First run</li>
+</ul>
+<h2 id="Enable-non-common-repositories"><a href="#Enable-non-common-repositories" class="headerlink" title="Enable non-common repositories"></a>Enable non-common repositories</h2><p>Enable debug repositories in <code>apt</code> source list.</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">bala@ubuntu-vm-1:~$ <span class="built_in">echo</span> <span class="string">"deb http://ddebs.ubuntu.com <span class="variable">$(lsb_release -cs)</span> main restricted universe multiverse</span></span><br><span class="line"><span class="string">deb http://ddebs.ubuntu.com <span class="variable">$(lsb_release -cs)</span>-updates main restricted universe multiverse</span></span><br><span class="line"><span class="string">deb http://ddebs.ubuntu.com <span class="variable">$(lsb_release -cs)</span>-proposed main restricted universe multiverse"</span> | sudo tee -a /etc/apt/sources.list.d/ddebs.list</span><br></pre></td></tr></table></figure>
+<p>Install debug keyring<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bala@ubuntu-vm-1:~$ sudo apt install ubuntu-dbgsym-keyring</span><br></pre></td></tr></table></figure></p>
+<p>Enable source repositories in <code>apt</code> source list.<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">bala@ubuntu-vm-1:~$ grep deb-src /etc/apt/sources.list</span><br><span class="line">deb-src http://in.archive.ubuntu.com/ubuntu/ focal main restricted</span><br></pre></td></tr></table></figure></p>
+<p>Do <code>apt</code> update<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bala@ubuntu-vm-1:~$ sudo apt update</span><br></pre></td></tr></table></figure></p>
+<h2 id="1-Install-Linux-kernel-debug-symbols"><a href="#1-Install-Linux-kernel-debug-symbols" class="headerlink" title="1. Install Linux-kernel debug symbols"></a>1. Install Linux-kernel debug symbols</h2><p>Install Linux debug symbols corresponding the kernel installed in your machine.</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bala@ubuntu-vm-1:~$ sudo apt install -y linux-image-`uname -r`-dbgsym</span><br></pre></td></tr></table></figure>
+<p>Linux image with debug symbols will be installed in the directory <code>/usr/lib/debug/boot/</code><br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">bala@ubuntu-vm-1:~$ ls -lh /usr/lib/debug/boot/vmlinux-5.4.0-52-generic</span><br><span class="line">-rw-r--r-- 2 root root 742M Oct 15 15:58 /usr/lib/debug/boot/vmlinux-5.4.0-52-generic</span><br><span class="line">bala@ubuntu-vm-1:~$</span><br></pre></td></tr></table></figure></p>
+<h2 id="2-Fetch-Linux-kernel-source"><a href="#2-Fetch-Linux-kernel-source" class="headerlink" title="2. Fetch Linux kernel source"></a>2. Fetch Linux kernel source</h2><p>Fetch the source package corresponding to the installed kernel.<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bala@ubuntu-vm-1:~$ sudo apt install linux-source</span><br></pre></td></tr></table></figure></p>
+<p>Kernel source with debian packaging files will be installed in the path <code>/usr/src/linux-source-5.4.0</code>. The kernel source is available in a tarball inside this directory. Copy to your desired location and extract.<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">bala@ubuntu-vm-1:~$ ls -lh /usr/src/linux-source-5.4.0/linux-source-5.4.0.tar.bz2</span><br><span class="line">-rw-r--r-- 1 root root 129M Oct 15 15:58 /usr/src/linux-source-5.4.0/linux-source-5.4.0.tar.bz2</span><br><span class="line">bala@ubuntu-vm-1:~$ cp -f /usr/src/linux-source-5.4.0/linux-source-5.4.0.tar.bz2 ~/<span class="built_in">source</span>/</span><br><span class="line">bala@ubuntu-vm-1:~$ <span class="built_in">cd</span> ~/<span class="built_in">source</span>/</span><br><span class="line">bala@ubuntu-vm-1:~/<span class="built_in">source</span>$ tar -xvf linux-source-5.4.0.tar.bz2</span><br><span class="line">bala@ubuntu-vm-1:~/<span class="built_in">source</span>$ ls ~/<span class="built_in">source</span>/linux-source-5.4.0/</span><br><span class="line">arch   certs    CREDITS  Documentation  dropped.txt  include  ipc     Kconfig  lib       MAINTAINERS  mm   README   scripts   snapcraft.yaml  tools   update-version-dkms  virt</span><br><span class="line">block  COPYING  crypto   drivers        fs           init     Kbuild  kernel   LICENSES  Makefile     net  samples  security  sound           ubuntu  usr</span><br><span class="line">bala@ubuntu-vm-1:~$</span><br></pre></td></tr></table></figure></p>
+<h2 id="3-Install-Linux-perf"><a href="#3-Install-Linux-perf" class="headerlink" title="3. Install Linux perf"></a>3. Install Linux perf</h2><p>It comes with <code>linux-tools-generic</code> package on Ubuntu-20.04.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bala@ubuntu-vm-1:~$ sudo apt install linux-tools-generic</span><br></pre></td></tr></table></figure></p>
+<h2 id="4-Run-your-first-perf-command"><a href="#4-Run-your-first-perf-command" class="headerlink" title="4. Run your first perf command"></a>4. Run your first perf command</h2><p>I want to count number of IPI (Inter Processor Interrupts) sent by <code>resched_curr</code>. It sends IPI when the target CPU is not the current CPU (the one executing the function itself). Here is the source code of that function.<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">resched_curr</span><span class="params">(struct rq *rq)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">task_struct</span> *<span class="title">curr</span> = <span class="title">rq</span>-&gt;<span class="title">curr</span>;</span></span><br><span class="line">	<span class="keyword">int</span> cpu;</span><br><span class="line"></span><br><span class="line">	lockdep_assert_held(&amp;rq-&gt;lock);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (test_tsk_need_resched(curr))</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">	cpu = cpu_of(rq);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (cpu == smp_processor_id()) &#123;</span><br><span class="line">		set_tsk_need_resched(curr);</span><br><span class="line">		set_preempt_need_resched();</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (set_nr_and_not_polling(curr))</span><br><span class="line">		smp_send_reschedule(cpu);</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">		trace_sched_wake_idle_without_ipi(cpu);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>So if target CPU is the current CPU, line number 14 will get executed. Otherwise execution continues from line number 18. Also I want to record the target CPU in both cases.</p>
+<p><strong>Get the line numbers where you can insert probes from perf itself.</strong><br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">bala@ubuntu-vm-1:~/<span class="built_in">source</span>$ sudo perf probe -k /usr/lib/debug/boot/vmlinux-5.4.0-52-generic -s ~/<span class="built_in">source</span>/linux-source-5.4.0 -L resched_curr</span><br><span class="line">&lt;resched_curr@/home/bala/<span class="built_in">source</span>/linux-source-5.4.0//kernel/<span class="built_in">sched</span>/core.c:0&gt;</span><br><span class="line">      0  void resched_curr(struct rq *rq)</span><br><span class="line">      1  &#123;</span><br><span class="line">      2         struct task_struct *curr = rq-&gt;curr;</span><br><span class="line">                int cpu;</span><br><span class="line"></span><br><span class="line">                lockdep_assert_held(&amp;rq-&gt;lock);</span><br><span class="line"></span><br><span class="line">      7         <span class="keyword">if</span> (test_tsk_need_resched(curr))</span><br><span class="line">                        <span class="built_in">return</span>;</span><br><span class="line"></span><br><span class="line">     10         cpu = cpu_of(rq);</span><br><span class="line"></span><br><span class="line">     12         <span class="keyword">if</span> (cpu == smp_processor_id()) &#123;</span><br><span class="line">     13                 set_tsk_need_resched(curr);</span><br><span class="line">     14                 set_preempt_need_resched();</span><br><span class="line">     15                 <span class="built_in">return</span>;</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">     18         <span class="keyword">if</span> (set_nr_and_not_polling(curr))</span><br><span class="line">     19                 smp_send_reschedule(cpu);</span><br><span class="line">                <span class="keyword">else</span></span><br><span class="line">     21                 trace_sched_wake_idle_without_ipi(cpu);</span><br><span class="line">         &#125;</span><br><span class="line"></span><br><span class="line">         void resched_cpu(int cpu)</span><br><span class="line"></span><br><span class="line">bala@ubuntu-vm-1:~/<span class="built_in">source</span>$</span><br></pre></td></tr></table></figure></p>
+<p>Here is the probe for non-IPI case. I name it as <code>resched_curr_same_cpu</code>.<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bala@ubuntu-vm-1:~$ sudo perf probe -k /usr/lib/debug/boot/vmlinux-5.4.0-52-generic -s <span class="built_in">source</span>/linux-source-5.4.0 resched_curr_same_cpu=<span class="string">'resched_curr:14 rq-&gt;cpu'</span></span><br></pre></td></tr></table></figure></p>
+<p>Probe for IPI case. And I name it as <code>resched_curr_send_ipi</code>.<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bala@ubuntu-vm-1:~$ sudo perf probe -k /usr/lib/debug/boot/vmlinux-5.4.0-52-generic -s <span class="built_in">source</span>/linux-source-5.4.0 resched_curr_send_ipi=<span class="string">'resched_curr:19 rq-&gt;cpu'</span></span><br></pre></td></tr></table></figure></p>
+<p><em>Note: To probe the function <code>resched_curr</code> and its argument <code>rq</code>, we need Linux debug symbols. And to probe on line numbers we need Linux source. So that we have installed both of them earlier.</em></p>
+<p>Now lets capture the execution of a <code>stress-ng</code> test.<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">bala@ubuntu-vm-1:~$ sudo perf record -e probe:resched_curr_same_cpu,probe:resched_curr_send_ipi stress-ng --mq 8 -t 5 --metrics-brief</span><br><span class="line">stress-ng: info:  [22439] dispatching hogs: 8 mq</span><br><span class="line">stress-ng: info:  [22439] successful run completed <span class="keyword">in</span> 5.01s</span><br><span class="line">stress-ng: info:  [22439] stressor       bogo ops real time  usr time  sys time   bogo ops/s   bogo ops/s</span><br><span class="line">stress-ng: info:  [22439]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)</span><br><span class="line">stress-ng: info:  [22439] mq              2225397      5.00      3.57     16.14    445062.30    112907.00</span><br><span class="line">[ perf record: Woken up 421 <span class="built_in">times</span> to write data ]</span><br><span class="line">[ perf record: Captured and wrote 105.404 MB perf.data (1380709 samples) ]</span><br><span class="line">bala@ubuntu-vm-1:~$</span><br></pre></td></tr></table></figure></p>
+<p>And the report is,<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">bala@ubuntu-vm-1:~$ sudo perf report --stdio</span><br><span class="line"><span class="comment"># To display the perf.data header info, please use --header/--header-only options.</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># Total Lost Samples: 0</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># Samples: 1M of event 'probe:resched_curr_same_cpu'</span></span><br><span class="line"><span class="comment"># Event count (approx.): 1380698</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># Overhead  Trace output</span></span><br><span class="line"><span class="comment"># ........  ........................</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line">    29.13%  (ffffffff83ad740d) cpu=1</span><br><span class="line">    27.77%  (ffffffff83ad740d) cpu=2</span><br><span class="line">    24.74%  (ffffffff83ad740d) cpu=0</span><br><span class="line">    18.36%  (ffffffff83ad740d) cpu=3</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># Samples: 11  of event 'probe:resched_curr_send_ipi'</span></span><br><span class="line"><span class="comment"># Event count (approx.): 11</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># Overhead  Trace output</span></span><br><span class="line"><span class="comment"># ........  ........................</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line">    45.45%  (ffffffff83ad73af) cpu=1</span><br><span class="line">    36.36%  (ffffffff83ad73af) cpu=3</span><br><span class="line">     9.09%  (ffffffff83ad73af) cpu=0</span><br><span class="line">     9.09%  (ffffffff83ad73af) cpu=2</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># (Cannot load tips.txt file, please install perf!)</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line">bala@ubuntu-vm-1:~$</span><br></pre></td></tr></table></figure></p>
+<p>As you can see only 11 times out of a million times an IPI is sent. More on this in later posts. Until then… <em>“Perhaps you should read the instructions first?”</em>.</p>
+<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><ul>
+<li><a href="http://www.brendangregg.com/perf.html" target="_blank" rel="noopener">http://www.brendangregg.com/perf.html</a></li>
+<li><a href="https://wiki.ubuntu.com/Kernel/Reference/stress-ng" target="_blank" rel="noopener">https://wiki.ubuntu.com/Kernel/Reference/stress-ng</a></li>
+<li><a href="https://man7.org/linux/man-pages/man1/perf-probe.1.html" target="_blank" rel="noopener">https://man7.org/linux/man-pages/man1/perf-probe.1.html</a></li>
+<li><a href="https://wiki.ubuntu.com/Debug%20Symbol%20Packages" target="_blank" rel="noopener">https://wiki.ubuntu.com/Debug%20Symbol%20Packages</a></li>
+<li><a href="https://askubuntu.com/questions/50145/how-to-install-perf-monitoring-tool" target="_blank" rel="noopener">https://askubuntu.com/questions/50145/how-to-install-perf-monitoring-tool</a></li>
+</ul>
+
+  </div>
+  
+<nav class="footer-nav">
+  
+    <div class="footer-nav__prev">
+      <div class="footer-nav__label">
+        Newer
+      </div>
+      <a href="/Custom-perf-with-custom-kernel/">
+        Custom perf with custom kernel
+      </a>
+    </div>
+  
+  
+    <div class="footer-nav__next">
+      <div class="footer-nav__label">
+        Older
+      </div>
+      <a href="/Quick-kernel-upgrade-with-kexec/">
+        Quick kernel upgrade with kexec
+      </a>
+    </div>
+  
+</nav>
+
+
+</article>
+
+
+      </div>
+      <div class="sidebar column is-4">
+        <aside>
+  
+    <aside class="search widget">
+  <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form" target="_blank">
+    <div class="control has-icons-right">
+      <input type="search" name="q" class="input" placeholder="Search">
+      <span class="icon is-small is-right">
+        <i class="fa fa-search"></i>
+      </span>
+    </div>
+    <input type="hidden" name="sitesearch" value="https://eastrivervillage.com">
+  </form>
+</aside>
+
+  
+    <div class="widget-wrap">
+  <div class="widget-title">author</div>
+  <aside class="profile media widget">
+    <!--figure class="profile-avatar media-left">
+      <img src="/images/profile_author.jpg" class="avatar" alt="Balakumaran Kannan">
+    </figure-->
+    <div class="media-content">
+      <p>
+        <strong>
+          <span>Balakumaran Kannan</span>
+        </strong>
+        <br>
+        <span>System software engineer specilied in Linux. Experience spans from ARM32 board bring-up to multi datacenter virtualization stack management. Open source contributer. From Bangalore, India.</span>
+        <br/>
+        <br/>
+        <a href="/about" target="_blank">
+          <span style="color: orangered;text-decoration-line: underline;">Contact me</span>
+        </a>
+      </p>
+    </div>
+  </aside>
+</div>
+
+  
+    
+  <div class="widget-wrap">
+    <div class="widget-title">recents</div>
+    <div class="widget">
+      <ul class="recent-post">
+        
+          <li class="recent-post-item media">
+            <figure class="media-left">
+              
+  <a href="/Custom-perf-with-custom-kernel/">
+    <img src="/images/batmobile-tank.jpg" class="thumbnail is-6x6" alt="Custom perf with custom kernel">
+  </a>
+
+
+            </figure>
+            <div class="media-content">
+              <p class="">
+                <a href="/Custom-perf-with-custom-kernel/" class="">
+                  Custom perf with custom kernel
+                </a>
+              </p>
+              <p class="">
+                <!--small>
+                  2020-11-19
+
+                </small>
+                <br/-->
+                <small>
+                  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kernel/">kernel</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/perf/">perf</a>
+    
+  </div>
+
+
+                </small>
+              </p>
+            </div>
+          </li>
+        
+          <li class="recent-post-item media">
+            <figure class="media-left">
+              
+  <a href="/perf-setup/">
+    <img src="/images/batmobile-tank.jpg" class="thumbnail is-6x6" alt="perf setup">
+  </a>
+
+
+            </figure>
+            <div class="media-content">
+              <p class="">
+                <a href="/perf-setup/" class="">
+                  perf setup
+                </a>
+              </p>
+              <p class="">
+                <!--small>
+                  2020-10-31
+
+                </small>
+                <br/-->
+                <small>
+                  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/setup/">setup</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/ubuntu/">ubuntu</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kernel/">kernel</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/perf/">perf</a>
+    
+  </div>
+
+
+                </small>
+              </p>
+            </div>
+          </li>
+        
+          <li class="recent-post-item media">
+            <figure class="media-left">
+              
+  <a href="/Quick-kernel-upgrade-with-kexec/">
+    <img src="/images/time_to_upgrade.jpg" class="thumbnail is-6x6" alt="Quick kernel upgrade with kexec">
+  </a>
+
+
+            </figure>
+            <div class="media-content">
+              <p class="">
+                <a href="/Quick-kernel-upgrade-with-kexec/" class="">
+                  Quick kernel upgrade with kexec
+                </a>
+              </p>
+              <p class="">
+                <!--small>
+                  2020-10-01
+
+                </small>
+                <br/-->
+                <small>
+                  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kernel/">kernel</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/debian/">debian</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/stretch/">stretch</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kexec/">kexec</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/security/">security</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/upgrade/">upgrade</a>
+    
+  </div>
+
+
+                </small>
+              </p>
+            </div>
+          </li>
+        
+          <li class="recent-post-item media">
+            <figure class="media-left">
+              
+  <a href="/perf-kvm-to-profile-vm-exit/">
+    <img src="/images/music-equalizer-1.jpg" class="thumbnail is-6x6" alt="perf kvm to profile vm_exit">
+  </a>
+
+
+            </figure>
+            <div class="media-content">
+              <p class="">
+                <a href="/perf-kvm-to-profile-vm-exit/" class="">
+                  perf kvm to profile vm_exit
+                </a>
+              </p>
+              <p class="">
+                <!--small>
+                  2020-09-28
+
+                </small>
+                <br/-->
+                <small>
+                  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/perf/">perf</a>
+    
+  </div>
+
+
+                </small>
+              </p>
+            </div>
+          </li>
+        
+          <li class="recent-post-item media">
+            <figure class="media-left">
+              
+  <a href="/kexec-tools-with-the-hidden-purgatory/">
+    <img src="/images/purgatory.jpg" class="thumbnail is-6x6" alt="kexec - A travel to the purgatory">
+  </a>
+
+
+            </figure>
+            <div class="media-content">
+              <p class="">
+                <a href="/kexec-tools-with-the-hidden-purgatory/" class="">
+                  kexec - A travel to the purgatory
+                </a>
+              </p>
+              <p class="">
+                <!--small>
+                  2020-01-20
+
+                </small>
+                <br/-->
+                <small>
+                  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kernel/">kernel</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/ARMv8/">ARMv8</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/crazy-debugging/">crazy debugging</a>
+    
+  </div>
+
+
+                </small>
+              </p>
+            </div>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">tag cloud</h3>
+    <div class="widget">
+      <a href="/tags/ARM/" style="font-size: 10px;">ARM</a> <a href="/tags/ARMv8/" style="font-size: 12.5px;">ARMv8</a> <a href="/tags/C/" style="font-size: 10px;">C</a> <a href="/tags/Linux/" style="font-size: 10px;">Linux</a> <a href="/tags/RaspberryPi/" style="font-size: 15px;">RaspberryPi</a> <a href="/tags/about/" style="font-size: 10px;">about</a> <a href="/tags/bitbucket/" style="font-size: 10px;">bitbucket</a> <a href="/tags/build/" style="font-size: 12.5px;">build</a> <a href="/tags/c/" style="font-size: 10px;">c</a> <a href="/tags/chatbot/" style="font-size: 10px;">chatbot</a> <a href="/tags/clone/" style="font-size: 10px;">clone</a> <a href="/tags/compiler/" style="font-size: 10px;">compiler</a> <a href="/tags/cow/" style="font-size: 10px;">cow</a> <a href="/tags/crazy-debugging/" style="font-size: 10px;">crazy debugging</a> <a href="/tags/debian/" style="font-size: 10px;">debian</a> <a href="/tags/debug/" style="font-size: 12.5px;">debug</a> <a href="/tags/devpost/" style="font-size: 10px;">devpost</a> <a href="/tags/digitalocean/" style="font-size: 12.5px;">digitalocean</a> <a href="/tags/facebook/" style="font-size: 10px;">facebook</a> <a href="/tags/fork/" style="font-size: 10px;">fork</a> <a href="/tags/gcc/" style="font-size: 10px;">gcc</a> <a href="/tags/gdb/" style="font-size: 12.5px;">gdb</a> <a href="/tags/getpid/" style="font-size: 10px;">getpid</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/github/" style="font-size: 10px;">github</a> <a href="/tags/kernel/" style="font-size: 20px;">kernel</a> <a href="/tags/kernel-module/" style="font-size: 10px;">kernel module</a> <a href="/tags/kexec/" style="font-size: 10px;">kexec</a> <a href="/tags/linux/" style="font-size: 20px;">linux</a> <a href="/tags/memory-management/" style="font-size: 12.5px;">memory management</a> <a href="/tags/memory-management/" style="font-size: 10px;">memory_management</a> <a href="/tags/nodejs/" style="font-size: 12.5px;">nodejs</a> <a href="/tags/perf/" style="font-size: 15px;">perf</a> <a href="/tags/proc/" style="font-size: 10px;">proc</a> <a href="/tags/programming/" style="font-size: 10px;">programming</a> <a href="/tags/raspberrypi/" style="font-size: 12.5px;">raspberrypi</a> <a href="/tags/security/" style="font-size: 10px;">security</a> <a href="/tags/setup/" style="font-size: 15px;">setup</a> <a href="/tags/stack/" style="font-size: 10px;">stack</a> <a href="/tags/stretch/" style="font-size: 10px;">stretch</a> <a href="/tags/swap/" style="font-size: 10px;">swap</a> <a href="/tags/system-call/" style="font-size: 10px;">system call</a> <a href="/tags/ubuntu/" style="font-size: 12.5px;">ubuntu</a> <a href="/tags/upgrade/" style="font-size: 10px;">upgrade</a> <a href="/tags/vim/" style="font-size: 10px;">vim</a> <a href="/tags/virtual-memory/" style="font-size: 10px;">virtual_memory</a> <a href="/tags/vnc/" style="font-size: 10px;">vnc</a> <a href="/tags/wit-ai/" style="font-size: 10px;">wit.ai</a> <a href="/tags/yocto/" style="font-size: 17.5px;">yocto</a>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">September 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+
+      </div>
+    </div>
+  </div>
+  <footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <p>
+        <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/deed.ja">
+          <img alt="creative commons logo" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" />
+        </a>
+        <br />
+        <span xmlns:cc="http://creativecommons.org/ns#" property="cc:attributionName">this post is available under a </span> <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution ShareAlike license.</p>
+    </div>
+  </div>
+</footer>
+
+
+  <script>
+    // HACK: custom style goes here
+    tables = document.querySelectorAll('table');
+    for (i = 0; i < tables.length; i++) {
+      tables[i].classList.add("table", "is-bordered", "is-fullwidth");
+    }
+  </script>
+</body>
+</html>

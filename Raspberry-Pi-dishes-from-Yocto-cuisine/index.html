@@ -1,0 +1,496 @@
+
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-115014323-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-115014323-1');
+  </script>
+  <meta charset="utf-8">
+  <title>Raspberry Pi dishes from Yocto cuisine | East River Village</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1">
+  <meta name="description" content="Recently I got some board bring-up work where I come across Yocto project. To complete that project, I had to understand a little more than the basics of Yocto. So I had some hands on like Yocto Proje">
+<meta name="keywords" content="RaspberryPi,yocto,build">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Raspberry Pi dishes from Yocto cuisine">
+<meta property="og:url" content="https://eastrivervillage.com/Raspberry-Pi-dishes-from-Yocto-cuisine/index.html">
+<meta property="og:site_name" content="East River Village">
+<meta property="og:description" content="Recently I got some board bring-up work where I come across Yocto project. To complete that project, I had to understand a little more than the basics of Yocto. So I had some hands on like Yocto Proje">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://eastrivervillage.com/images/raspberry_pi_3_yocto.jpg">
+<meta property="og:updated_time" content="2021-07-31T06:10:58.719Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Raspberry Pi dishes from Yocto cuisine">
+<meta name="twitter:description" content="Recently I got some board bring-up work where I come across Yocto project. To complete that project, I had to understand a little more than the basics of Yocto. So I had some hands on like Yocto Proje">
+<meta name="twitter:image" content="https://eastrivervillage.com/images/raspberry_pi_3_yocto.jpg">
+  <link rel="icon" href="/favicon.ico">
+  
+  
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-5LB7LCD');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.1/css/bulma.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Merriweather|Lobster|Lora|Roboto Mono">
+  <link rel="stylesheet" href="/css/style.css">
+  
+<script type="application/ld+json">
+  {
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Raspberry Pi dishes from Yocto cuisine",
+  "name": "Raspberry Pi dishes from Yocto cuisine",
+  "image": "/images/raspberry_pi_3_yocto.jpg",
+  "datePublished": "2018-04-25T16:00:50.000Z",
+  "dateModified": "2021-07-31T06:10:58.719Z",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://eastrivervillage.com/Raspberry-Pi-dishes-from-Yocto-cuisine/index.html"
+  },
+  "author": {
+    "@type": "Person",
+    "name": "Balakumaran Kannan",
+    "image": "/images/profile_author.jpg",
+    "description": "System software engineer specilied in Linux. Experience spans from ARM32 board bring-up to multi datacenter virtualization stack management. Open source contributer. From Bangalore, India."
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Balakumaran Kannan",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "/images/profile_author.jpg"
+    }
+  }
+}
+</script>
+
+  
+</head>
+</html>
+<body>
+  
+  
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-5LB7LCD');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  <header class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a href="/" class="navbar-item">
+      East River Village
+    </a>
+  </div>
+</header>
+
+  <div class="container">
+    <div class="columns">
+      <div style="overflow:hidden;" class="main column">
+        <article class="post">
+  <figure class="post-thumbnail">
+    
+  <img src="/images/raspberry_pi_3_yocto.jpg" class="thumbnail " alt="Raspberry Pi dishes from Yocto cuisine">
+
+
+  </figure>
+  <span>2018-04-25
+</span>
+  <h1 class="title">Raspberry Pi dishes from Yocto cuisine</h1>
+  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/RaspberryPi/">RaspberryPi</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/yocto/">yocto</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/build/">build</a>
+    
+  </div>
+
+
+  <div class="content">
+    <p>Recently I got some board bring-up work where I come across Yocto project. To complete that project, I had to understand a little more than the basics of Yocto. So I had some hands on like <a href="https://www.yoctoproject.org/docs/2.4.1/yocto-project-qs/yocto-project-qs.html" target="_blank" rel="noopener">Yocto Project Quick Start</a> and <a href="https://www.yoctoproject.org/docs/2.4.1/kernel-dev/kernel-dev.html" target="_blank" rel="noopener">Yocto Project Linux Kernel Development Manual</a>. Seems Yocto is so powerful thus I thought of starting to use it for my Raspberry Pi hacking. As expected there are already people tried doing so and there are some good blogs about what they have accomplished. But to my surprise, there is already a meta layer for Raspberry Pi 3. It makes the work even simpler.</p>
+<p>I created a directory in Desktop as base for the development. Inside it I created <code>build</code>, <code>downloads</code>, <code>sstate</code>, <code>tmp</code> and <code>yocto</code> layers directories.<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ ls</span><br><span class="line">build  downloads  sstate  sstate-cache  tmp  yocto</span><br></pre></td></tr></table></figure></p>
+<p>With reference to the <a href="http://meta-raspberrypi.readthedocs.io/en/latest/readme.html#quick-start" target="_blank" rel="noopener">meta-raspberry quick start</a> page, I have cloned <a href="http://git.yoctoproject.org/cgit.cgi/poky" target="_blank" rel="noopener">poky</a>, <a href="http://git.openembedded.org/meta-openembedded" target="_blank" rel="noopener">meta-openembedded</a> and <a href="https://github.com/agherzan/meta-raspberrypi" target="_blank" rel="noopener">meta-raspberry</a> inside the <code>yocto</code> directory. And checkout to specific branches.<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> yocto</span><br><span class="line">$ git <span class="built_in">clone</span> git://git.yoctoproject.org/poky.git</span><br><span class="line">$ <span class="built_in">cd</span> poky</span><br><span class="line">$ git checkout origin/master</span><br><span class="line">$ $ git rev-parse HEAD</span><br><span class="line">da3625c52e1ab8985fba4fc3d133edf92142f182</span><br><span class="line">$</span><br><span class="line">$ <span class="built_in">cd</span> ..</span><br><span class="line">$ git <span class="built_in">clone</span> git://git.openembedded.org/meta-openembedded</span><br><span class="line">$ <span class="built_in">cd</span> meta-openembedded</span><br><span class="line">$ $ git rev-parse HEAD</span><br><span class="line">271ce3576be25d8012af15961f827aa2235e6434</span><br><span class="line">$</span><br><span class="line">$ <span class="built_in">cd</span> ..</span><br><span class="line">$ git <span class="built_in">clone</span> git://git.yoctoproject.org/meta-raspberrypi</span><br><span class="line">$ <span class="built_in">cd</span> meta-raspberry</span><br><span class="line">$ git checkout master</span><br><span class="line">$ git rev-parse HEAD</span><br><span class="line">693f36dded2f29fd77720f7b2e7c88ea76554466</span><br></pre></td></tr></table></figure></p>
+<p>You can find all the available layers <a href="http://layers.openembedded.org/layerindex/branch/master/layers/" target="_blank" rel="noopener">here</a></p>
+<p><em>Only the above branches and commits worked for me. With rocko branch had pypi.class error</em></p>
+<p>Sourced the <code>oe-init</code> script to setup build environment. And then configured the <code>conf/bblayers.conf</code> file to include <code>meta-layers</code> from meta-openembedded and meta-raspberry layers. The <a href="http://meta-raspberrypi.readthedocs.io/en/latest/readme.html#quick-start" target="_blank" rel="noopener">meta-raspberry quick start</a> specifies <code>meta-oe</code>, <code>meta-multimedia</code>, <code>meta-networking</code> and <code>meta-python</code> as dependencies for <code>meta-raspberry</code>. So I’m including all of the into my <code>conf/bblayers.conf</code> file.<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">source</span> yocto/poky/oe-init-build-env build/rpi3/</span><br><span class="line"></span><br><span class="line"><span class="comment">### Shell environment set up for builds. ###</span></span><br><span class="line"></span><br><span class="line">You can now run <span class="string">'bitbake &lt;target&gt;'</span></span><br><span class="line"></span><br><span class="line">Common targets are:</span><br><span class="line">    core-image-minimal</span><br><span class="line">    core-image-sato</span><br><span class="line">    meta-toolchain</span><br><span class="line">    meta-ide-support</span><br><span class="line"></span><br><span class="line">You can also run generated qemu images with a <span class="built_in">command</span> like <span class="string">'runqemu qemux86'</span></span><br><span class="line">$ <span class="built_in">pwd</span></span><br><span class="line">/home/kaba/Desktop/yocto/build/rpi3</span><br><span class="line">$ cat conf/bblayers.conf</span><br><span class="line"><span class="comment"># POKY_BBLAYERS_CONF_VERSION is increased each time build/conf/bblayers.conf</span></span><br><span class="line"><span class="comment"># changes incompatibly</span></span><br><span class="line">POKY_BBLAYERS_CONF_VERSION = <span class="string">"2"</span></span><br><span class="line"></span><br><span class="line">BBPATH = <span class="string">"<span class="variable">$&#123;TOPDIR&#125;</span>"</span></span><br><span class="line">BBFILES ?= <span class="string">""</span></span><br><span class="line"></span><br><span class="line">BBLAYERS ?= <span class="string">" \</span></span><br><span class="line"><span class="string">  <span class="variable">$&#123;TOPDIR&#125;</span>/../../yocto/poky/meta \</span></span><br><span class="line"><span class="string">  <span class="variable">$&#123;TOPDIR&#125;</span>/../../yocto/poky/meta-poky \</span></span><br><span class="line"><span class="string">  <span class="variable">$&#123;TOPDIR&#125;</span>/../../yocto/poky/meta-yocto-bsp \</span></span><br><span class="line"><span class="string">  <span class="variable">$&#123;TOPDIR&#125;</span>/../../yocto/meta-openembedded/meta-oe \</span></span><br><span class="line"><span class="string">  <span class="variable">$&#123;TOPDIR&#125;</span>/../../yocto/meta-openembedded/meta-multimedia \</span></span><br><span class="line"><span class="string">  <span class="variable">$&#123;TOPDIR&#125;</span>/../../yocto/meta-openembedded/meta-networking \</span></span><br><span class="line"><span class="string">  <span class="variable">$&#123;TOPDIR&#125;</span>/../../yocto/meta-openembedded/meta-python \</span></span><br><span class="line"><span class="string">  <span class="variable">$&#123;TOPDIR&#125;</span>/../../yocto/meta-raspberrypi \</span></span><br><span class="line"><span class="string">  "</span></span><br><span class="line">$</span><br></pre></td></tr></table></figure></p>
+<p>Then made following changes in <code>conf/local.conf</code>.</p>
+<ul>
+<li>Set the <code>MACHINE</code> variable to point raspberry Pi 3 [raspberrypi3-64].</li>
+<li>Set <code>SSTATE_DIR</code>, <code>TMPDIR</code> and <code>DL_DIR</code> to point to <code>sstate</code>, <code>tmp</code> and <code>downloads</code> directories respectively.</li>
+<li>I usually run my Pi headless. So I enabled <code>ssh-server-openssh</code> <strong>EXTRA_IMAGE_FEATURE</strong>. Its up to your choice.</li>
+<li>Left the other default options as it was.</li>
+</ul>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">$ ls ../../yocto/meta-raspberrypi/conf/machine/</span><br><span class="line">include                 raspberrypi2.conf     raspberrypi-cm3.conf</span><br><span class="line">raspberrypi0.conf       raspberrypi3-64.conf  raspberrypi-cm.conf</span><br><span class="line">raspberrypi0-wifi.conf  raspberrypi3.conf     raspberrypi.conf</span><br><span class="line">$</span><br><span class="line">$ cat conf/local.conf </span><br><span class="line">MACHINE = <span class="string">"raspberrypi3-64"</span></span><br><span class="line">DISTRO ?= <span class="string">"poky"</span></span><br><span class="line">PACKAGE_CLASSES ?= <span class="string">"package_rpm"</span></span><br><span class="line">EXTRA_IMAGE_FEATURES ?= <span class="string">"debug-tweaks ssh-server-openssh"</span></span><br><span class="line">USER_CLASSES ?= <span class="string">"buildstats image-mklibs image-prelink"</span></span><br><span class="line">PATCHRESOLVE = <span class="string">"noop"</span></span><br><span class="line">CONF_VERSION = <span class="string">"1"</span></span><br><span class="line"></span><br><span class="line">SSTATE_DIR ?= <span class="string">"<span class="variable">$&#123;TOPDIR&#125;</span>/../../sstate-cache"</span></span><br><span class="line">TMPDIR ?= <span class="string">"<span class="variable">$&#123;TOPDIR&#125;</span>/../../tmp"</span></span><br><span class="line">DL_DIR ?= <span class="string">"<span class="variable">$&#123;TOPDIR&#125;</span>/../../downloads"</span></span><br><span class="line"></span><br><span class="line">PACKAGECONFIG_append_pn-qemu-native = <span class="string">" sdl"</span></span><br><span class="line">PACKAGECONFIG_append_pn-nativesdk-qemu = <span class="string">" sdl"</span></span><br><span class="line">BB_DISKMON_DIRS ??= <span class="string">"\</span></span><br><span class="line"><span class="string">    STOPTASKS,<span class="variable">$&#123;TMPDIR&#125;</span>,1G,100K \</span></span><br><span class="line"><span class="string">    STOPTASKS,<span class="variable">$&#123;DL_DIR&#125;</span>,1G,100K \</span></span><br><span class="line"><span class="string">    STOPTASKS,<span class="variable">$&#123;SSTATE_DIR&#125;</span>,1G,100K \</span></span><br><span class="line"><span class="string">    STOPTASKS,/tmp,100M,100K \</span></span><br><span class="line"><span class="string">    ABORT,<span class="variable">$&#123;TMPDIR&#125;</span>,100M,1K \</span></span><br><span class="line"><span class="string">    ABORT,<span class="variable">$&#123;DL_DIR&#125;</span>,100M,1K \</span></span><br><span class="line"><span class="string">    ABORT,<span class="variable">$&#123;SSTATE_DIR&#125;</span>,100M,1K \</span></span><br><span class="line"><span class="string">    ABORT,/tmp,10M,1K"</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#SDKMACHINE ?= "i686"</span></span><br><span class="line"><span class="comment">#ASSUME_PROVIDED += "libsdl-native"</span></span><br><span class="line">$</span><br></pre></td></tr></table></figure>
+<p>The variable <code>${TOPDIR}</code> represents the build directory by default.<br><code>debug-tweaks</code> will enable root account without password. <code>ssh-server-openssh</code> will install an ssh server using openssh. And the ssh server will be started automatically during boot-up.</p>
+<p>Build a basic image - <code>core-image-base</code><br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">$ bitbake core-image-base</span><br><span class="line">WARNING: Layer openembedded-layer should <span class="built_in">set</span> LAYERSERIES_COMPAT_openembedded-layer <span class="keyword">in</span> its conf/layer.conf file to list the core layer names it is compatible with.</span><br><span class="line">WARNING: Layer multimedia-layer should <span class="built_in">set</span> LAYERSERIES_COMPAT_multimedia-layer <span class="keyword">in</span> its conf/layer.conf file to list the core layer names it is compatible with.</span><br><span class="line">WARNING: Layer networking-layer should <span class="built_in">set</span> LAYERSERIES_COMPAT_networking-layer <span class="keyword">in</span> its conf/layer.conf file to list the core layer names it is compatible with.</span><br><span class="line">WARNING: Layer meta-python should <span class="built_in">set</span> LAYERSERIES_COMPAT_meta-python <span class="keyword">in</span> its conf/layer.conf file to list the core layer names it is compatible with.</span><br><span class="line">WARNING: Layer openembedded-layer should <span class="built_in">set</span> LAYERSERIES_COMPAT_openembedded-layer <span class="keyword">in</span> its conf/layer.conf file to list the core layer names it is compatible with.</span><br><span class="line">WARNING: Layer multimedia-layer should <span class="built_in">set</span> LAYERSERIES_COMPAT_multimedia-layer <span class="keyword">in</span> its conf/layer.conf file to list the core layer names it is compatible with.</span><br><span class="line">WARNING: Layer networking-layer should <span class="built_in">set</span> LAYERSERIES_COMPAT_networking-layer <span class="keyword">in</span> its conf/layer.conf file to list the core layer names it is compatible with.</span><br><span class="line">WARNING: Layer meta-python should <span class="built_in">set</span> LAYERSERIES_COMPAT_meta-python <span class="keyword">in</span> its conf/layer.conf file to list the core layer names it is compatible with.</span><br><span class="line">WARNING: Host distribution <span class="string">"ubuntu-17.10"</span> has not been validated with this version of the build system; you may possibly experience unexpected failures. It is recommended that you use a tested distribution.</span><br><span class="line">Parsing recipes: 100% |<span class="comment">#################################################################################################################################################| Time: 0:03:49</span></span><br><span class="line">Parsing of 2081 .bb files complete (0 cached, 2081 parsed). 2940 targets, 116 skipped, 0 masked, 0 errors.</span><br><span class="line">NOTE: Resolving any missing task queue dependencies</span><br><span class="line"></span><br><span class="line">Build Configuration:</span><br><span class="line">BB_VERSION           = <span class="string">"1.37.0"</span></span><br><span class="line">BUILD_SYS            = <span class="string">"x86_64-linux"</span></span><br><span class="line">NATIVELSBSTRING      = <span class="string">"ubuntu-17.10"</span></span><br><span class="line">TARGET_SYS           = <span class="string">"aarch64-poky-linux"</span></span><br><span class="line">MACHINE              = <span class="string">"raspberrypi3-64"</span></span><br><span class="line">DISTRO               = <span class="string">"poky"</span></span><br><span class="line">DISTRO_VERSION       = <span class="string">"2.5"</span></span><br><span class="line">TUNE_FEATURES        = <span class="string">"aarch64"</span></span><br><span class="line">TARGET_FPU           = <span class="string">""</span></span><br><span class="line">meta                 </span><br><span class="line">meta-poky            </span><br><span class="line">meta-yocto-bsp       = <span class="string">"HEAD:da3625c52e1ab8985fba4fc3d133edf92142f182"</span></span><br><span class="line">meta-oe              </span><br><span class="line">meta-multimedia      </span><br><span class="line">meta-networking      </span><br><span class="line">meta-python          = <span class="string">"master:271ce3576be25d8012af15961f827aa2235e6434"</span></span><br><span class="line">meta-raspberrypi     = <span class="string">"master:693f36dded2f29fd77720f7b2e7c88ea76554466"</span></span><br><span class="line"></span><br><span class="line">NOTE: Fetching uninative binary shim from http://downloads.yoctoproject.org/releases/uninative/1.9/x86_64-nativesdk-libc.tar.bz2;sha256sum=c26622a1f27dbf5b25de986b11584b5c5b2f322d9eb367f705a744f58a5561ec</span><br><span class="line">Initialising tasks: 100% |<span class="comment">##############################################################################################################################################| Time: 0:00:04</span></span><br><span class="line">NOTE: Executing SetScene Tasks</span><br><span class="line">NOTE: Executing RunQueue Tasks</span><br><span class="line">NOTE: Tasks Summary: Attempted 3407 tasks of <span class="built_in">which</span> 106 didn<span class="string">'t need to be rerun and all succeeded.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">Summary: There were 9 WARNING messages shown.</span></span><br><span class="line"><span class="string">kaba@kaba-Vostro-1550:~/Desktop/yocto/build/rpi3</span></span><br><span class="line"><span class="string">$</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="Installation-and-booting"><a href="#Installation-and-booting" class="headerlink" title="Installation and booting"></a>Installation and booting</h3><p>If everything goes well, you can see the final image <code>tmp/deploy/images/raspberrypi3-64/core-image-base-raspberrypi3-64.rpi-sdimg</code>. The path is relative to your build directory - <em><code>build/rpi3</code></em>. It is a soft-link to your latest build image. <code>dd</code> it to your sd-card - <em><code>/dev/sdb</code> in my case</em> - and boot the Raspberry Pi 3 with it.<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ sudo umount /dev/sdb*</span><br><span class="line">$ sudo dd <span class="keyword">if</span>=tmp/deploy/images/raspberrypi3-64/core-image-base-raspberrypi3-64.rpi-sdimg of=/dev/sdb bs=1M</span><br><span class="line">$ sudo umount /dev/sdb*</span><br></pre></td></tr></table></figure></p>
+<h3 id="WiFi-configuration-in-Raspberry-Pi"><a href="#WiFi-configuration-in-Raspberry-Pi" class="headerlink" title="WiFi configuration in Raspberry Pi"></a>WiFi configuration in Raspberry Pi</h3><p>To access Raspberry Pi over ssh it should be part of network first. So for the first boot, connect a monitor to the board and boot with your sd-card.</p>
+<p>Edit <code>wpa_supplicant.conf</code> file to input WiFi access point related information.<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">root@raspberrypi3-64:~<span class="comment"># cat /etc/wpa_supplicant.conf </span></span><br><span class="line">ctrl_interface=/var/run/wpa_supplicant</span><br><span class="line">ctrl_interface_group=0</span><br><span class="line">update_config=1</span><br><span class="line"></span><br><span class="line">network=&#123;</span><br><span class="line">	ssid=<span class="string">"Bluetooth"</span></span><br><span class="line">	psk=<span class="string">"**********"</span></span><br><span class="line">&#125;</span><br><span class="line">root@raspberrypi3-64:~<span class="comment">#</span></span><br></pre></td></tr></table></figure></p>
+<p>Enter your WiFi access point password against psk.</p>
+<p>And bring-up interface <code>wlan0</code> on boot-up<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">root@raspberrypi3-64:~<span class="comment"># cat /etc/init.d/networking</span></span><br><span class="line">.</span><br><span class="line">.</span><br><span class="line">start)</span><br><span class="line">	.</span><br><span class="line">	.</span><br><span class="line">	ifup wlan0</span><br><span class="line">	.</span><br><span class="line">	.</span><br><span class="line">.</span><br><span class="line">.</span><br></pre></td></tr></table></figure></p>
+<p>Configure sticky IP in your access point for your Raspberry Pi corresponding to its mac. So every time after reboot you can straightaway ssh to Raspberry Pi.</p>
+<h3 id="References"><a href="#References" class="headerlink" title="References"></a>References</h3><ul>
+<li>[<a href="https://media.readthedocs.org/pdf/meta-raspberrypi/latest/meta-raspberrypi.pdf]" target="_blank" rel="noopener">https://media.readthedocs.org/pdf/meta-raspberrypi/latest/meta-raspberrypi.pdf]</a></li>
+<li>[<a href="http://www.jumpnowtek.com/rpi/Raspberry-Pi-Systems-with-Yocto.html]" target="_blank" rel="noopener">http://www.jumpnowtek.com/rpi/Raspberry-Pi-Systems-with-Yocto.html]</a></li>
+<li>[<a href="https://raspinterest.wordpress.com/2016/11/30/yocto-project-on-raspberry-pi-3/]" target="_blank" rel="noopener">https://raspinterest.wordpress.com/2016/11/30/yocto-project-on-raspberry-pi-3/]</a></li>
+<li>[<a href="https://stackoverflow.com/questions/35904769/what-are-the-differences-between-open-embedded-core-and-meta-openembedded]" target="_blank" rel="noopener">https://stackoverflow.com/questions/35904769/what-are-the-differences-between-open-embedded-core-and-meta-openembedded]</a></li>
+<li>[<a href="https://github.com/agherzan/meta-raspberrypi/issues/195]" target="_blank" rel="noopener">https://github.com/agherzan/meta-raspberrypi/issues/195]</a></li>
+<li>[<a href="https://patchwork.openembedded.org/patch/36139/]" target="_blank" rel="noopener">https://patchwork.openembedded.org/patch/36139/]</a></li>
+</ul>
+
+  </div>
+  
+<nav class="footer-nav">
+  
+    <div class="footer-nav__prev">
+      <div class="footer-nav__label">
+        Newer
+      </div>
+      <a href="/KGDBoE-on-RaspberryPi-building-out-of-the-kernel-tree-module-with-yocto/">
+        KGDBoE on RaspberryPi - building out of the kernel tree module with yocto
+      </a>
+    </div>
+  
+  
+    <div class="footer-nav__next">
+      <div class="footer-nav__label">
+        Older
+      </div>
+      <a href="/The-Linux-COW/">
+        The Linux COW
+      </a>
+    </div>
+  
+</nav>
+
+
+</article>
+
+
+      </div>
+      <div class="sidebar column is-4">
+        <aside>
+  
+    <aside class="search widget">
+  <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form" target="_blank">
+    <div class="control has-icons-right">
+      <input type="search" name="q" class="input" placeholder="Search">
+      <span class="icon is-small is-right">
+        <i class="fa fa-search"></i>
+      </span>
+    </div>
+    <input type="hidden" name="sitesearch" value="https://eastrivervillage.com">
+  </form>
+</aside>
+
+  
+    <div class="widget-wrap">
+  <div class="widget-title">author</div>
+  <aside class="profile media widget">
+    <!--figure class="profile-avatar media-left">
+      <img src="/images/profile_author.jpg" class="avatar" alt="Balakumaran Kannan">
+    </figure-->
+    <div class="media-content">
+      <p>
+        <strong>
+          <span>Balakumaran Kannan</span>
+        </strong>
+        <br>
+        <span>System software engineer specilied in Linux. Experience spans from ARM32 board bring-up to multi datacenter virtualization stack management. Open source contributer. From Bangalore, India.</span>
+        <br/>
+        <br/>
+        <a href="/about" target="_blank">
+          <span style="color: orangered;text-decoration-line: underline;">Contact me</span>
+        </a>
+      </p>
+    </div>
+  </aside>
+</div>
+
+  
+    
+  <div class="widget-wrap">
+    <div class="widget-title">recents</div>
+    <div class="widget">
+      <ul class="recent-post">
+        
+          <li class="recent-post-item media">
+            <figure class="media-left">
+              
+  <a href="/Custom-perf-with-custom-kernel/">
+    <img src="/images/batmobile-tank.jpg" class="thumbnail is-6x6" alt="Custom perf with custom kernel">
+  </a>
+
+
+            </figure>
+            <div class="media-content">
+              <p class="">
+                <a href="/Custom-perf-with-custom-kernel/" class="">
+                  Custom perf with custom kernel
+                </a>
+              </p>
+              <p class="">
+                <!--small>
+                  2020-11-19
+
+                </small>
+                <br/-->
+                <small>
+                  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kernel/">kernel</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/perf/">perf</a>
+    
+  </div>
+
+
+                </small>
+              </p>
+            </div>
+          </li>
+        
+          <li class="recent-post-item media">
+            <figure class="media-left">
+              
+  <a href="/perf-setup/">
+    <img src="/images/batmobile-tank.jpg" class="thumbnail is-6x6" alt="perf setup">
+  </a>
+
+
+            </figure>
+            <div class="media-content">
+              <p class="">
+                <a href="/perf-setup/" class="">
+                  perf setup
+                </a>
+              </p>
+              <p class="">
+                <!--small>
+                  2020-10-31
+
+                </small>
+                <br/-->
+                <small>
+                  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/setup/">setup</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/ubuntu/">ubuntu</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kernel/">kernel</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/perf/">perf</a>
+    
+  </div>
+
+
+                </small>
+              </p>
+            </div>
+          </li>
+        
+          <li class="recent-post-item media">
+            <figure class="media-left">
+              
+  <a href="/Quick-kernel-upgrade-with-kexec/">
+    <img src="/images/time_to_upgrade.jpg" class="thumbnail is-6x6" alt="Quick kernel upgrade with kexec">
+  </a>
+
+
+            </figure>
+            <div class="media-content">
+              <p class="">
+                <a href="/Quick-kernel-upgrade-with-kexec/" class="">
+                  Quick kernel upgrade with kexec
+                </a>
+              </p>
+              <p class="">
+                <!--small>
+                  2020-10-01
+
+                </small>
+                <br/-->
+                <small>
+                  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kernel/">kernel</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/debian/">debian</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/stretch/">stretch</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kexec/">kexec</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/security/">security</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/upgrade/">upgrade</a>
+    
+  </div>
+
+
+                </small>
+              </p>
+            </div>
+          </li>
+        
+          <li class="recent-post-item media">
+            <figure class="media-left">
+              
+  <a href="/perf-kvm-to-profile-vm-exit/">
+    <img src="/images/music-equalizer-1.jpg" class="thumbnail is-6x6" alt="perf kvm to profile vm_exit">
+  </a>
+
+
+            </figure>
+            <div class="media-content">
+              <p class="">
+                <a href="/perf-kvm-to-profile-vm-exit/" class="">
+                  perf kvm to profile vm_exit
+                </a>
+              </p>
+              <p class="">
+                <!--small>
+                  2020-09-28
+
+                </small>
+                <br/-->
+                <small>
+                  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/perf/">perf</a>
+    
+  </div>
+
+
+                </small>
+              </p>
+            </div>
+          </li>
+        
+          <li class="recent-post-item media">
+            <figure class="media-left">
+              
+  <a href="/kexec-tools-with-the-hidden-purgatory/">
+    <img src="/images/purgatory.jpg" class="thumbnail is-6x6" alt="kexec - A travel to the purgatory">
+  </a>
+
+
+            </figure>
+            <div class="media-content">
+              <p class="">
+                <a href="/kexec-tools-with-the-hidden-purgatory/" class="">
+                  kexec - A travel to the purgatory
+                </a>
+              </p>
+              <p class="">
+                <!--small>
+                  2020-01-20
+
+                </small>
+                <br/-->
+                <small>
+                  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kernel/">kernel</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/ARMv8/">ARMv8</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/crazy-debugging/">crazy debugging</a>
+    
+  </div>
+
+
+                </small>
+              </p>
+            </div>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">tag cloud</h3>
+    <div class="widget">
+      <a href="/tags/ARM/" style="font-size: 10px;">ARM</a> <a href="/tags/ARMv8/" style="font-size: 12.5px;">ARMv8</a> <a href="/tags/C/" style="font-size: 10px;">C</a> <a href="/tags/Linux/" style="font-size: 10px;">Linux</a> <a href="/tags/RaspberryPi/" style="font-size: 15px;">RaspberryPi</a> <a href="/tags/about/" style="font-size: 10px;">about</a> <a href="/tags/bitbucket/" style="font-size: 10px;">bitbucket</a> <a href="/tags/build/" style="font-size: 12.5px;">build</a> <a href="/tags/c/" style="font-size: 10px;">c</a> <a href="/tags/chatbot/" style="font-size: 10px;">chatbot</a> <a href="/tags/clone/" style="font-size: 10px;">clone</a> <a href="/tags/compiler/" style="font-size: 10px;">compiler</a> <a href="/tags/cow/" style="font-size: 10px;">cow</a> <a href="/tags/crazy-debugging/" style="font-size: 10px;">crazy debugging</a> <a href="/tags/debian/" style="font-size: 10px;">debian</a> <a href="/tags/debug/" style="font-size: 12.5px;">debug</a> <a href="/tags/devpost/" style="font-size: 10px;">devpost</a> <a href="/tags/digitalocean/" style="font-size: 12.5px;">digitalocean</a> <a href="/tags/facebook/" style="font-size: 10px;">facebook</a> <a href="/tags/fork/" style="font-size: 10px;">fork</a> <a href="/tags/gcc/" style="font-size: 10px;">gcc</a> <a href="/tags/gdb/" style="font-size: 12.5px;">gdb</a> <a href="/tags/getpid/" style="font-size: 10px;">getpid</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/github/" style="font-size: 10px;">github</a> <a href="/tags/kernel/" style="font-size: 20px;">kernel</a> <a href="/tags/kernel-module/" style="font-size: 10px;">kernel module</a> <a href="/tags/kexec/" style="font-size: 10px;">kexec</a> <a href="/tags/linux/" style="font-size: 20px;">linux</a> <a href="/tags/memory-management/" style="font-size: 12.5px;">memory management</a> <a href="/tags/memory-management/" style="font-size: 10px;">memory_management</a> <a href="/tags/nodejs/" style="font-size: 12.5px;">nodejs</a> <a href="/tags/perf/" style="font-size: 15px;">perf</a> <a href="/tags/proc/" style="font-size: 10px;">proc</a> <a href="/tags/programming/" style="font-size: 10px;">programming</a> <a href="/tags/raspberrypi/" style="font-size: 12.5px;">raspberrypi</a> <a href="/tags/security/" style="font-size: 10px;">security</a> <a href="/tags/setup/" style="font-size: 15px;">setup</a> <a href="/tags/stack/" style="font-size: 10px;">stack</a> <a href="/tags/stretch/" style="font-size: 10px;">stretch</a> <a href="/tags/swap/" style="font-size: 10px;">swap</a> <a href="/tags/system-call/" style="font-size: 10px;">system call</a> <a href="/tags/ubuntu/" style="font-size: 12.5px;">ubuntu</a> <a href="/tags/upgrade/" style="font-size: 10px;">upgrade</a> <a href="/tags/vim/" style="font-size: 10px;">vim</a> <a href="/tags/virtual-memory/" style="font-size: 10px;">virtual_memory</a> <a href="/tags/vnc/" style="font-size: 10px;">vnc</a> <a href="/tags/wit-ai/" style="font-size: 10px;">wit.ai</a> <a href="/tags/yocto/" style="font-size: 17.5px;">yocto</a>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">September 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+
+      </div>
+    </div>
+  </div>
+  <footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <p>
+        <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/deed.ja">
+          <img alt="creative commons logo" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" />
+        </a>
+        <br />
+        <span xmlns:cc="http://creativecommons.org/ns#" property="cc:attributionName">this post is available under a </span> <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution ShareAlike license.</p>
+    </div>
+  </div>
+</footer>
+
+
+  <script>
+    // HACK: custom style goes here
+    tables = document.querySelectorAll('table');
+    for (i = 0; i < tables.length; i++) {
+      tables[i].classList.add("table", "is-bordered", "is-fullwidth");
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,536 @@
+
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-115014323-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-115014323-1');
+  </script>
+  <meta charset="utf-8">
+  <title>64-bit Mainline kernel on Raspberry Pi 3 | East River Village</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1">
+  <meta name="description" content="Raspberry Pi foundation maintains customized Linux kernel for Raspberry Pi devices. Cross-compiling vanilla kernel to Raspberry Pi is bit challenging. But its worth giving a try as we can test latest">
+<meta name="keywords" content="kernel,raspberrypi,linux">
+<meta property="og:type" content="article">
+<meta property="og:title" content="64-bit Mainline kernel on Raspberry Pi 3">
+<meta property="og:url" content="https://eastrivervillage.com/64-bit-Mainline-kernel-on-Raspberry-Pi-3/index.html">
+<meta property="og:site_name" content="East River Village">
+<meta property="og:description" content="Raspberry Pi foundation maintains customized Linux kernel for Raspberry Pi devices. Cross-compiling vanilla kernel to Raspberry Pi is bit challenging. But its worth giving a try as we can test latest">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://eastrivervillage.com/images/64bit_kernel_rpi3.jpg">
+<meta property="og:updated_time" content="2021-07-31T06:10:58.719Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="64-bit Mainline kernel on Raspberry Pi 3">
+<meta name="twitter:description" content="Raspberry Pi foundation maintains customized Linux kernel for Raspberry Pi devices. Cross-compiling vanilla kernel to Raspberry Pi is bit challenging. But its worth giving a try as we can test latest">
+<meta name="twitter:image" content="https://eastrivervillage.com/images/64bit_kernel_rpi3.jpg">
+  <link rel="icon" href="/favicon.ico">
+  
+  
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-5LB7LCD');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.1/css/bulma.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Merriweather|Lobster|Lora|Roboto Mono">
+  <link rel="stylesheet" href="/css/style.css">
+  
+<script type="application/ld+json">
+  {
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "headline": "64-bit Mainline kernel on Raspberry Pi 3",
+  "name": "64-bit Mainline kernel on Raspberry Pi 3",
+  "image": "/images/64bit_kernel_rpi3.jpg",
+  "datePublished": "2018-10-06T13:12:20.000Z",
+  "dateModified": "2021-07-31T06:10:58.719Z",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://eastrivervillage.com/64-bit-Mainline-kernel-on-Raspberry-Pi-3/index.html"
+  },
+  "author": {
+    "@type": "Person",
+    "name": "Balakumaran Kannan",
+    "image": "/images/profile_author.jpg",
+    "description": "System software engineer specilied in Linux. Experience spans from ARM32 board bring-up to multi datacenter virtualization stack management. Open source contributer. From Bangalore, India."
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Balakumaran Kannan",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "/images/profile_author.jpg"
+    }
+  }
+}
+</script>
+
+  
+</head>
+</html>
+<body>
+  
+  
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-5LB7LCD');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  <header class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a href="/" class="navbar-item">
+      East River Village
+    </a>
+  </div>
+</header>
+
+  <div class="container">
+    <div class="columns">
+      <div style="overflow:hidden;" class="main column">
+        <article class="post">
+  <figure class="post-thumbnail">
+    
+  <img src="/images/64bit_kernel_rpi3.jpg" class="thumbnail " alt="64-bit Mainline kernel on Raspberry Pi 3">
+
+
+  </figure>
+  <span>2018-10-06
+</span>
+  <h1 class="title">64-bit Mainline kernel on Raspberry Pi 3</h1>
+  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kernel/">kernel</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/raspberrypi/">raspberrypi</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+  </div>
+
+
+  <div class="content">
+    <p>I’ve struggled a little recently on running vanilla kernel on Raspberry Pi 3. Still I didn’t completely understand the internals. Anyway sharing the steps may be useful for someone like me.</p>
+<p>Download <a href="http://releases.linaro.org/components/toolchain/binaries/latest-7/aarch64-linux-gnu/gcc-linaro-7.3.1-2018.05-i686_aarch64-linux-gnu.tar.xz" target="_blank" rel="noopener">toolchain</a> and <a href="https://releases.linaro.org/archive/13.09/openembedded/images/lamp-armv8/linaro-image-lamp-genericarmv8-20130912-487.rootfs.tar.gz" target="_blank" rel="noopener">rootfs</a> from <a href="http://releases.linaro.org/components/toolchain/binaries/latest-7/aarch64-linux-gnu/" target="_blank" rel="noopener">Linaro</a>.</p>
+<p>And clone following repos</p>
+<ul>
+<li><a href="https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git" target="_blank" rel="noopener">Vanilla kernel</a></li>
+<li><a href="https://github.com/raspberrypi/linux" target="_blank" rel="noopener">Raspberry Pi kernel</a> - Checkout same version as vanilla kernel you are going to use</li>
+<li><a href="https://github.com/raspberrypi/firmware" target="_blank" rel="noopener">Raspberry pi firmware</a> - Or download only the files under boot directory of this repo</li>
+</ul>
+<p>I’ve created a directory structure as below. You can have similar one based on your convenience.</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">$ ls ~/Desktop/kernel/</span><br><span class="line">total 44K</span><br><span class="line">drwxr-xr-x  2 kaba kaba 4.0K Sep 23 20:04 downloads</span><br><span class="line">drwxrwxr-x  2 kaba kaba 4.0K Oct  4 10:22 firmware</span><br><span class="line">drwxr-xr-x 22 kaba kaba 4.0K Oct  6 11:55 kernel_out</span><br><span class="line">drwxr-xr-x 18 kaba kaba 4.0K Sep 12  2013 rootfs</span><br><span class="line">drwxr-xr-x 26 kaba kaba 4.0K Oct  3 21:30 rpi_kernel</span><br><span class="line">drwxr-xr-x  2 kaba kaba 4.0K Oct  7 12:13 rpi_out</span><br><span class="line">drwxr-xr-x  3 kaba kaba 4.0K Sep 23 19:43 toolchain</span><br><span class="line">drwxr-xr-x 26 kaba kaba 4.0K Oct  3 22:04 vanila_kernel</span><br><span class="line">kaba@kaba-Vostro-1550:~/Desktop/kernel</span><br><span class="line">$</span><br></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th>Directory</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>downloads</td>
+<td>Having tarballs of rootfs and toolchain</td>
+<td></td>
+</tr>
+<tr>
+<td>firmware</td>
+<td>boot directory of Raspberry Pi firmware repo</td>
+<td></td>
+</tr>
+<tr>
+<td>kernel_out</td>
+<td>Output directory for Mainline kernel</td>
+<td></td>
+</tr>
+<tr>
+<td>rootfs</td>
+<td>rootfs tarball extracted</td>
+<td></td>
+</tr>
+<tr>
+<td>rpi_kernel</td>
+<td>Raspberry Pi kernel repo</td>
+<td></td>
+</tr>
+<tr>
+<td>rpi_out</td>
+<td>Output directory for Raspberry Pi kernel</td>
+<td></td>
+</tr>
+<tr>
+<td>toolchain</td>
+<td>toolchain tarball extracted</td>
+<td></td>
+</tr>
+<tr>
+<td>vanilla_kernel</td>
+<td>Mainline kernel repo</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Export <code>PATH</code> variable to include toolchain directory.<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">echo</span> <span class="variable">$PATH</span></span><br><span class="line">/usr/<span class="built_in">local</span>/sbin:/usr/<span class="built_in">local</span>/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/<span class="built_in">local</span>/games:/snap/bin:/home/kaba/Desktop/kernel/toolchain/gcc-linaro-7.3.1-2018.05-x86_64_aarch64-linux-gnu/bin/</span><br><span class="line">kaba@kaba-Vostro-1550:~/Desktop/kernel/vanila_kernel</span><br><span class="line">$</span><br></pre></td></tr></table></figure></p>
+<p>Configure and build 64-bit Vanilla kernel.<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">kaba@kaba-Vostro-1550:~/Desktop/kernel/vanila_kernel</span><br><span class="line">$ make O=../kernel_out ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- defconfig</span><br><span class="line">.</span><br><span class="line">.</span><br><span class="line">.</span><br><span class="line">kaba@kaba-Vostro-1550:~/Desktop/kernel/vanila_kernel</span><br><span class="line">$ make -j4 O=../kernel_out ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu-</span><br></pre></td></tr></table></figure></p>
+<p>Change the suffix to <code>-j</code> according to your machine. And wait for the build to complete.</p>
+<p>Now build device-tree in Raspberry Pi kernel repo.<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">kaba@kaba-Vostro-1550:~/Desktop/kernel/rpi_kernel</span><br><span class="line">$ make O=../rpi_out ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- defconfig</span><br><span class="line">make[1]: Entering directory <span class="string">'/home/kaba/Desktop/kernel/rpi_out'</span></span><br><span class="line">  HOSTCC  scripts/basic/fixdep</span><br><span class="line">  GEN     ./Makefile</span><br><span class="line">  HOSTCC  scripts/kconfig/conf.o</span><br><span class="line">  YACC    scripts/kconfig/zconf.tab.c</span><br><span class="line">  LEX     scripts/kconfig/zconf.lex.c</span><br><span class="line">  HOSTCC  scripts/kconfig/zconf.tab.o</span><br><span class="line">  HOSTLD  scripts/kconfig/conf</span><br><span class="line">*** Default configuration is based on <span class="string">'defconfig'</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># configuration written to .config</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line">make[1]: Leaving directory <span class="string">'/home/kaba/Desktop/kernel/rpi_out'</span></span><br><span class="line">kaba@kaba-Vostro-1550:~/Desktop/kernel/rpi_kernel</span><br><span class="line">$ make O=../rpi_out ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- dtbs</span><br><span class="line">.</span><br><span class="line">.</span><br><span class="line">.</span><br></pre></td></tr></table></figure></p>
+<p>Partition your memory card into two. The first one should be FAT32 and second one should be EXT4. The first partition should be a boot partition.<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><span class="line">balakumaran@balakumaran-USB:~/Desktop/RPi/linux_build$ sudo parted /dev/sdd</span><br><span class="line">[sudo] password <span class="keyword">for</span> balakumaran: </span><br><span class="line">GNU Parted 3.2</span><br><span class="line">Using /dev/sdd</span><br><span class="line">Welcome to GNU Parted! Type <span class="string">'help'</span> to view a list of commands.</span><br><span class="line">(parted) <span class="built_in">print</span>                                                            </span><br><span class="line">Model: MXT-USB Storage Device (scsi)</span><br><span class="line">Disk /dev/sdd: 31.9GB</span><br><span class="line">Sector size (logical/physical): 512B/512B</span><br><span class="line">Partition Table: msdos</span><br><span class="line">Disk Flags: </span><br><span class="line"></span><br><span class="line">Number  Start   End     Size    Type     File system  Flags</span><br><span class="line"> 1      1049kB  106MB   105MB   primary  fat32        boot, lba</span><br><span class="line"> 2      106MB   31.9GB  31.8GB  primary</span><br><span class="line"></span><br><span class="line">(parted) <span class="built_in">help</span> rm                                                          </span><br><span class="line">  rm NUMBER                                delete partition NUMBER</span><br><span class="line"></span><br><span class="line">        NUMBER is the partition number used by Linux.  On MS-DOS disk labels, the primary partitions number from 1 to 4, logical partitions from 5 onwards.</span><br><span class="line">(parted) rm 1                                                             </span><br><span class="line">(parted) rm 2                                                             </span><br><span class="line">(parted) <span class="built_in">print</span></span><br><span class="line">Model: MXT-USB Storage Device (scsi)</span><br><span class="line">Disk /dev/sdd: 31.9GB</span><br><span class="line">Sector size (logical/physical): 512B/512B</span><br><span class="line">Partition Table: msdos</span><br><span class="line">Disk Flags: </span><br><span class="line"></span><br><span class="line">Number  Start  End  Size  Type  File system  Flags</span><br><span class="line"></span><br><span class="line">(parted) <span class="built_in">help</span> mkpart</span><br><span class="line">  mkpart PART-TYPE [FS-TYPE] START END     make a partition</span><br><span class="line"></span><br><span class="line">        PART-TYPE is one of: primary, logical, extended</span><br><span class="line">        FS-TYPE is one of: zfs, btrfs, nilfs2, ext4, ext3, ext2, fat32, fat16, hfsx, hfs+, hfs, jfs, swsusp, linux-swap(v1), linux-swap(v0), ntfs, reiserfs, freebsd-ufs, hp-ufs, sun-ufs,</span><br><span class="line">        xfs, apfs2, apfs1, asfs, amufs5, amufs4, amufs3, amufs2, amufs1, amufs0, amufs, affs7, affs6, affs5, affs4, affs3, affs2, affs1, affs0, linux-swap, linux-swap(new), linux-swap(old)</span><br><span class="line">        START and END are disk locations, such as 4GB or 10%.  Negative values count from the end of the disk.  For example, -1s specifies exactly the last sector.</span><br><span class="line">        </span><br><span class="line">        <span class="string">'mkpart'</span> makes a partition without creating a new file system on the partition.  FS-TYPE may be specified to <span class="built_in">set</span> an appropriate partition ID.</span><br><span class="line">(parted) mkpart primary fat32 2048s 206848s</span><br><span class="line">(parted) mkpart primary ext4 208896s -1s</span><br><span class="line">(parted) <span class="built_in">print</span>                                                            </span><br><span class="line">Model: MXT-USB Storage Device (scsi)</span><br><span class="line">Disk /dev/sdd: 31.9GB</span><br><span class="line">Sector size (logical/physical): 512B/512B</span><br><span class="line">Partition Table: msdos</span><br><span class="line">Disk Flags: </span><br><span class="line"></span><br><span class="line">Number  Start   End     Size    Type     File system  Flags</span><br><span class="line"> 1      1049kB  106MB   105MB   primary  fat32        lba</span><br><span class="line"> 2      107MB   31.9GB  31.8GB  primary  ext4         lba</span><br><span class="line"></span><br><span class="line">(parted) <span class="built_in">set</span> 1 boot on                                                    </span><br><span class="line">(parted) <span class="built_in">print</span>                                                            </span><br><span class="line">Model: MXT-USB Storage Device (scsi)</span><br><span class="line">Disk /dev/sdd: 31.9GB</span><br><span class="line">Sector size (logical/physical): 512B/512B</span><br><span class="line">Partition Table: msdos</span><br><span class="line">Disk Flags: </span><br><span class="line"></span><br><span class="line">Number  Start   End     Size    Type     File system  Flags</span><br><span class="line"> 1      1049kB  106MB   105MB   primary  fat32        boot, lba</span><br><span class="line"> 2      107MB   31.9GB  31.8GB  primary  ext4         lba</span><br><span class="line"></span><br><span class="line">(parted) quit                                                             </span><br><span class="line">Information: You may need to update /etc/fstab.</span><br><span class="line"></span><br><span class="line">balakumaran@balakumaran-USB:~/Desktop/RPi/linux_build$ sudo fdisk -l /dev/sdd</span><br><span class="line">Disk /dev/sdd: 29.7 GiB, 31914983424 bytes, 62333952 sectors</span><br><span class="line">Units: sectors of 1 * 512 = 512 bytes</span><br><span class="line">Sector size (logical/physical): 512 bytes / 512 bytes</span><br><span class="line">I/O size (minimum/optimal): 512 bytes / 512 bytes</span><br><span class="line">Disklabel <span class="built_in">type</span>: dos</span><br><span class="line">Disk identifier: 0xcde890ba</span><br><span class="line"></span><br><span class="line">Device     Boot  Start      End  Sectors  Size Id Type</span><br><span class="line">/dev/sdd1  *      2048   206848   204801  100M  c W95 FAT32 (LBA)</span><br><span class="line">/dev/sdd2       208896 62333951 62125056 29.6G 83 Linux</span><br><span class="line">balakumaran@balakumaran-USB:~/Desktop/RPi/linux_build$</span><br></pre></td></tr></table></figure></p>
+<p>Copy firmware and kernel to boot partition.<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">kaba@kaba-Vostro-1550:~/Desktop/kernel/vanila_kernel</span><br><span class="line">$ sudo mount /dev/sdb1 /mnt/boot/</span><br><span class="line">kaba@kaba-Vostro-1550:~/Desktop/kernel/vanila_kernel</span><br><span class="line">$ sudo cp ../kernel_out/arch/arm64/boot/Image /mnt/boot/kernel8.img</span><br><span class="line">[sudo] password <span class="keyword">for</span> kaba: </span><br><span class="line">kaba@kaba-Vostro-1550:~/Desktop/kernel/vanila_kernel</span><br><span class="line">$ sudo cp ../firmware/* /mnt/boot/</span><br><span class="line">kaba@kaba-Vostro-1550:~/Desktop/kernel/vanila_kernel</span><br><span class="line">$</span><br></pre></td></tr></table></figure></p>
+<p>Install device-tree blobs from Raspberry Pi repo into boot partition. The device-tree in upstream kernel is not working for some reason. I couldn’t get more information regarding that.<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">kaba@kaba-Vostro-1550:~/Desktop/kernel/rpi_kernel</span><br><span class="line">$ make O=../rpi_out ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- bcmrpi3_defconfig</span><br><span class="line">kaba@kaba-Vostro-1550:~/Desktop/kernel/rpi_kernel</span><br><span class="line">$ sudo make O=../rpi_out ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- INSTALL_PATH=/mnt/boot/ dtbs_install</span><br></pre></td></tr></table></figure></p>
+<p>Copy rootfs into second partition. Also install kernel modules into that.<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">kaba@kaba-Vostro-1550:~/Desktop/kernel/vanila_kernel</span><br><span class="line">$ sudo mount /dev/sdb2 /mnt/rootfs/</span><br><span class="line">kaba@kaba-Vostro-1550:~/Desktop/kernel/vanila_kernel</span><br><span class="line">$ sudo cp -rf ../rootfs/* /mnt/rootfs/</span><br><span class="line">kaba@kaba-Vostro-1550:~/Desktop/kernel/vanila_kernel</span><br><span class="line">$ sudo make O=../kernel_out ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- INSTALL_MOD_PATH=/mnt/rootfs/ modules_install</span><br><span class="line">kaba@kaba-Vostro-1550:~/Desktop/kernel/vanila_kernel</span><br><span class="line">$ sync</span><br></pre></td></tr></table></figure></p>
+<p>Create <code>config.txt</code> and <code>cmdline.txt</code> as follows. Make sure you update <code>device-tree</code> and <code>overlay_prefix</code> based on your configuration.<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">kaba@kaba-Vostro-1550:/mnt/boot</span><br><span class="line">$ cat cmdline.txt </span><br><span class="line">dwc_otg.lpm_enable=0 console=serial0,115200 root=/dev/mmcblk0p2 rootfstype=ext4 rootwait    </span><br><span class="line">kaba@kaba-Vostro-1550:/mnt/boot</span><br><span class="line">$ cat config.txt </span><br><span class="line">dtoverlay=vc4-fkms-v3d,cma-256</span><br><span class="line">disable_overscan=1</span><br><span class="line">dtparam=audio=on</span><br><span class="line">device_tree=dtbs/4.19.0-rc5-v8+/broadcom/bcm2710-rpi-3-b.dtb</span><br><span class="line">overlay_prefix=dtbs/4.19.0-rc5-v8+/overlays/</span><br><span class="line">enable_uart=1</span><br><span class="line">kaba@kaba-Vostro-1550:/mnt/boot</span><br><span class="line">$</span><br></pre></td></tr></table></figure></p>
+<p>Put the SD card in Raspberry Pi 3 and boot.</p>
+
+  </div>
+  
+<nav class="footer-nav">
+  
+    <div class="footer-nav__prev">
+      <div class="footer-nav__label">
+        Newer
+      </div>
+      <a href="/Custom-build-kernel-for-Raspberry-Pi/">
+        Custom build kernel for Raspberry Pi
+      </a>
+    </div>
+  
+  
+    <div class="footer-nav__next">
+      <div class="footer-nav__label">
+        Older
+      </div>
+      <a href="/The-Volatile-keyword/">
+        The Volatile keyword
+      </a>
+    </div>
+  
+</nav>
+
+
+</article>
+
+
+      </div>
+      <div class="sidebar column is-4">
+        <aside>
+  
+    <aside class="search widget">
+  <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form" target="_blank">
+    <div class="control has-icons-right">
+      <input type="search" name="q" class="input" placeholder="Search">
+      <span class="icon is-small is-right">
+        <i class="fa fa-search"></i>
+      </span>
+    </div>
+    <input type="hidden" name="sitesearch" value="https://eastrivervillage.com">
+  </form>
+</aside>
+
+  
+    <div class="widget-wrap">
+  <div class="widget-title">author</div>
+  <aside class="profile media widget">
+    <!--figure class="profile-avatar media-left">
+      <img src="/images/profile_author.jpg" class="avatar" alt="Balakumaran Kannan">
+    </figure-->
+    <div class="media-content">
+      <p>
+        <strong>
+          <span>Balakumaran Kannan</span>
+        </strong>
+        <br>
+        <span>System software engineer specilied in Linux. Experience spans from ARM32 board bring-up to multi datacenter virtualization stack management. Open source contributer. From Bangalore, India.</span>
+        <br/>
+        <br/>
+        <a href="/about" target="_blank">
+          <span style="color: orangered;text-decoration-line: underline;">Contact me</span>
+        </a>
+      </p>
+    </div>
+  </aside>
+</div>
+
+  
+    
+  <div class="widget-wrap">
+    <div class="widget-title">recents</div>
+    <div class="widget">
+      <ul class="recent-post">
+        
+          <li class="recent-post-item media">
+            <figure class="media-left">
+              
+  <a href="/Custom-perf-with-custom-kernel/">
+    <img src="/images/batmobile-tank.jpg" class="thumbnail is-6x6" alt="Custom perf with custom kernel">
+  </a>
+
+
+            </figure>
+            <div class="media-content">
+              <p class="">
+                <a href="/Custom-perf-with-custom-kernel/" class="">
+                  Custom perf with custom kernel
+                </a>
+              </p>
+              <p class="">
+                <!--small>
+                  2020-11-19
+
+                </small>
+                <br/-->
+                <small>
+                  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kernel/">kernel</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/perf/">perf</a>
+    
+  </div>
+
+
+                </small>
+              </p>
+            </div>
+          </li>
+        
+          <li class="recent-post-item media">
+            <figure class="media-left">
+              
+  <a href="/perf-setup/">
+    <img src="/images/batmobile-tank.jpg" class="thumbnail is-6x6" alt="perf setup">
+  </a>
+
+
+            </figure>
+            <div class="media-content">
+              <p class="">
+                <a href="/perf-setup/" class="">
+                  perf setup
+                </a>
+              </p>
+              <p class="">
+                <!--small>
+                  2020-10-31
+
+                </small>
+                <br/-->
+                <small>
+                  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/setup/">setup</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/ubuntu/">ubuntu</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kernel/">kernel</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/perf/">perf</a>
+    
+  </div>
+
+
+                </small>
+              </p>
+            </div>
+          </li>
+        
+          <li class="recent-post-item media">
+            <figure class="media-left">
+              
+  <a href="/Quick-kernel-upgrade-with-kexec/">
+    <img src="/images/time_to_upgrade.jpg" class="thumbnail is-6x6" alt="Quick kernel upgrade with kexec">
+  </a>
+
+
+            </figure>
+            <div class="media-content">
+              <p class="">
+                <a href="/Quick-kernel-upgrade-with-kexec/" class="">
+                  Quick kernel upgrade with kexec
+                </a>
+              </p>
+              <p class="">
+                <!--small>
+                  2020-10-01
+
+                </small>
+                <br/-->
+                <small>
+                  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kernel/">kernel</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/debian/">debian</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/stretch/">stretch</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kexec/">kexec</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/security/">security</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/upgrade/">upgrade</a>
+    
+  </div>
+
+
+                </small>
+              </p>
+            </div>
+          </li>
+        
+          <li class="recent-post-item media">
+            <figure class="media-left">
+              
+  <a href="/perf-kvm-to-profile-vm-exit/">
+    <img src="/images/music-equalizer-1.jpg" class="thumbnail is-6x6" alt="perf kvm to profile vm_exit">
+  </a>
+
+
+            </figure>
+            <div class="media-content">
+              <p class="">
+                <a href="/perf-kvm-to-profile-vm-exit/" class="">
+                  perf kvm to profile vm_exit
+                </a>
+              </p>
+              <p class="">
+                <!--small>
+                  2020-09-28
+
+                </small>
+                <br/-->
+                <small>
+                  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/perf/">perf</a>
+    
+  </div>
+
+
+                </small>
+              </p>
+            </div>
+          </li>
+        
+          <li class="recent-post-item media">
+            <figure class="media-left">
+              
+  <a href="/kexec-tools-with-the-hidden-purgatory/">
+    <img src="/images/purgatory.jpg" class="thumbnail is-6x6" alt="kexec - A travel to the purgatory">
+  </a>
+
+
+            </figure>
+            <div class="media-content">
+              <p class="">
+                <a href="/kexec-tools-with-the-hidden-purgatory/" class="">
+                  kexec - A travel to the purgatory
+                </a>
+              </p>
+              <p class="">
+                <!--small>
+                  2020-01-20
+
+                </small>
+                <br/-->
+                <small>
+                  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kernel/">kernel</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/ARMv8/">ARMv8</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/crazy-debugging/">crazy debugging</a>
+    
+  </div>
+
+
+                </small>
+              </p>
+            </div>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">tag cloud</h3>
+    <div class="widget">
+      <a href="/tags/ARM/" style="font-size: 10px;">ARM</a> <a href="/tags/ARMv8/" style="font-size: 12.5px;">ARMv8</a> <a href="/tags/C/" style="font-size: 10px;">C</a> <a href="/tags/Linux/" style="font-size: 10px;">Linux</a> <a href="/tags/RaspberryPi/" style="font-size: 15px;">RaspberryPi</a> <a href="/tags/about/" style="font-size: 10px;">about</a> <a href="/tags/bitbucket/" style="font-size: 10px;">bitbucket</a> <a href="/tags/build/" style="font-size: 12.5px;">build</a> <a href="/tags/c/" style="font-size: 10px;">c</a> <a href="/tags/chatbot/" style="font-size: 10px;">chatbot</a> <a href="/tags/clone/" style="font-size: 10px;">clone</a> <a href="/tags/compiler/" style="font-size: 10px;">compiler</a> <a href="/tags/cow/" style="font-size: 10px;">cow</a> <a href="/tags/crazy-debugging/" style="font-size: 10px;">crazy debugging</a> <a href="/tags/debian/" style="font-size: 10px;">debian</a> <a href="/tags/debug/" style="font-size: 12.5px;">debug</a> <a href="/tags/devpost/" style="font-size: 10px;">devpost</a> <a href="/tags/digitalocean/" style="font-size: 12.5px;">digitalocean</a> <a href="/tags/facebook/" style="font-size: 10px;">facebook</a> <a href="/tags/fork/" style="font-size: 10px;">fork</a> <a href="/tags/gcc/" style="font-size: 10px;">gcc</a> <a href="/tags/gdb/" style="font-size: 12.5px;">gdb</a> <a href="/tags/getpid/" style="font-size: 10px;">getpid</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/github/" style="font-size: 10px;">github</a> <a href="/tags/kernel/" style="font-size: 20px;">kernel</a> <a href="/tags/kernel-module/" style="font-size: 10px;">kernel module</a> <a href="/tags/kexec/" style="font-size: 10px;">kexec</a> <a href="/tags/linux/" style="font-size: 20px;">linux</a> <a href="/tags/memory-management/" style="font-size: 12.5px;">memory management</a> <a href="/tags/memory-management/" style="font-size: 10px;">memory_management</a> <a href="/tags/nodejs/" style="font-size: 12.5px;">nodejs</a> <a href="/tags/perf/" style="font-size: 15px;">perf</a> <a href="/tags/proc/" style="font-size: 10px;">proc</a> <a href="/tags/programming/" style="font-size: 10px;">programming</a> <a href="/tags/raspberrypi/" style="font-size: 12.5px;">raspberrypi</a> <a href="/tags/security/" style="font-size: 10px;">security</a> <a href="/tags/setup/" style="font-size: 15px;">setup</a> <a href="/tags/stack/" style="font-size: 10px;">stack</a> <a href="/tags/stretch/" style="font-size: 10px;">stretch</a> <a href="/tags/swap/" style="font-size: 10px;">swap</a> <a href="/tags/system-call/" style="font-size: 10px;">system call</a> <a href="/tags/ubuntu/" style="font-size: 12.5px;">ubuntu</a> <a href="/tags/upgrade/" style="font-size: 10px;">upgrade</a> <a href="/tags/vim/" style="font-size: 10px;">vim</a> <a href="/tags/virtual-memory/" style="font-size: 10px;">virtual_memory</a> <a href="/tags/vnc/" style="font-size: 10px;">vnc</a> <a href="/tags/wit-ai/" style="font-size: 10px;">wit.ai</a> <a href="/tags/yocto/" style="font-size: 17.5px;">yocto</a>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">September 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+
+      </div>
+    </div>
+  </div>
+  <footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <p>
+        <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/deed.ja">
+          <img alt="creative commons logo" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" />
+        </a>
+        <br />
+        <span xmlns:cc="http://creativecommons.org/ns#" property="cc:attributionName">this post is available under a </span> <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution ShareAlike license.</p>
+    </div>
+  </div>
+</footer>
+
+
+  <script>
+    // HACK: custom style goes here
+    tables = document.querySelectorAll('table');
+    for (i = 0; i < tables.length; i++) {
+      tables[i].classList.add("table", "is-bordered", "is-fullwidth");
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,474 @@
+
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-115014323-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-115014323-1');
+  </script>
+  <meta charset="utf-8">
+  <title>perf kvm to profile vm_exit | East River Village</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1">
+  <meta name="description" content="Profiling VM_EXIT reasons with `perf kvm` tool">
+<meta name="keywords" content="linux,perf">
+<meta property="og:type" content="article">
+<meta property="og:title" content="perf kvm to profile vm_exit">
+<meta property="og:url" content="https://eastrivervillage.com/perf-kvm-to-profile-vm-exit/index.html">
+<meta property="og:site_name" content="East River Village">
+<meta property="og:description" content="Profiling VM_EXIT reasons with `perf kvm` tool">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://eastrivervillage.com/images/music-equalizer-1.jpg">
+<meta property="og:updated_time" content="2021-07-31T06:10:58.719Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="perf kvm to profile vm_exit">
+<meta name="twitter:description" content="Profiling VM_EXIT reasons with `perf kvm` tool">
+<meta name="twitter:image" content="https://eastrivervillage.com/images/music-equalizer-1.jpg">
+  <link rel="icon" href="/favicon.ico">
+  
+  
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-5LB7LCD');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.1/css/bulma.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Merriweather|Lobster|Lora|Roboto Mono">
+  <link rel="stylesheet" href="/css/style.css">
+  
+<script type="application/ld+json">
+  {
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "headline": "perf kvm to profile vm_exit",
+  "name": "perf kvm to profile vm_exit",
+  "image": "/images/music-equalizer-1.jpg",
+  "datePublished": "2020-09-28T12:50:47.000Z",
+  "dateModified": "2021-07-31T06:10:58.719Z",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://eastrivervillage.com/perf-kvm-to-profile-vm-exit/index.html"
+  },
+  "author": {
+    "@type": "Person",
+    "name": "Balakumaran Kannan",
+    "image": "/images/profile_author.jpg",
+    "description": "System software engineer specilied in Linux. Experience spans from ARM32 board bring-up to multi datacenter virtualization stack management. Open source contributer. From Bangalore, India."
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Balakumaran Kannan",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "/images/profile_author.jpg"
+    }
+  }
+}
+</script>
+
+  
+</head>
+</html>
+<body>
+  
+  
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-5LB7LCD');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  <header class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a href="/" class="navbar-item">
+      East River Village
+    </a>
+  </div>
+</header>
+
+  <div class="container">
+    <div class="columns">
+      <div style="overflow:hidden;" class="main column">
+        <article class="post">
+  <figure class="post-thumbnail">
+    
+  <img src="/images/music-equalizer-1.jpg" class="thumbnail " alt="perf kvm to profile vm_exit">
+
+
+  </figure>
+  <span>2020-09-28
+</span>
+  <h1 class="title">perf kvm to profile vm_exit</h1>
+  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/perf/">perf</a>
+    
+  </div>
+
+
+  <div class="content">
+    <p>Optimizing VM_EXITs will significantly improve performance VMs. All the major improvements in VM world is mainly focusing on reducing the number of VM_EXITs. To optimize it, first we should able to measure it. Initially the tool <code>kvm_stat</code> was designed for this purpose, later it has been added inside <code>perf</code> itself.</p>
+<p>To profile VM_EXITs while running <code>sysbench</code>,</p>
+<ul>
+<li>Get <code>pid</code> of the VM task - 127894</li>
+<li>Get the IP of that machine - 192.168.122.194<br>  Make sure you can ssh to that machine without password</li>
+<li>Install <code>sysbench</code> inside the VM</li>
+</ul>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">$ sudo perf kvm <span class="built_in">stat</span> record -p 127894 ssh 192.168.122.194 -l test_user <span class="string">"sysbench --test=cpu --cpu-max-prime=20000 run"</span></span><br><span class="line">sysbench 0.4.12:  multi-threaded system evaluation benchmark</span><br><span class="line"></span><br><span class="line">Running the <span class="built_in">test</span> with following options:</span><br><span class="line">Number of threads: 1</span><br><span class="line"></span><br><span class="line">Doing CPU performance benchmark</span><br><span class="line"></span><br><span class="line">Threads started!</span><br><span class="line">Done.</span><br><span class="line"></span><br><span class="line">Maximum prime number checked <span class="keyword">in</span> CPU <span class="built_in">test</span>: 20000</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Test execution summary:</span><br><span class="line">    total time:                          22.6607s</span><br><span class="line">    total number of events:              10000</span><br><span class="line">    total time taken by event execution: 22.6598</span><br><span class="line">    per-request statistics:</span><br><span class="line">         min:                                  2.13ms</span><br><span class="line">         avg:                                  2.27ms</span><br><span class="line">         max:                                 12.10ms</span><br><span class="line">         approx.  95 percentile:               2.88ms</span><br><span class="line"></span><br><span class="line">Threads fairness:</span><br><span class="line">    events (avg/stddev):           10000.0000/0.00</span><br><span class="line">    execution time (avg/stddev):   22.6598/0.00</span><br><span class="line"></span><br><span class="line">[ perf record: Woken up 2 <span class="built_in">times</span> to write data ]</span><br><span class="line">[ perf record: Captured and wrote 4.779 MB perf.data.guest (52461 samples) ]</span><br><span class="line">$</span><br></pre></td></tr></table></figure>
+<p>Perf has recorded the data in <code>perf.data.guest</code> in the current directory. Now to view VM_EXITs,</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">$ sudo perf kvm <span class="built_in">stat</span> report --event=vmexit</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Analyze events <span class="keyword">for</span> all VMs, all VCPUs:</span><br><span class="line"></span><br><span class="line">             VM-EXIT    Samples  Samples%     Time%    Min Time    Max Time         Avg time</span><br><span class="line"></span><br><span class="line">           MSR_WRITE       9167    35.40%     0.04%      0.45us   9554.94us      3.00us ( +-  41.94% )</span><br><span class="line">  EXTERNAL_INTERRUPT       5877    22.69%     0.02%      0.37us   1175.48us      2.43us ( +-  17.90% )</span><br><span class="line">    PREEMPTION_TIMER       5728    22.12%     0.01%      0.51us     21.14us      0.62us ( +-   0.87% )</span><br><span class="line">                 HLT       2232     8.62%    99.92%      0.56us 1001118.99us  30567.94us ( +-   9.88% )</span><br><span class="line">               CPUID       2160     8.34%     0.00%      0.40us     12.82us      0.65us ( +-   1.29% )</span><br><span class="line">   PAUSE_INSTRUCTION        390     1.51%     0.00%      0.38us   1490.19us      8.27us ( +-  62.22% )</span><br><span class="line">       EPT_MISCONFIG        303     1.17%     0.01%      1.04us    167.13us     13.33us ( +-   8.61% )</span><br><span class="line">         EOI_INDUCED         37     0.14%     0.00%      0.62us      3.00us      1.24us ( +-   6.58% )</span><br><span class="line">       EXCEPTION_NMI          4     0.02%     0.00%      0.42us      0.56us      0.47us ( +-   6.81% )</span><br><span class="line"></span><br><span class="line">Total Samples:25898, Total events handled time:68281638.61us.</span><br><span class="line"></span><br><span class="line">$</span><br></pre></td></tr></table></figure>
+
+  </div>
+  
+<nav class="footer-nav">
+  
+    <div class="footer-nav__prev">
+      <div class="footer-nav__label">
+        Newer
+      </div>
+      <a href="/Quick-kernel-upgrade-with-kexec/">
+        Quick kernel upgrade with kexec
+      </a>
+    </div>
+  
+  
+    <div class="footer-nav__next">
+      <div class="footer-nav__label">
+        Older
+      </div>
+      <a href="/kexec-tools-with-the-hidden-purgatory/">
+        kexec - A travel to the purgatory
+      </a>
+    </div>
+  
+</nav>
+
+
+</article>
+
+
+      </div>
+      <div class="sidebar column is-4">
+        <aside>
+  
+    <aside class="search widget">
+  <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form" target="_blank">
+    <div class="control has-icons-right">
+      <input type="search" name="q" class="input" placeholder="Search">
+      <span class="icon is-small is-right">
+        <i class="fa fa-search"></i>
+      </span>
+    </div>
+    <input type="hidden" name="sitesearch" value="https://eastrivervillage.com">
+  </form>
+</aside>
+
+  
+    <div class="widget-wrap">
+  <div class="widget-title">author</div>
+  <aside class="profile media widget">
+    <!--figure class="profile-avatar media-left">
+      <img src="/images/profile_author.jpg" class="avatar" alt="Balakumaran Kannan">
+    </figure-->
+    <div class="media-content">
+      <p>
+        <strong>
+          <span>Balakumaran Kannan</span>
+        </strong>
+        <br>
+        <span>System software engineer specilied in Linux. Experience spans from ARM32 board bring-up to multi datacenter virtualization stack management. Open source contributer. From Bangalore, India.</span>
+        <br/>
+        <br/>
+        <a href="/about" target="_blank">
+          <span style="color: orangered;text-decoration-line: underline;">Contact me</span>
+        </a>
+      </p>
+    </div>
+  </aside>
+</div>
+
+  
+    
+  <div class="widget-wrap">
+    <div class="widget-title">recents</div>
+    <div class="widget">
+      <ul class="recent-post">
+        
+          <li class="recent-post-item media">
+            <figure class="media-left">
+              
+  <a href="/Custom-perf-with-custom-kernel/">
+    <img src="/images/batmobile-tank.jpg" class="thumbnail is-6x6" alt="Custom perf with custom kernel">
+  </a>
+
+
+            </figure>
+            <div class="media-content">
+              <p class="">
+                <a href="/Custom-perf-with-custom-kernel/" class="">
+                  Custom perf with custom kernel
+                </a>
+              </p>
+              <p class="">
+                <!--small>
+                  2020-11-19
+
+                </small>
+                <br/-->
+                <small>
+                  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kernel/">kernel</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/perf/">perf</a>
+    
+  </div>
+
+
+                </small>
+              </p>
+            </div>
+          </li>
+        
+          <li class="recent-post-item media">
+            <figure class="media-left">
+              
+  <a href="/perf-setup/">
+    <img src="/images/batmobile-tank.jpg" class="thumbnail is-6x6" alt="perf setup">
+  </a>
+
+
+            </figure>
+            <div class="media-content">
+              <p class="">
+                <a href="/perf-setup/" class="">
+                  perf setup
+                </a>
+              </p>
+              <p class="">
+                <!--small>
+                  2020-10-31
+
+                </small>
+                <br/-->
+                <small>
+                  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/setup/">setup</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/ubuntu/">ubuntu</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kernel/">kernel</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/perf/">perf</a>
+    
+  </div>
+
+
+                </small>
+              </p>
+            </div>
+          </li>
+        
+          <li class="recent-post-item media">
+            <figure class="media-left">
+              
+  <a href="/Quick-kernel-upgrade-with-kexec/">
+    <img src="/images/time_to_upgrade.jpg" class="thumbnail is-6x6" alt="Quick kernel upgrade with kexec">
+  </a>
+
+
+            </figure>
+            <div class="media-content">
+              <p class="">
+                <a href="/Quick-kernel-upgrade-with-kexec/" class="">
+                  Quick kernel upgrade with kexec
+                </a>
+              </p>
+              <p class="">
+                <!--small>
+                  2020-10-01
+
+                </small>
+                <br/-->
+                <small>
+                  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kernel/">kernel</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/debian/">debian</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/stretch/">stretch</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kexec/">kexec</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/security/">security</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/upgrade/">upgrade</a>
+    
+  </div>
+
+
+                </small>
+              </p>
+            </div>
+          </li>
+        
+          <li class="recent-post-item media">
+            <figure class="media-left">
+              
+  <a href="/perf-kvm-to-profile-vm-exit/">
+    <img src="/images/music-equalizer-1.jpg" class="thumbnail is-6x6" alt="perf kvm to profile vm_exit">
+  </a>
+
+
+            </figure>
+            <div class="media-content">
+              <p class="">
+                <a href="/perf-kvm-to-profile-vm-exit/" class="">
+                  perf kvm to profile vm_exit
+                </a>
+              </p>
+              <p class="">
+                <!--small>
+                  2020-09-28
+
+                </small>
+                <br/-->
+                <small>
+                  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/perf/">perf</a>
+    
+  </div>
+
+
+                </small>
+              </p>
+            </div>
+          </li>
+        
+          <li class="recent-post-item media">
+            <figure class="media-left">
+              
+  <a href="/kexec-tools-with-the-hidden-purgatory/">
+    <img src="/images/purgatory.jpg" class="thumbnail is-6x6" alt="kexec - A travel to the purgatory">
+  </a>
+
+
+            </figure>
+            <div class="media-content">
+              <p class="">
+                <a href="/kexec-tools-with-the-hidden-purgatory/" class="">
+                  kexec - A travel to the purgatory
+                </a>
+              </p>
+              <p class="">
+                <!--small>
+                  2020-01-20
+
+                </small>
+                <br/-->
+                <small>
+                  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kernel/">kernel</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/ARMv8/">ARMv8</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/crazy-debugging/">crazy debugging</a>
+    
+  </div>
+
+
+                </small>
+              </p>
+            </div>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">tag cloud</h3>
+    <div class="widget">
+      <a href="/tags/ARM/" style="font-size: 10px;">ARM</a> <a href="/tags/ARMv8/" style="font-size: 12.5px;">ARMv8</a> <a href="/tags/C/" style="font-size: 10px;">C</a> <a href="/tags/Linux/" style="font-size: 10px;">Linux</a> <a href="/tags/RaspberryPi/" style="font-size: 15px;">RaspberryPi</a> <a href="/tags/about/" style="font-size: 10px;">about</a> <a href="/tags/bitbucket/" style="font-size: 10px;">bitbucket</a> <a href="/tags/build/" style="font-size: 12.5px;">build</a> <a href="/tags/c/" style="font-size: 10px;">c</a> <a href="/tags/chatbot/" style="font-size: 10px;">chatbot</a> <a href="/tags/clone/" style="font-size: 10px;">clone</a> <a href="/tags/compiler/" style="font-size: 10px;">compiler</a> <a href="/tags/cow/" style="font-size: 10px;">cow</a> <a href="/tags/crazy-debugging/" style="font-size: 10px;">crazy debugging</a> <a href="/tags/debian/" style="font-size: 10px;">debian</a> <a href="/tags/debug/" style="font-size: 12.5px;">debug</a> <a href="/tags/devpost/" style="font-size: 10px;">devpost</a> <a href="/tags/digitalocean/" style="font-size: 12.5px;">digitalocean</a> <a href="/tags/facebook/" style="font-size: 10px;">facebook</a> <a href="/tags/fork/" style="font-size: 10px;">fork</a> <a href="/tags/gcc/" style="font-size: 10px;">gcc</a> <a href="/tags/gdb/" style="font-size: 12.5px;">gdb</a> <a href="/tags/getpid/" style="font-size: 10px;">getpid</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/github/" style="font-size: 10px;">github</a> <a href="/tags/kernel/" style="font-size: 20px;">kernel</a> <a href="/tags/kernel-module/" style="font-size: 10px;">kernel module</a> <a href="/tags/kexec/" style="font-size: 10px;">kexec</a> <a href="/tags/linux/" style="font-size: 20px;">linux</a> <a href="/tags/memory-management/" style="font-size: 12.5px;">memory management</a> <a href="/tags/memory-management/" style="font-size: 10px;">memory_management</a> <a href="/tags/nodejs/" style="font-size: 12.5px;">nodejs</a> <a href="/tags/perf/" style="font-size: 15px;">perf</a> <a href="/tags/proc/" style="font-size: 10px;">proc</a> <a href="/tags/programming/" style="font-size: 10px;">programming</a> <a href="/tags/raspberrypi/" style="font-size: 12.5px;">raspberrypi</a> <a href="/tags/security/" style="font-size: 10px;">security</a> <a href="/tags/setup/" style="font-size: 15px;">setup</a> <a href="/tags/stack/" style="font-size: 10px;">stack</a> <a href="/tags/stretch/" style="font-size: 10px;">stretch</a> <a href="/tags/swap/" style="font-size: 10px;">swap</a> <a href="/tags/system-call/" style="font-size: 10px;">system call</a> <a href="/tags/ubuntu/" style="font-size: 12.5px;">ubuntu</a> <a href="/tags/upgrade/" style="font-size: 10px;">upgrade</a> <a href="/tags/vim/" style="font-size: 10px;">vim</a> <a href="/tags/virtual-memory/" style="font-size: 10px;">virtual_memory</a> <a href="/tags/vnc/" style="font-size: 10px;">vnc</a> <a href="/tags/wit-ai/" style="font-size: 10px;">wit.ai</a> <a href="/tags/yocto/" style="font-size: 17.5px;">yocto</a>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">September 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+
+      </div>
+    </div>
+  </div>
+  <footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <p>
+        <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/deed.ja">
+          <img alt="creative commons logo" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" />
+        </a>
+        <br />
+        <span xmlns:cc="http://creativecommons.org/ns#" property="cc:attributionName">this post is available under a </span> <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution ShareAlike license.</p>
+    </div>
+  </div>
+</footer>
+
+
+  <script>
+    // HACK: custom style goes here
+    tables = document.querySelectorAll('table');
+    for (i = 0; i < tables.length; i++) {
+      tables[i].classList.add("table", "is-bordered", "is-fullwidth");
+    }
+  </script>
+</body>
+</html>

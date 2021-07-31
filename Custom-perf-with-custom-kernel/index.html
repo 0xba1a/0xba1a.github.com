@@ -1,0 +1,504 @@
+
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-115014323-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-115014323-1');
+  </script>
+  <meta charset="utf-8">
+  <title>Custom perf with custom kernel | East River Village</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1">
+  <meta name="description" content="There is no doubt that perf is an awesome tool. And eBPF enables us to attach an arbitrary code to any tracepoint. But both has one limitation. They cannot execute a kernel function. As if I want to c">
+<meta name="keywords" content="kernel,linux,perf">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Custom perf with custom kernel">
+<meta property="og:url" content="https://eastrivervillage.com/Custom-perf-with-custom-kernel/index.html">
+<meta property="og:site_name" content="East River Village">
+<meta property="og:description" content="There is no doubt that perf is an awesome tool. And eBPF enables us to attach an arbitrary code to any tracepoint. But both has one limitation. They cannot execute a kernel function. As if I want to c">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://eastrivervillage.com/images/batmobile-tank.jpg">
+<meta property="og:updated_time" content="2021-07-31T06:10:58.719Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Custom perf with custom kernel">
+<meta name="twitter:description" content="There is no doubt that perf is an awesome tool. And eBPF enables us to attach an arbitrary code to any tracepoint. But both has one limitation. They cannot execute a kernel function. As if I want to c">
+<meta name="twitter:image" content="https://eastrivervillage.com/images/batmobile-tank.jpg">
+  <link rel="icon" href="/favicon.ico">
+  
+  
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-5LB7LCD');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.1/css/bulma.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Merriweather|Lobster|Lora|Roboto Mono">
+  <link rel="stylesheet" href="/css/style.css">
+  
+<script type="application/ld+json">
+  {
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Custom perf with custom kernel",
+  "name": "Custom perf with custom kernel",
+  "image": "/images/batmobile-tank.jpg",
+  "datePublished": "2020-11-19T13:16:42.000Z",
+  "dateModified": "2021-07-31T06:10:58.719Z",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://eastrivervillage.com/Custom-perf-with-custom-kernel/index.html"
+  },
+  "author": {
+    "@type": "Person",
+    "name": "Balakumaran Kannan",
+    "image": "/images/profile_author.jpg",
+    "description": "System software engineer specilied in Linux. Experience spans from ARM32 board bring-up to multi datacenter virtualization stack management. Open source contributer. From Bangalore, India."
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Balakumaran Kannan",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "/images/profile_author.jpg"
+    }
+  }
+}
+</script>
+
+  
+</head>
+</html>
+<body>
+  
+  
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-5LB7LCD');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  <header class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a href="/" class="navbar-item">
+      East River Village
+    </a>
+  </div>
+</header>
+
+  <div class="container">
+    <div class="columns">
+      <div style="overflow:hidden;" class="main column">
+        <article class="post">
+  <figure class="post-thumbnail">
+    
+  <img src="/images/batmobile-tank.jpg" class="thumbnail " alt="Custom perf with custom kernel">
+
+
+  </figure>
+  <span>2020-11-19
+</span>
+  <h1 class="title">Custom perf with custom kernel</h1>
+  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kernel/">kernel</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/perf/">perf</a>
+    
+  </div>
+
+
+  <div class="content">
+    <p>There is no doubt that perf is an awesome tool. And eBPF enables us to attach an arbitrary code to any tracepoint. But both has one limitation. They cannot execute a kernel function. As if I want to call a kernel function whenever a tracepoint is hit. Its not possible today. It is not a big caveat. But will be very much useful while debugging kernel.</p>
+<p>Lets say I want to trace all IPIs and want to record the source CPU, target CPU. And I want to know whether Idle task was running on the target CPU during the IPI. Inter Processor Interrupt or IPI is and interrupt sent from one CPU to another to wake it up.</p>
+<p><strong>NOTE</strong>: <em>All the code referred here is from Linux-5.4.0</em></p>
+<p>The code that sends IPI in x86 platform is <code>native_smp_send_reschedule</code>. Below is the code of that function.<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">native_smp_send_reschedule</span><span class="params">(<span class="keyword">int</span> cpu)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (unlikely(cpu_is_offline(cpu))) &#123;</span><br><span class="line">                WARN(<span class="number">1</span>, <span class="string">"sched: Unexpected reschedule of offline CPU#%d!\n"</span>, cpu);</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        apic-&gt;send_IPI(cpu, RESCHEDULE_VECTOR);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>The only argument of this function <code>cpu</code> mentions the target CPU - to which CPU IPI is being sent. I want to source CPU from which the IPI is originates.</p>
+<p>To get current CPU kernel has a macro - <code>smp_processor_id()</code>.</p>
+<p>We can get the task-run-queue of that CPU using the macro <code>cpu_rq(int cpu)</code>. And <code>cpu_rq(int cpu)-&gt;curr</code> will point to the task that is currently running on that CPU. If that task’s <code>pid</code> is 0, it is the Idle task.</p>
+<p>So my deduced requirement will be setting and tracepoint on <code>native_smp_send_reschedule</code> and call these kernel functions upon hitting that tracepoint. There is no way today. Thus I’m left with only one option - build my own kernel with necessary modifications.</p>
+<h2 id="Building-custom-kernel"><a href="#Building-custom-kernel" class="headerlink" title="Building custom kernel"></a>Building custom kernel</h2><p>I’ve cloned kernel repository from kernel.org. And checked-out to the desired branch. I’m running Ubuntu-20.05 inside a Virtualbox. So I’m using the kernel-5.4.0 which is already installed in my distribution.<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">bala@ubuntu-vm-1:~/<span class="built_in">source</span>/$ git <span class="built_in">clone</span> git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git</span><br><span class="line">bala@ubuntu-vm-1:~/<span class="built_in">source</span>/$ <span class="built_in">cd</span> linux</span><br><span class="line">bala@ubuntu-vm-1:~/<span class="built_in">source</span>/linux/$ git checkout -b v5.4.0 v5.4</span><br><span class="line">bala@ubuntu-vm-1:~/<span class="built_in">source</span>/linux/$ head -n6 Makefile</span><br><span class="line"> <span class="comment"># SPDX-License-Identifier: GPL-2.0</span></span><br><span class="line"> VERSION = 5</span><br><span class="line"> PATCHLEVEL = 4</span><br><span class="line"> SUBLEVEL = 0</span><br><span class="line"> EXTRAVERSION =</span><br><span class="line"> NAME = Kleptomaniac Octopus</span><br><span class="line">bala@ubuntu-vm-1:~/<span class="built_in">source</span>/linux/$</span><br></pre></td></tr></table></figure></p>
+<p>Copied config from current OS. And <code>make oldconfig</code><br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">bala@ubuntu-vm-1:~/<span class="built_in">source</span>/linux/$ cp /boot/config-5.4.0-52-generic ./.config</span><br><span class="line">bala@ubuntu-vm-1:~/<span class="built_in">source</span>/linux/$ make oldconfig</span><br></pre></td></tr></table></figure></p>
+<p>If any new configs were, select appropriately if you know it. Otherwise simply ignore it.</p>
+<p>Applied following patch.<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line">bala@ubuntu-vm-1:~/<span class="built_in">source</span>/linux$ git diff</span><br><span class="line">diff --git a/arch/x86/kernel/apic/ipi.c b/arch/x86/kernel/apic/ipi.c</span><br><span class="line">index 6ca0f91372fd..31df1e1f4922 100644</span><br><span class="line">--- a/arch/x86/kernel/apic/ipi.c</span><br><span class="line">+++ b/arch/x86/kernel/apic/ipi.c</span><br><span class="line">@@ -2,6 +2,7 @@</span><br><span class="line"></span><br><span class="line"> <span class="comment">#include &lt;linux/cpumask.h&gt;</span></span><br><span class="line"> <span class="comment">#include &lt;linux/smp.h&gt;</span></span><br><span class="line">+<span class="comment">#include "../../../../kernel/sched/sched.h"</span></span><br><span class="line"></span><br><span class="line"> <span class="comment">#include "local.h"</span></span><br><span class="line"></span><br><span class="line">@@ -61,14 +62,22 @@ void apic_send_IPI_allbutself(unsigned int vector)</span><br><span class="line">  * wastes no time serializing anything. Worst <span class="keyword">case</span> is that we lose a</span><br><span class="line">  * reschedule ...</span><br><span class="line">  */</span><br><span class="line">+<span class="comment">#pragma GCC push_options</span></span><br><span class="line">+<span class="comment">#pragma GCC optimize ("O0")</span></span><br><span class="line"> void native_smp_send_reschedule(int cpu)</span><br><span class="line"> &#123;</span><br><span class="line">+       int this_cpu = smp_processor_id();</span><br><span class="line">+       int that_cpu = cpu;</span><br><span class="line">+       struct rq *rq = cpu_rq(that_cpu);</span><br><span class="line">+       int is_idle_task = ((rcu_dereference(rq-&gt;curr))-&gt;pid == 0);</span><br><span class="line">+</span><br><span class="line">        <span class="keyword">if</span> (unlikely(cpu_is_offline(cpu))) &#123;</span><br><span class="line">                WARN(1, <span class="string">"sched: Unexpected reschedule of offline CPU#%d!\n"</span>, cpu);</span><br><span class="line">                <span class="built_in">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        apic-&gt;send_IPI(cpu, RESCHEDULE_VECTOR);</span><br><span class="line"> &#125;</span><br><span class="line">+<span class="comment">#pragma GCC pop_options</span></span><br><span class="line"></span><br><span class="line"> void native_send_call_func_single_ipi(int cpu)</span><br><span class="line"> &#123;</span><br><span class="line">diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug</span><br><span class="line">index 93d97f9b0157..706fdfc715ab 100644</span><br><span class="line">--- a/lib/Kconfig.debug</span><br><span class="line">+++ b/lib/Kconfig.debug</span><br><span class="line">@@ -359,6 +359,7 @@ config SECTION_MISMATCH_WARN_ONLY</span><br><span class="line"> <span class="comment">#</span></span><br><span class="line"> config ARCH_WANT_FRAME_POINTERS</span><br><span class="line">        bool</span><br><span class="line">+       default y</span><br><span class="line"></span><br><span class="line"> config FRAME_POINTER</span><br><span class="line">        bool <span class="string">"Compile the kernel with frame pointers"</span></span><br><span class="line">bala@ubuntu-vm-1:~/<span class="built_in">source</span>/linux$</span><br></pre></td></tr></table></figure></p>
+<p>This patch contains two changes,</p>
+<ul>
+<li><code>lib/Kconfig.debug</code> - It is to enable frame pointers. Frame pointers will be very much useful for stack trace.</li>
+<li><code>arch/x86/kernel/apic/ipi.c</code><ul>
+<li><code>pragma</code> instructions are compiler directives. They tell GCC not to optimize the code below - <code>O0</code> optimization. Otherwise, GCC may optimize away the variables as they are unused variables.</li>
+<li><code>this_cpu</code> is got from <code>smp_processor_id()</code></li>
+<li><code>is_idle_task</code> will be set to 1 if target CPU is executing Idle task.</li>
+<li>Last <code>pragma</code> instruction is to reset GCC options back to default.</li>
+</ul>
+</li>
+</ul>
+<p>Enabled kernel debug info by setting <code>CONFIG_DEBUG_INFO</code> in the <code>.config</code> file. And built the kernel. My VM has 4 CPUs, so started 8 parallel build threads.<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">bala@ubuntu-vm-1:~/<span class="built_in">source</span>/linux$ make bzImage -j8</span><br><span class="line">...</span><br><span class="line">...</span><br><span class="line">...</span><br><span class="line">  OBJCOPY arch/x86/boot/setup.bin</span><br><span class="line">  BUILD   arch/x86/boot/bzImage</span><br><span class="line">Setup is 16412 bytes (padded to 16896 bytes).</span><br><span class="line">System is 8097 kB</span><br><span class="line">CRC 65acc728</span><br><span class="line">Kernel: arch/x86/boot/bzImage is ready  (<span class="comment">#1)</span></span><br><span class="line">bala@ubuntu-vm-1:~/<span class="built_in">source</span>/linux$</span><br></pre></td></tr></table></figure></p>
+<p>Now copied the <code>bzImage</code> to <code>/boot/</code> directory and updated boot loader.<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">bala@ubuntu-vm-1:~/<span class="built_in">source</span>/linux$ sudo cp arch/x86/boot/bzImage /boot/vmlinuz-dbg-custom</span><br><span class="line">bala@ubuntu-vm-1:~/<span class="built_in">source</span>/linux$ sudo update-grub</span><br><span class="line">Sourcing file `/etc/default/grub<span class="string">'</span></span><br><span class="line"><span class="string">Sourcing file `/etc/default/grub.d/init-select.cfg'</span></span><br><span class="line">Generating grub configuration file ...</span><br><span class="line">dpkg: warning: version <span class="string">'dbg-custom'</span> has bad syntax: version number does not start with digit</span><br><span class="line">Found linux image: /boot/vmlinuz-dbg-custom</span><br><span class="line">Found linux image: /boot/vmlinuz-5.4.0-52-generic</span><br><span class="line">Found initrd image: /boot/initrd.img-5.4.0-52-generic</span><br><span class="line"><span class="keyword">done</span></span><br><span class="line">bala@ubuntu-vm-1:~/<span class="built_in">source</span>/linux$</span><br></pre></td></tr></table></figure></p>
+<p>Rebooted the VM into newly built kernel.</p>
+<h2 id="Custom-build-perf"><a href="#Custom-build-perf" class="headerlink" title="Custom build perf"></a>Custom build perf</h2><p>As the kernel is custom built, the perf package comes with Ubuntu-20.04 didn’t get executed. It threw following error.<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">bala@ubuntu-vm-1:~/<span class="built_in">source</span>/linux$ perf --<span class="built_in">help</span></span><br><span class="line">WARNING: perf not found <span class="keyword">for</span> kernel 5.4.0+</span><br><span class="line"></span><br><span class="line">  You may need to install the following packages <span class="keyword">for</span> this specific kernel:</span><br><span class="line">    linux-tools-5.4.0+-5.4.0+</span><br><span class="line">    linux-cloud-tools-5.4.0+-5.4.0+</span><br><span class="line"></span><br><span class="line">  You may also want to install one of the following packages to keep up to date:</span><br><span class="line">    linux-tools-5.4.0+</span><br><span class="line">    linux-cloud-tools-5.4.0+</span><br><span class="line">bala@ubuntu-vm-1:~/<span class="built_in">source</span>/linux$</span><br></pre></td></tr></table></figure></p>
+<p>So I went ahead and build perf from kernel source itself. Perf requires following packages for adding a probe and source line probing.</p>
+<ul>
+<li>libelf-dev</li>
+<li>libdw-dev</li>
+</ul>
+<p>I installed both of them.<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bala@ubuntu-vm-1:~/<span class="built_in">source</span>/linux/$ sudo apt install libelf-dev libdw-dev</span><br></pre></td></tr></table></figure></p>
+<p>Now built perf inside the kernel source tree.<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">bala@ubuntu-vm-1:~/<span class="built_in">source</span>/linux/$ <span class="built_in">cd</span> tools/perf</span><br><span class="line">bala@ubuntu-vm-1:~/<span class="built_in">source</span>/linux/tools/perf/$ make</span><br></pre></td></tr></table></figure></p>
+<h2 id="Running-the-probe-on-custom-kernel-with-custom-perf"><a href="#Running-the-probe-on-custom-kernel-with-custom-perf" class="headerlink" title="Running the probe on custom kernel with custom perf"></a>Running the probe on custom kernel with custom perf</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">bala@ubuntu-vm-1:~/<span class="built_in">source</span>/linux/tools/perf$ sudo ./perf probe -s /home/bala/<span class="built_in">source</span>/linux/ -k ../../vmlinux native_smp_send_reschedule=<span class="string">"native_smp_send_reschedule:7 this_cpu that_cpu is_idle_task"</span></span><br><span class="line">Added new events:</span><br><span class="line">  probe:native_smp_send_reschedule (on native_smp_send_reschedule:7 with this_cpu that_cpu is_idle_task)</span><br><span class="line">  probe:native_smp_send_reschedule_1 (on native_smp_send_reschedule:7 with this_cpu that_cpu is_idle_task)</span><br><span class="line"></span><br><span class="line">You can now use it <span class="keyword">in</span> all perf tools, such as:</span><br><span class="line"></span><br><span class="line">        perf record -e probe:native_smp_send_reschedule_1 -aR sleep 1</span><br><span class="line"></span><br><span class="line">bala@ubuntu-vm-1:~/<span class="built_in">source</span>/linux/tools/perf$ sudo ./perf record -e probe:native_smp_send_reschedule_1 -aR sleep 1</span><br><span class="line">Couldn<span class="string">'t synthesize bpf events.</span></span><br><span class="line"><span class="string">[ perf record: Woken up 1 times to write data ]</span></span><br><span class="line"><span class="string">way too many cpu caches..[ perf record: Captured and wrote 0.101 MB perf.data (10 samples) ]</span></span><br><span class="line"><span class="string">bala@ubuntu-vm-1:~/source/linux/tools/perf$ sudo ./perf report --stdio</span></span><br><span class="line"><span class="string"># To display the perf.data header info, please use --header/--header-only options.</span></span><br><span class="line"><span class="string">#</span></span><br><span class="line"><span class="string">#</span></span><br><span class="line"><span class="string"># Total Lost Samples: 0</span></span><br><span class="line"><span class="string">#</span></span><br><span class="line"><span class="string"># Samples: 10  of event '</span>probe:native_smp_send_reschedule_1<span class="string">'</span></span><br><span class="line"><span class="string"># Event count (approx.): 10</span></span><br><span class="line"><span class="string">#</span></span><br><span class="line"><span class="string"># Overhead  Trace output</span></span><br><span class="line"><span class="string"># ........  .......................................................</span></span><br><span class="line"><span class="string">#</span></span><br><span class="line"><span class="string">    20.00%  (ffffffffa5e46bc9) this_cpu=0 that_cpu=1 is_idle_task=1</span></span><br><span class="line"><span class="string">    20.00%  (ffffffffa5e46bc9) this_cpu=3 that_cpu=0 is_idle_task=1</span></span><br><span class="line"><span class="string">    10.00%  (ffffffffa5e46bc9) this_cpu=0 that_cpu=2 is_idle_task=1</span></span><br><span class="line"><span class="string">    10.00%  (ffffffffa5e46bc9) this_cpu=0 that_cpu=3 is_idle_task=1</span></span><br><span class="line"><span class="string">    10.00%  (ffffffffa5e46bc9) this_cpu=1 that_cpu=0 is_idle_task=1</span></span><br><span class="line"><span class="string">    10.00%  (ffffffffa5e46bc9) this_cpu=2 that_cpu=3 is_idle_task=1</span></span><br><span class="line"><span class="string">    10.00%  (ffffffffa5e46bc9) this_cpu=3 that_cpu=1 is_idle_task=1</span></span><br><span class="line"><span class="string">    10.00%  (ffffffffa5e46bc9) this_cpu=3 that_cpu=2 is_idle_task=1</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">#</span></span><br><span class="line"><span class="string"># (Tip: Skip collecting build-id when recording: perf record -B)</span></span><br><span class="line"><span class="string">#</span></span><br><span class="line"><span class="string">bala@ubuntu-vm-1:~/source/linux/tools/perf$</span></span><br></pre></td></tr></table></figure>
+<p>Why <code>is_idle_task</code> is always 1 during and IPI?! More on later post ;).</p>
+<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><ul>
+<li><a href="https://github.com/iovisor/bpftrace/issues/792" target="_blank" rel="noopener">https://github.com/iovisor/bpftrace/issues/792</a></li>
+<li><a href="https://gcc.gnu.org/onlinedocs/gcc/Function-Specific-Option-Pragmas.html" target="_blank" rel="noopener">https://gcc.gnu.org/onlinedocs/gcc/Function-Specific-Option-Pragmas.html</a></li>
+<li><a href="https://news.ycombinator.com/item?id=4711571" target="_blank" rel="noopener">https://news.ycombinator.com/item?id=4711571</a></li>
+<li><a href="https://www.cyberciti.biz/tips/compiling-linux-kernel-26.html" target="_blank" rel="noopener">https://www.cyberciti.biz/tips/compiling-linux-kernel-26.html</a></li>
+<li><a href="https://tldp.org/LDP/lame/LAME/linux-admin-made-easy/kernel-custom.html" target="_blank" rel="noopener">https://tldp.org/LDP/lame/LAME/linux-admin-made-easy/kernel-custom.html</a></li>
+<li><a href="https://stackoverflow.com/questions/28136815/linux-kernel-how-to-obtain-a-particular-version-right-upto-sublevel" target="_blank" rel="noopener">https://stackoverflow.com/questions/28136815/linux-kernel-how-to-obtain-a-particular-version-right-upto-sublevel</a></li>
+<li><a href="https://git-scm.com/docs/git-fetch" target="_blank" rel="noopener">https://git-scm.com/docs/git-fetch</a></li>
+<li><a href="https://www.quora.com/How-do-I-compile-a-Linux-perf-tool-with-all-features-For-Linux-4-0-on-Ubuntu" target="_blank" rel="noopener">https://www.quora.com/How-do-I-compile-a-Linux-perf-tool-with-all-features-For-Linux-4-0-on-Ubuntu</a></li>
+<li><a href="https://serverfault.com/questions/251134/how-to-compile-the-kernel-with-debug-symbols" target="_blank" rel="noopener">https://serverfault.com/questions/251134/how-to-compile-the-kernel-with-debug-symbols</a></li>
+</ul>
+
+  </div>
+  
+<nav class="footer-nav">
+  
+  
+    <div class="footer-nav__next">
+      <div class="footer-nav__label">
+        Older
+      </div>
+      <a href="/perf-setup/">
+        perf setup
+      </a>
+    </div>
+  
+</nav>
+
+
+</article>
+
+
+      </div>
+      <div class="sidebar column is-4">
+        <aside>
+  
+    <aside class="search widget">
+  <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form" target="_blank">
+    <div class="control has-icons-right">
+      <input type="search" name="q" class="input" placeholder="Search">
+      <span class="icon is-small is-right">
+        <i class="fa fa-search"></i>
+      </span>
+    </div>
+    <input type="hidden" name="sitesearch" value="https://eastrivervillage.com">
+  </form>
+</aside>
+
+  
+    <div class="widget-wrap">
+  <div class="widget-title">author</div>
+  <aside class="profile media widget">
+    <!--figure class="profile-avatar media-left">
+      <img src="/images/profile_author.jpg" class="avatar" alt="Balakumaran Kannan">
+    </figure-->
+    <div class="media-content">
+      <p>
+        <strong>
+          <span>Balakumaran Kannan</span>
+        </strong>
+        <br>
+        <span>System software engineer specilied in Linux. Experience spans from ARM32 board bring-up to multi datacenter virtualization stack management. Open source contributer. From Bangalore, India.</span>
+        <br/>
+        <br/>
+        <a href="/about" target="_blank">
+          <span style="color: orangered;text-decoration-line: underline;">Contact me</span>
+        </a>
+      </p>
+    </div>
+  </aside>
+</div>
+
+  
+    
+  <div class="widget-wrap">
+    <div class="widget-title">recents</div>
+    <div class="widget">
+      <ul class="recent-post">
+        
+          <li class="recent-post-item media">
+            <figure class="media-left">
+              
+  <a href="/Custom-perf-with-custom-kernel/">
+    <img src="/images/batmobile-tank.jpg" class="thumbnail is-6x6" alt="Custom perf with custom kernel">
+  </a>
+
+
+            </figure>
+            <div class="media-content">
+              <p class="">
+                <a href="/Custom-perf-with-custom-kernel/" class="">
+                  Custom perf with custom kernel
+                </a>
+              </p>
+              <p class="">
+                <!--small>
+                  2020-11-19
+
+                </small>
+                <br/-->
+                <small>
+                  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kernel/">kernel</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/perf/">perf</a>
+    
+  </div>
+
+
+                </small>
+              </p>
+            </div>
+          </li>
+        
+          <li class="recent-post-item media">
+            <figure class="media-left">
+              
+  <a href="/perf-setup/">
+    <img src="/images/batmobile-tank.jpg" class="thumbnail is-6x6" alt="perf setup">
+  </a>
+
+
+            </figure>
+            <div class="media-content">
+              <p class="">
+                <a href="/perf-setup/" class="">
+                  perf setup
+                </a>
+              </p>
+              <p class="">
+                <!--small>
+                  2020-10-31
+
+                </small>
+                <br/-->
+                <small>
+                  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/setup/">setup</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/ubuntu/">ubuntu</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kernel/">kernel</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/perf/">perf</a>
+    
+  </div>
+
+
+                </small>
+              </p>
+            </div>
+          </li>
+        
+          <li class="recent-post-item media">
+            <figure class="media-left">
+              
+  <a href="/Quick-kernel-upgrade-with-kexec/">
+    <img src="/images/time_to_upgrade.jpg" class="thumbnail is-6x6" alt="Quick kernel upgrade with kexec">
+  </a>
+
+
+            </figure>
+            <div class="media-content">
+              <p class="">
+                <a href="/Quick-kernel-upgrade-with-kexec/" class="">
+                  Quick kernel upgrade with kexec
+                </a>
+              </p>
+              <p class="">
+                <!--small>
+                  2020-10-01
+
+                </small>
+                <br/-->
+                <small>
+                  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kernel/">kernel</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/debian/">debian</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/stretch/">stretch</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kexec/">kexec</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/security/">security</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/upgrade/">upgrade</a>
+    
+  </div>
+
+
+                </small>
+              </p>
+            </div>
+          </li>
+        
+          <li class="recent-post-item media">
+            <figure class="media-left">
+              
+  <a href="/perf-kvm-to-profile-vm-exit/">
+    <img src="/images/music-equalizer-1.jpg" class="thumbnail is-6x6" alt="perf kvm to profile vm_exit">
+  </a>
+
+
+            </figure>
+            <div class="media-content">
+              <p class="">
+                <a href="/perf-kvm-to-profile-vm-exit/" class="">
+                  perf kvm to profile vm_exit
+                </a>
+              </p>
+              <p class="">
+                <!--small>
+                  2020-09-28
+
+                </small>
+                <br/-->
+                <small>
+                  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/perf/">perf</a>
+    
+  </div>
+
+
+                </small>
+              </p>
+            </div>
+          </li>
+        
+          <li class="recent-post-item media">
+            <figure class="media-left">
+              
+  <a href="/kexec-tools-with-the-hidden-purgatory/">
+    <img src="/images/purgatory.jpg" class="thumbnail is-6x6" alt="kexec - A travel to the purgatory">
+  </a>
+
+
+            </figure>
+            <div class="media-content">
+              <p class="">
+                <a href="/kexec-tools-with-the-hidden-purgatory/" class="">
+                  kexec - A travel to the purgatory
+                </a>
+              </p>
+              <p class="">
+                <!--small>
+                  2020-01-20
+
+                </small>
+                <br/-->
+                <small>
+                  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kernel/">kernel</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/ARMv8/">ARMv8</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/crazy-debugging/">crazy debugging</a>
+    
+  </div>
+
+
+                </small>
+              </p>
+            </div>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">tag cloud</h3>
+    <div class="widget">
+      <a href="/tags/ARM/" style="font-size: 10px;">ARM</a> <a href="/tags/ARMv8/" style="font-size: 12.5px;">ARMv8</a> <a href="/tags/C/" style="font-size: 10px;">C</a> <a href="/tags/Linux/" style="font-size: 10px;">Linux</a> <a href="/tags/RaspberryPi/" style="font-size: 15px;">RaspberryPi</a> <a href="/tags/about/" style="font-size: 10px;">about</a> <a href="/tags/bitbucket/" style="font-size: 10px;">bitbucket</a> <a href="/tags/build/" style="font-size: 12.5px;">build</a> <a href="/tags/c/" style="font-size: 10px;">c</a> <a href="/tags/chatbot/" style="font-size: 10px;">chatbot</a> <a href="/tags/clone/" style="font-size: 10px;">clone</a> <a href="/tags/compiler/" style="font-size: 10px;">compiler</a> <a href="/tags/cow/" style="font-size: 10px;">cow</a> <a href="/tags/crazy-debugging/" style="font-size: 10px;">crazy debugging</a> <a href="/tags/debian/" style="font-size: 10px;">debian</a> <a href="/tags/debug/" style="font-size: 12.5px;">debug</a> <a href="/tags/devpost/" style="font-size: 10px;">devpost</a> <a href="/tags/digitalocean/" style="font-size: 12.5px;">digitalocean</a> <a href="/tags/facebook/" style="font-size: 10px;">facebook</a> <a href="/tags/fork/" style="font-size: 10px;">fork</a> <a href="/tags/gcc/" style="font-size: 10px;">gcc</a> <a href="/tags/gdb/" style="font-size: 12.5px;">gdb</a> <a href="/tags/getpid/" style="font-size: 10px;">getpid</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/github/" style="font-size: 10px;">github</a> <a href="/tags/kernel/" style="font-size: 20px;">kernel</a> <a href="/tags/kernel-module/" style="font-size: 10px;">kernel module</a> <a href="/tags/kexec/" style="font-size: 10px;">kexec</a> <a href="/tags/linux/" style="font-size: 20px;">linux</a> <a href="/tags/memory-management/" style="font-size: 12.5px;">memory management</a> <a href="/tags/memory-management/" style="font-size: 10px;">memory_management</a> <a href="/tags/nodejs/" style="font-size: 12.5px;">nodejs</a> <a href="/tags/perf/" style="font-size: 15px;">perf</a> <a href="/tags/proc/" style="font-size: 10px;">proc</a> <a href="/tags/programming/" style="font-size: 10px;">programming</a> <a href="/tags/raspberrypi/" style="font-size: 12.5px;">raspberrypi</a> <a href="/tags/security/" style="font-size: 10px;">security</a> <a href="/tags/setup/" style="font-size: 15px;">setup</a> <a href="/tags/stack/" style="font-size: 10px;">stack</a> <a href="/tags/stretch/" style="font-size: 10px;">stretch</a> <a href="/tags/swap/" style="font-size: 10px;">swap</a> <a href="/tags/system-call/" style="font-size: 10px;">system call</a> <a href="/tags/ubuntu/" style="font-size: 12.5px;">ubuntu</a> <a href="/tags/upgrade/" style="font-size: 10px;">upgrade</a> <a href="/tags/vim/" style="font-size: 10px;">vim</a> <a href="/tags/virtual-memory/" style="font-size: 10px;">virtual_memory</a> <a href="/tags/vnc/" style="font-size: 10px;">vnc</a> <a href="/tags/wit-ai/" style="font-size: 10px;">wit.ai</a> <a href="/tags/yocto/" style="font-size: 17.5px;">yocto</a>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">September 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+
+      </div>
+    </div>
+  </div>
+  <footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <p>
+        <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/deed.ja">
+          <img alt="creative commons logo" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" />
+        </a>
+        <br />
+        <span xmlns:cc="http://creativecommons.org/ns#" property="cc:attributionName">this post is available under a </span> <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution ShareAlike license.</p>
+    </div>
+  </div>
+</footer>
+
+
+  <script>
+    // HACK: custom style goes here
+    tables = document.querySelectorAll('table');
+    for (i = 0; i < tables.length; i++) {
+      tables[i].classList.add("table", "is-bordered", "is-fullwidth");
+    }
+  </script>
+</body>
+</html>

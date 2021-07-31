@@ -1,0 +1,528 @@
+
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-115014323-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-115014323-1');
+  </script>
+  <meta charset="utf-8">
+  <title>Custom build kernel for Raspberry Pi | East River Village</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1">
+  <meta name="description" content="How to build your own customized kernel for Raspberry Pi using yocto.">
+<meta name="keywords" content="kernel,raspberrypi,linux">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Custom build kernel for Raspberry Pi">
+<meta property="og:url" content="https://eastrivervillage.com/Custom-build-kernel-for-Raspberry-Pi/index.html">
+<meta property="og:site_name" content="East River Village">
+<meta property="og:description" content="How to build your own customized kernel for Raspberry Pi using yocto.">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://eastrivervillage.com/images/custom_kernel_rpi3.jpg">
+<meta property="og:updated_time" content="2021-07-31T06:10:58.719Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Custom build kernel for Raspberry Pi">
+<meta name="twitter:description" content="How to build your own customized kernel for Raspberry Pi using yocto.">
+<meta name="twitter:image" content="https://eastrivervillage.com/images/custom_kernel_rpi3.jpg">
+  <link rel="icon" href="/favicon.ico">
+  
+  
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-5LB7LCD');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.1/css/bulma.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Merriweather|Lobster|Lora|Roboto Mono">
+  <link rel="stylesheet" href="/css/style.css">
+  
+<script type="application/ld+json">
+  {
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Custom build kernel for Raspberry Pi",
+  "name": "Custom build kernel for Raspberry Pi",
+  "image": "/images/custom_kernel_rpi3.jpg",
+  "datePublished": "2019-03-30T12:56:30.000Z",
+  "dateModified": "2021-07-31T06:10:58.719Z",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://eastrivervillage.com/Custom-build-kernel-for-Raspberry-Pi/index.html"
+  },
+  "author": {
+    "@type": "Person",
+    "name": "Balakumaran Kannan",
+    "image": "/images/profile_author.jpg",
+    "description": "System software engineer specilied in Linux. Experience spans from ARM32 board bring-up to multi datacenter virtualization stack management. Open source contributer. From Bangalore, India."
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Balakumaran Kannan",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "/images/profile_author.jpg"
+    }
+  }
+}
+</script>
+
+  
+</head>
+</html>
+<body>
+  
+  
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-5LB7LCD');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  <header class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a href="/" class="navbar-item">
+      East River Village
+    </a>
+  </div>
+</header>
+
+  <div class="container">
+    <div class="columns">
+      <div style="overflow:hidden;" class="main column">
+        <article class="post">
+  <figure class="post-thumbnail">
+    
+  <img src="/images/custom_kernel_rpi3.jpg" class="thumbnail " alt="Custom build kernel for Raspberry Pi">
+
+
+  </figure>
+  <span>2019-03-30
+</span>
+  <h1 class="title">Custom build kernel for Raspberry Pi</h1>
+  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kernel/">kernel</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/raspberrypi/">raspberrypi</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+  </div>
+
+
+  <div class="content">
+    <p>I’ve already written a post about how to <a href="www.eastrivervillage.com/64-bit-Mainline-kernel-on-Raspberry-Pi-3/">cross-compile mainline kernel for Raspberry Pi</a>. In this post I’m covering how to cross-compile <a href="https://github.com/raspberrypi/linux" target="_blank" rel="noopener">Raspberry Pi Linux</a>. This will be simple and straight forward. I may write a series of posts related to kernel debugging, optimization which will be based on Raspberry Pi kernel. So this post will be starting point for them.</p>
+<p>Directory structure,<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">balakumaran@balakumaran-pc:~/Desktop/RPi$ ls -lh</span><br><span class="line">total 32K</span><br><span class="line">drwxrwxr-x  3 balakumaran balakumaran 4.0K Mar  9 19:33 firmware</span><br><span class="line">drwxr-xr-x  8 balakumaran balakumaran 4.0K Jan 23 01:52 gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu</span><br><span class="line">drwxrwxr-x 22 balakumaran balakumaran 4.0K Mar 30 18:38 kernel_out</span><br><span class="line">drwxrwxr-x 26 balakumaran balakumaran 4.0K Mar 30 18:13 linux-rpi-4.14.y</span><br><span class="line">drwxrwxr-x 18 balakumaran balakumaran 4.0K Mar  9 19:34 rootfs</span><br><span class="line">balakumaran@balakumaran-pc:~/Desktop/RPi$</span><br></pre></td></tr></table></figure></p>
+<table>
+<thead>
+<tr>
+<th>Directory</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>gcc-li…</td>
+<td>GCC cross compiler from Linaro. Extracted</td>
+<td></td>
+</tr>
+<tr>
+<td>firmware/boot</td>
+<td>boot directory of Raspberry Pi firmware repo</td>
+<td></td>
+</tr>
+<tr>
+<td>kernel_out</td>
+<td>Output directory for Raspberry kernel</td>
+<td></td>
+</tr>
+<tr>
+<td>rootfs</td>
+<td>rootfs from Linaro. Extracted</td>
+<td></td>
+</tr>
+<tr>
+<td>linux-rpi…</td>
+<td>Raspberry Pi kernel repo</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Used <a href="https://releases.linaro.org/archive/ubuntu/images/developer-arm64/" target="_blank" rel="noopener">Ubuntu image rootfs</a> from <a href="linaro.org">Linaro</a>.</p>
+<h2 id="Prepare-SD-card"><a href="#Prepare-SD-card" class="headerlink" title="Prepare SD card"></a>Prepare SD card</h2><p>Make two partition as follows,<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">balakumaran@balakumaran-pc:~/Desktop/RPi$ sudo fdisk -l /dev/sdc</span><br><span class="line">[sudo] password <span class="keyword">for</span> balakumaran: </span><br><span class="line">Disk /dev/sdc: 29.7 GiB, 31914983424 bytes, 62333952 sectors</span><br><span class="line">Units: sectors of 1 * 512 = 512 bytes</span><br><span class="line">Sector size (logical/physical): 512 bytes / 512 bytes</span><br><span class="line">I/O size (minimum/optimal): 512 bytes / 512 bytes</span><br><span class="line">Disklabel <span class="built_in">type</span>: dos</span><br><span class="line">Disk identifier: 0xcde890ba</span><br><span class="line"></span><br><span class="line">Device     Boot  Start      End  Sectors  Size Id Type</span><br><span class="line">/dev/sdc1  *      2048   133119   131072   64M  b W95 FAT32</span><br><span class="line">/dev/sdc2       133120 62333951 62200832 29.7G 83 Linux</span><br><span class="line">balakumaran@balakumaran-pc:~/Desktop/RPi$</span><br></pre></td></tr></table></figure></p>
+<p>Complete steps on how to do this is available in Appendix.</p>
+<p>Copy necessary files<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">balakumaran@balakumaran-pc:/media/balakumaran$ sudo mount /dev/sdc1 /mnt/boot/</span><br><span class="line">balakumaran@balakumaran-pc:/media/balakumaran$ sudo mount /dev/sdc2 /mnt/rootfs/</span><br><span class="line">balakumaran@balakumaran-pc:~/Desktop$ sudo cp -rf ~/Desktop/RPi/firmware/boot/* /mnt/boot/</span><br><span class="line">[sudo] password <span class="keyword">for</span> balakumaran: </span><br><span class="line">balakumaran@balakumaran-pc:~/Desktop$</span><br><span class="line">balakumaran@balakumaran-pc:~/Desktop$ sudo cp -rf ~/Desktop/RPi/rootfs/* /mnt/rootfs/</span><br><span class="line">balakumaran@balakumaran-pc:~/Desktop$</span><br></pre></td></tr></table></figure></p>
+<h2 id="Build-and-Install-kernel"><a href="#Build-and-Install-kernel" class="headerlink" title="Build and Install kernel"></a>Build and Install kernel</h2><p>Unless you are ready for the pain, use stable kernel release.</p>
+<p>Setup following environmental variables,<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">balakumaran@balakumaran-pc:~/Desktop/RPi$ <span class="built_in">source</span> ~/setup_arm64_build.sh </span><br><span class="line">balakumaran@balakumaran-pc:~/Desktop/RPi$ <span class="built_in">echo</span> <span class="variable">$CROSS_COMPILE</span> </span><br><span class="line">aarch64-linux-gnu-</span><br><span class="line">balakumaran@balakumaran-pc:~/Desktop/RPi$ <span class="built_in">echo</span> <span class="variable">$ARCH</span> </span><br><span class="line">arm64</span><br><span class="line">balakumaran@balakumaran-pc:~/Desktop/RPi$ <span class="built_in">echo</span> <span class="variable">$PATH</span> </span><br><span class="line">/usr/<span class="built_in">local</span>/sbin:/usr/<span class="built_in">local</span>/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/<span class="built_in">local</span>/games:/snap/bin:/home/balakumaran/Desktop/RPi/gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu/bin/</span><br><span class="line">balakumaran@balakumaran-pc:~/Desktop/RPi$</span><br></pre></td></tr></table></figure></p>
+<p>Cross compile Kernel, Device-tree, modules.<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">balakumaran@balakumaran-pc:~/Desktop/RPi/linux-rpi-4.14.y$ time make ARCH=arm64 O=../kernel_out/ bcmrpi3_defconfig</span><br><span class="line">make[1]: Entering directory <span class="string">'/home/balakumaran/Desktop/RPi/kernel_out'</span></span><br><span class="line">.</span><br><span class="line">.</span><br><span class="line">.</span><br><span class="line"></span><br><span class="line">balakumaran@balakumaran-pc:~/Desktop/RPi/linux-rpi-4.14.y$ time make -j8  ARCH=arm64 O=../kernel_out/ </span><br><span class="line">make[1]: Entering directory <span class="string">'/home/balakumaran/Desktop/RPi/kernel_out'</span></span><br><span class="line">.</span><br><span class="line">.</span><br><span class="line">.</span><br><span class="line"></span><br><span class="line">balakumaran@balakumaran-pc:~/Desktop/RPi/linux-rpi-4.14.y$ make ARCH=arm64 O=../kernel_out/ dtbs</span><br><span class="line">make[1]: Entering directory <span class="string">'/home/balakumaran/Desktop/RPi/kernel_out'</span></span><br><span class="line">.</span><br><span class="line">.</span><br><span class="line">.</span><br><span class="line"></span><br><span class="line">balakumaran@balakumaran-pc:~/Desktop/RPi/linux-rpi-4.14.y$ sudo cp ../kernel_out/arch/arm64/boot/Image /mnt/boot/kernel8.img</span><br><span class="line">[sudo] password <span class="keyword">for</span> balakumaran: </span><br><span class="line">balakumaran@balakumaran-pc:~/Desktop/RPi/linux-rpi-4.14.y$ sudo make  ARCH=arm64 O=../kernel_out/ INSTALL_PATH=/mnt/boot/ dtbs_install</span><br><span class="line">make[1]: Entering directory <span class="string">'/home/balakumaran/Desktop/RPi/kernel_out'</span></span><br><span class="line">arch/arm64/Makefile:27: ld does not support --fix-cortex-a53-843419; kernel may be susceptible to erratum</span><br><span class="line">arch/arm64/Makefile:40: LSE atomics not supported by binutils</span><br><span class="line">arch/arm64/Makefile:48: Detected assembler with broken .inst; disassembly will be unreliable</span><br><span class="line">make[3]: Nothing to be <span class="keyword">done</span> <span class="keyword">for</span> <span class="string">'__dtbs_install'</span>.</span><br><span class="line">  INSTALL arch/arm64/boot/dts/al/alpine-v2-evp.dtb</span><br><span class="line">.</span><br><span class="line">.</span><br><span class="line">.</span><br></pre></td></tr></table></figure></p>
+<p>Create <code>cmdline.txt</code> and <code>config.txt</code>.<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">balakumaran@balakumaran-pc:~/Desktop/RPi/linux-rpi-4.14.y$ cat /mnt/boot/cmdline.txt </span><br><span class="line">dwc_otg.lpm_enable=0 console=serial0,115200 root=/dev/mmcblk0p2 rootfstype=ext4 rootwait</span><br><span class="line">balakumaran@balakumaran-pc:~/Desktop/RPi/linux-rpi-4.14.y$ cat /mnt/boot/config.txt </span><br><span class="line">dtoverlay=pi3-disable-bt</span><br><span class="line">disable_overscan=1</span><br><span class="line">dtparam=audio=on</span><br><span class="line">device_tree=dtbs/4.14.98-v8+/broadcom/bcm2710-rpi-3-b.dtb</span><br><span class="line">overlay_prefix=dtbs/4.14.98-v8+/overlays/</span><br><span class="line">enable_uart=1</span><br><span class="line">balakumaran@balakumaran-pc:~/Desktop/RPi/linux-rpi-4.14.y$</span><br></pre></td></tr></table></figure></p>
+<h2 id="Prepare-rootfs"><a href="#Prepare-rootfs" class="headerlink" title="Prepare rootfs"></a>Prepare rootfs</h2><p>I’m going to use ubuntu-base images with some additional modification as rootfs here. Find ubuntu-base releases at <a href="http://cdimage.ubuntu.com/ubuntu-base/releases/" target="_blank" rel="noopener">http://cdimage.ubuntu.com/ubuntu-base/releases/</a>. Latest stable is always better. Download and extract ubuntu-base rootfs. Install kernel modules into the rootfs extracted.</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">balakumaran@balakumaran-pc:~/Desktop/RPi/linux-rpi-4.14.y$ sudo make  ARCH=arm64 O=../kernel_out/ INSTALL_MOD_PATH=<span class="variable">$HOME</span>/ubuntu-base/ modules_install </span><br><span class="line">[sudo] password <span class="keyword">for</span> balakumaran: </span><br><span class="line">make[1]: Entering directory <span class="string">'/home/balakumaran/Desktop/RPi/kernel_out'</span></span><br><span class="line">arch/arm64/Makefile:27: ld does not support --fix-cortex-a53-843419; kernel may be susceptible to erratum</span><br><span class="line">arch/arm64/Makefile:40: LSE atomics not supported by binutils</span><br><span class="line">arch/arm64/Makefile:48: Detected assembler with broken .inst; disassembly will be unreliable</span><br><span class="line">  INSTALL arch/arm64/crypto/aes-neon-blk.ko</span><br><span class="line">.</span><br><span class="line">.</span><br><span class="line">.</span><br></pre></td></tr></table></figure>
+<p>Copy your resolv.conf for network access.<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo cp -av /run/systemd/resolve/stub-resolv.conf <span class="variable">$HOME</span>/rootfs/etc/resolv.conf</span><br></pre></td></tr></table></figure></p>
+<p>Lets <code>chroot</code> into the new rootfs and install necessary packages. But its an arm64 rootfs. So you need <code>qemu</code> user-mode emulation. Install <code>qemu-user-static</code> in your host Ubuntu and copy that to new rootfs. And then chroot will work.<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ sudo apt install qemu-user-static</span><br><span class="line">.</span><br><span class="line">.</span><br><span class="line">.</span><br><span class="line"></span><br><span class="line">$ sudo cp /usr/bin/qemu-aarch64-static <span class="variable">$HOME</span>/rootfs/usr/bin/</span><br><span class="line">$ sudo chroot <span class="variable">$HOME</span>/rootfs/</span><br></pre></td></tr></table></figure></p>
+<p>Change <code>root</code> user password and install necessary packages. As these binaries are running on emulator, they will be bit slower. Its just one time.<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ passwd root</span><br><span class="line">$ apt-get update</span><br><span class="line">$ apt-get upgrade</span><br><span class="line">$ apt-get install sudo ifupdown net-tools ethtool udev wireless-tools iputils-ping resolvconf wget apt-utils wpasupplicant kmod systemd vim</span><br></pre></td></tr></table></figure></p>
+<p><strong>NOTE:</strong><br>If you face any error like <code>cannot create key file at /tmp/</code>, change permission of <code>tmp</code>.<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ chmod 777 /tmp</span><br></pre></td></tr></table></figure></p>
+<p>Download raspberry firmware-nonfree package from <a href="https://archive.raspberrypi.org/debian/pool/main/f/firmware-nonfree/firmware-brcm80211_20161130-3+rpt3_all.deb" target="_blank" rel="noopener">raspberry repository</a>, extract wireless firmware and copy it to rootfs. Refer this <a href="https://www.linuxquestions.org/questions/slackware-arm-108/raspberry-pi-3-b-wifi-nic-not-found-4175627137/#post5840054" target="_blank" rel="noopener">answer</a> for more details. As I’m having a RPI3b board, I copied <code>brcmfmac43430-sdio.bin</code> and <code>brcmfmac43430-sdio.txt</code> to <code>lib/firmware/brcm</code><br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ mkdir -p <span class="variable">$HOME</span>/lib/modules/brcm/</span><br><span class="line">$ cp brcmfmac43430-sdio.txt brcmfmac43430-sdio.bin <span class="variable">$HOME</span>/lib/modules/brcm/</span><br></pre></td></tr></table></figure></p>
+<p>Edit <code>etc/fstab</code> or rootfs will be mounted as read-only.<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">"/dev/mmcblk0p2	/	ext4	defaults,noatime	0	1"</span> &gt;&gt; <span class="variable">$HOME</span>/rootfs/etc/fstab</span><br></pre></td></tr></table></figure></p>
+<p>I referred <a href="https://a-delacruz.github.io/ubuntu/rpi3-setup-filesystem.html" target="_blank" rel="noopener">this</a> link for rootfs preparation. Though I’m not using, there are steps to remove unwanted files explained.</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a href="https://a-delacruz.github.io/ubuntu/rpi3-setup-64bit-kernel" target="_blank" rel="noopener">https://a-delacruz.github.io/ubuntu/rpi3-setup-64bit-kernel</a></li>
+<li><a href="https://a-delacruz.github.io/ubuntu/rpi3-setup-filesystem.html" target="_blank" rel="noopener">https://a-delacruz.github.io/ubuntu/rpi3-setup-filesystem.html</a></li>
+<li><a href="https://www.linuxquestions.org/questions/slackware-arm-108/raspberry-pi-3-b-wifi-nic-not-found-4175627137/#post5840054" target="_blank" rel="noopener">https://www.linuxquestions.org/questions/slackware-arm-108/raspberry-pi-3-b-wifi-nic-not-found-4175627137/#post5840054</a></li>
+<li><a href="http://cdimage.ubuntu.com/ubuntu-base/releases/" target="_blank" rel="noopener">http://cdimage.ubuntu.com/ubuntu-base/releases/</a></li>
+<li><a href="https://raspberrypi.stackexchange.com/questions/61319/how-to-add-wifi-drivers-in-custom-kernel" target="_blank" rel="noopener">https://raspberrypi.stackexchange.com/questions/61319/how-to-add-wifi-drivers-in-custom-kernel</a></li>
+</ul>
+<h2 id="Appendix"><a href="#Appendix" class="headerlink" title="Appendix"></a>Appendix</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br></pre></td><td class="code"><pre><span class="line">Command (m <span class="keyword">for</span> <span class="built_in">help</span>): p</span><br><span class="line">Disk /dev/sdc: 29.7 GiB, 31914983424 bytes, 62333952 sectors</span><br><span class="line">Units: sectors of 1 * 512 = 512 bytes</span><br><span class="line">Sector size (logical/physical): 512 bytes / 512 bytes</span><br><span class="line">I/O size (minimum/optimal): 512 bytes / 512 bytes</span><br><span class="line">Disklabel <span class="built_in">type</span>: dos</span><br><span class="line">Disk identifier: 0xcde890ba</span><br><span class="line"></span><br><span class="line">Device     Boot  Start      End  Sectors  Size Id Type</span><br><span class="line">/dev/sdc1  *      2048   133119   131072   64M  b W95 FAT32</span><br><span class="line">/dev/sdc2       133120 62333951 62200832 29.7G 83 Linux</span><br><span class="line"></span><br><span class="line">Command (m <span class="keyword">for</span> <span class="built_in">help</span>): d</span><br><span class="line">Partition number (1,2, default 2): 2</span><br><span class="line"></span><br><span class="line">Partition 2 has been deleted.</span><br><span class="line"></span><br><span class="line">Command (m <span class="keyword">for</span> <span class="built_in">help</span>): d</span><br><span class="line">Selected partition 1</span><br><span class="line">Partition 1 has been deleted.</span><br><span class="line"></span><br><span class="line">Command (m <span class="keyword">for</span> <span class="built_in">help</span>): p</span><br><span class="line">Disk /dev/sdc: 29.7 GiB, 31914983424 bytes, 62333952 sectors</span><br><span class="line">Units: sectors of 1 * 512 = 512 bytes</span><br><span class="line">Sector size (logical/physical): 512 bytes / 512 bytes</span><br><span class="line">I/O size (minimum/optimal): 512 bytes / 512 bytes</span><br><span class="line">Disklabel <span class="built_in">type</span>: dos</span><br><span class="line">Disk identifier: 0xcde890ba</span><br><span class="line"></span><br><span class="line">Command (m <span class="keyword">for</span> <span class="built_in">help</span>): n</span><br><span class="line">Partition <span class="built_in">type</span></span><br><span class="line">   p   primary (0 primary, 0 extended, 4 free)</span><br><span class="line">   e   extended (container <span class="keyword">for</span> logical partitions)</span><br><span class="line">Select (default p): p</span><br><span class="line">Partition number (1-4, default 1): </span><br><span class="line">First sector (2048-62333951, default 2048): </span><br><span class="line">Last sector, +sectors or +size&#123;K,M,G,T,P&#125; (2048-62333951, default 62333951): +64M</span><br><span class="line"></span><br><span class="line">Created a new partition 1 of <span class="built_in">type</span> <span class="string">'Linux'</span> and of size 64 MiB.</span><br><span class="line">Partition <span class="comment">#1 contains a vfat signature.</span></span><br><span class="line"></span><br><span class="line">Do you want to remove the signature? [Y]es/[N]o: Y</span><br><span class="line"></span><br><span class="line">The signature will be removed by a write <span class="built_in">command</span>.</span><br><span class="line"></span><br><span class="line">Command (m <span class="keyword">for</span> <span class="built_in">help</span>): n</span><br><span class="line">Partition <span class="built_in">type</span></span><br><span class="line">   p   primary (1 primary, 0 extended, 3 free)</span><br><span class="line">   e   extended (container <span class="keyword">for</span> logical partitions)</span><br><span class="line">Select (default p): p</span><br><span class="line">Partition number (2-4, default 2): </span><br><span class="line">First sector (133120-62333951, default 133120): </span><br><span class="line">Last sector, +sectors or +size&#123;K,M,G,T,P&#125; (133120-62333951, default 62333951): </span><br><span class="line"></span><br><span class="line">Created a new partition 2 of <span class="built_in">type</span> <span class="string">'Linux'</span> and of size 29.7 GiB.</span><br><span class="line">Partition <span class="comment">#2 contains a ext4 signature.</span></span><br><span class="line"></span><br><span class="line">Do you want to remove the signature? [Y]es/[N]o: Y</span><br><span class="line"></span><br><span class="line">The signature will be removed by a write <span class="built_in">command</span>.</span><br><span class="line"></span><br><span class="line">Command (m <span class="keyword">for</span> <span class="built_in">help</span>): t</span><br><span class="line">Partition number (1,2, default 2): 1</span><br><span class="line">Hex code (<span class="built_in">type</span> L to list all codes): L</span><br><span class="line"></span><br><span class="line"> 0  Empty           24  NEC DOS         81  Minix / old Lin bf  Solaris        </span><br><span class="line"> 1  FAT12           27  Hidden NTFS Win 82  Linux swap / So c1  DRDOS/sec (FAT-</span><br><span class="line"> 2  XENIX root      39  Plan 9          83  Linux           c4  DRDOS/sec (FAT-</span><br><span class="line"> 3  XENIX usr       3c  PartitionMagic  84  OS/2 hidden or  c6  DRDOS/sec (FAT-</span><br><span class="line"> 4  FAT16 &lt;32M      40  Venix 80286     85  Linux extended  c7  Syrinx         </span><br><span class="line"> 5  Extended        41  PPC PReP Boot   86  NTFS volume <span class="built_in">set</span> da  Non-FS data    </span><br><span class="line"> 6  FAT16           42  SFS             87  NTFS volume <span class="built_in">set</span> db  CP/M / CTOS / .</span><br><span class="line"> 7  HPFS/NTFS/exFAT 4d  QNX4.x          88  Linux plaintext de  Dell Utility   </span><br><span class="line"> 8  AIX             4e  QNX4.x 2nd part 8e  Linux LVM       df  BootIt         </span><br><span class="line"> 9  AIX bootable    4f  QNX4.x 3rd part 93  Amoeba          e1  DOS access     </span><br><span class="line"> a  OS/2 Boot Manag 50  OnTrack DM      94  Amoeba BBT      e3  DOS R/O        </span><br><span class="line"> b  W95 FAT32       51  OnTrack DM6 Aux 9f  BSD/OS          e4  SpeedStor      </span><br><span class="line"> c  W95 FAT32 (LBA) 52  CP/M            a0  IBM Thinkpad hi ea  Rufus alignment</span><br><span class="line"> e  W95 FAT16 (LBA) 53  OnTrack DM6 Aux a5  FreeBSD         eb  BeOS fs        </span><br><span class="line"> f  W95 Ext<span class="string">'d (LBA) 54  OnTrackDM6      a6  OpenBSD         ee  GPT            </span></span><br><span class="line"><span class="string">10  OPUS            55  EZ-Drive        a7  NeXTSTEP        ef  EFI (FAT-12/16/</span></span><br><span class="line"><span class="string">11  Hidden FAT12    56  Golden Bow      a8  Darwin UFS      f0  Linux/PA-RISC b</span></span><br><span class="line"><span class="string">12  Compaq diagnost 5c  Priam Edisk     a9  NetBSD          f1  SpeedStor      </span></span><br><span class="line"><span class="string">14  Hidden FAT16 &lt;3 61  SpeedStor       ab  Darwin boot     f4  SpeedStor      </span></span><br><span class="line"><span class="string">16  Hidden FAT16    63  GNU HURD or Sys af  HFS / HFS+      f2  DOS secondary  </span></span><br><span class="line"><span class="string">17  Hidden HPFS/NTF 64  Novell Netware  b7  BSDI fs         fb  VMware VMFS    </span></span><br><span class="line"><span class="string">18  AST SmartSleep  65  Novell Netware  b8  BSDI swap       fc  VMware VMKCORE </span></span><br><span class="line"><span class="string">1b  Hidden W95 FAT3 70  DiskSecure Mult bb  Boot Wizard hid fd  Linux raid auto</span></span><br><span class="line"><span class="string">1c  Hidden W95 FAT3 75  PC/IX           bc  Acronis FAT32 L fe  LANstep        </span></span><br><span class="line"><span class="string">1e  Hidden W95 FAT1 80  Old Minix       be  Solaris boot    ff  BBT            </span></span><br><span class="line"><span class="string">Hex code (type L to list all codes): b</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">Changed type of partition '</span>Linux<span class="string">' to '</span>W95 FAT32<span class="string">'.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">Command (m for help): t</span></span><br><span class="line"><span class="string">Partition number (1,2, default 2): 2</span></span><br><span class="line"><span class="string">Hex code (type L to list all codes): 83</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">Changed type of partition '</span>Linux<span class="string">' to '</span>Linux<span class="string">'.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">Command (m for help): w</span></span><br><span class="line"><span class="string">The partition table has been altered.</span></span><br><span class="line"><span class="string">Calling ioctl() to re-read partition table.</span></span><br><span class="line"><span class="string">Syncing disks.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">balakumaran@balakumaran-pc:/media/balakumaran$ </span></span><br><span class="line"><span class="string">balakumaran@balakumaran-pc:/media/balakumaran$ sudo fdisk -l /dev/sdc</span></span><br><span class="line"><span class="string">Disk /dev/sdc: 29.7 GiB, 31914983424 bytes, 62333952 sectors</span></span><br><span class="line"><span class="string">Units: sectors of 1 * 512 = 512 bytes</span></span><br><span class="line"><span class="string">Sector size (logical/physical): 512 bytes / 512 bytes</span></span><br><span class="line"><span class="string">I/O size (minimum/optimal): 512 bytes / 512 bytes</span></span><br><span class="line"><span class="string">Disklabel type: dos</span></span><br><span class="line"><span class="string">Disk identifier: 0xcde890ba</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">Device     Boot  Start      End  Sectors  Size Id Type</span></span><br><span class="line"><span class="string">/dev/sdc1         2048   133119   131072   64M  b W95 FAT32</span></span><br><span class="line"><span class="string">/dev/sdc2       133120 62333951 62200832 29.7G 83 Linux</span></span><br><span class="line"><span class="string">balakumaran@balakumaran-pc:/media/balakumaran$</span></span><br><span class="line"><span class="string">balakumaran@balakumaran-pc:/media/balakumaran$ sudo mkfs.fat /dev/sdc1</span></span><br><span class="line"><span class="string">mkfs.fat 4.1 (2017-01-24)</span></span><br><span class="line"><span class="string">balakumaran@balakumaran-pc:/media/balakumaran$ sudo mkfs.ext4 /dev/sdc2</span></span><br><span class="line"><span class="string">mke2fs 1.44.4 (18-Aug-2018)</span></span><br><span class="line"><span class="string">Creating filesystem with 7775104 4k blocks and 1945888 inodes</span></span><br><span class="line"><span class="string">Filesystem UUID: 5815d093-6381-4db7-b692-32192b24cf9c</span></span><br><span class="line"><span class="string">Superblock backups stored on blocks: </span></span><br><span class="line"><span class="string">        32768, 98304, 163840, 229376, 294912, 819200, 884736, 1605632, 2654208, </span></span><br><span class="line"><span class="string">        4096000</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">Allocating group tables: done                            </span></span><br><span class="line"><span class="string">Writing inode tables: done                            </span></span><br><span class="line"><span class="string">Creating journal (32768 blocks): done</span></span><br><span class="line"><span class="string">Writing superblocks and filesystem accounting information: done   </span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">balakumaran@balakumaran-pc:/media/balakumaran$</span></span><br><span class="line"><span class="string">balakumaran@balakumaran-pc:/media/balakumaran$ sudo fdisk /dev/sdc</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">Welcome to fdisk (util-linux 2.32).                                                                                                                                                          </span></span><br><span class="line"><span class="string">Changes will remain in memory only, until you decide to write them.                                                                                                                          </span></span><br><span class="line"><span class="string">Be careful before using the write command.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">Command (m for help): a</span></span><br><span class="line"><span class="string">Partition number (1,2, default 2): 1</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">The bootable flag on partition 1 is enabled now.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">Command (m for help): p</span></span><br><span class="line"><span class="string">Disk /dev/sdc: 29.7 GiB, 31914983424 bytes, 62333952 sectors</span></span><br><span class="line"><span class="string">Units: sectors of 1 * 512 = 512 bytes</span></span><br><span class="line"><span class="string">Sector size (logical/physical): 512 bytes / 512 bytes</span></span><br><span class="line"><span class="string">I/O size (minimum/optimal): 512 bytes / 512 bytes</span></span><br><span class="line"><span class="string">Disklabel type: dos</span></span><br><span class="line"><span class="string">Disk identifier: 0xcde890ba</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">Device     Boot  Start      End  Sectors  Size Id Type</span></span><br><span class="line"><span class="string">/dev/sdc1  *      2048   133119   131072   64M  b W95 FAT32</span></span><br><span class="line"><span class="string">/dev/sdc2       133120 62333951 62200832 29.7G 83 Linux</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">Command (m for help): w</span></span><br><span class="line"><span class="string">The partition table has been altered.</span></span><br><span class="line"><span class="string">Calling ioctl() to re-read partition table.</span></span><br><span class="line"><span class="string">Syncing disks.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">balakumaran@balakumaran-pc:/media/balakumaran$</span></span><br></pre></td></tr></table></figure>
+
+  </div>
+  
+<nav class="footer-nav">
+  
+    <div class="footer-nav__prev">
+      <div class="footer-nav__label">
+        Newer
+      </div>
+      <a href="/Variadic-functions-with-unknown-argument-count/">
+        Variadic functions with unknown argument count
+      </a>
+    </div>
+  
+  
+    <div class="footer-nav__next">
+      <div class="footer-nav__label">
+        Older
+      </div>
+      <a href="/64-bit-Mainline-kernel-on-Raspberry-Pi-3/">
+        64-bit Mainline kernel on Raspberry Pi 3
+      </a>
+    </div>
+  
+</nav>
+
+
+</article>
+
+
+      </div>
+      <div class="sidebar column is-4">
+        <aside>
+  
+    <aside class="search widget">
+  <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form" target="_blank">
+    <div class="control has-icons-right">
+      <input type="search" name="q" class="input" placeholder="Search">
+      <span class="icon is-small is-right">
+        <i class="fa fa-search"></i>
+      </span>
+    </div>
+    <input type="hidden" name="sitesearch" value="https://eastrivervillage.com">
+  </form>
+</aside>
+
+  
+    <div class="widget-wrap">
+  <div class="widget-title">author</div>
+  <aside class="profile media widget">
+    <!--figure class="profile-avatar media-left">
+      <img src="/images/profile_author.jpg" class="avatar" alt="Balakumaran Kannan">
+    </figure-->
+    <div class="media-content">
+      <p>
+        <strong>
+          <span>Balakumaran Kannan</span>
+        </strong>
+        <br>
+        <span>System software engineer specilied in Linux. Experience spans from ARM32 board bring-up to multi datacenter virtualization stack management. Open source contributer. From Bangalore, India.</span>
+        <br/>
+        <br/>
+        <a href="/about" target="_blank">
+          <span style="color: orangered;text-decoration-line: underline;">Contact me</span>
+        </a>
+      </p>
+    </div>
+  </aside>
+</div>
+
+  
+    
+  <div class="widget-wrap">
+    <div class="widget-title">recents</div>
+    <div class="widget">
+      <ul class="recent-post">
+        
+          <li class="recent-post-item media">
+            <figure class="media-left">
+              
+  <a href="/Custom-perf-with-custom-kernel/">
+    <img src="/images/batmobile-tank.jpg" class="thumbnail is-6x6" alt="Custom perf with custom kernel">
+  </a>
+
+
+            </figure>
+            <div class="media-content">
+              <p class="">
+                <a href="/Custom-perf-with-custom-kernel/" class="">
+                  Custom perf with custom kernel
+                </a>
+              </p>
+              <p class="">
+                <!--small>
+                  2020-11-19
+
+                </small>
+                <br/-->
+                <small>
+                  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kernel/">kernel</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/perf/">perf</a>
+    
+  </div>
+
+
+                </small>
+              </p>
+            </div>
+          </li>
+        
+          <li class="recent-post-item media">
+            <figure class="media-left">
+              
+  <a href="/perf-setup/">
+    <img src="/images/batmobile-tank.jpg" class="thumbnail is-6x6" alt="perf setup">
+  </a>
+
+
+            </figure>
+            <div class="media-content">
+              <p class="">
+                <a href="/perf-setup/" class="">
+                  perf setup
+                </a>
+              </p>
+              <p class="">
+                <!--small>
+                  2020-10-31
+
+                </small>
+                <br/-->
+                <small>
+                  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/setup/">setup</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/ubuntu/">ubuntu</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kernel/">kernel</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/perf/">perf</a>
+    
+  </div>
+
+
+                </small>
+              </p>
+            </div>
+          </li>
+        
+          <li class="recent-post-item media">
+            <figure class="media-left">
+              
+  <a href="/Quick-kernel-upgrade-with-kexec/">
+    <img src="/images/time_to_upgrade.jpg" class="thumbnail is-6x6" alt="Quick kernel upgrade with kexec">
+  </a>
+
+
+            </figure>
+            <div class="media-content">
+              <p class="">
+                <a href="/Quick-kernel-upgrade-with-kexec/" class="">
+                  Quick kernel upgrade with kexec
+                </a>
+              </p>
+              <p class="">
+                <!--small>
+                  2020-10-01
+
+                </small>
+                <br/-->
+                <small>
+                  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kernel/">kernel</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/debian/">debian</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/stretch/">stretch</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kexec/">kexec</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/security/">security</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/upgrade/">upgrade</a>
+    
+  </div>
+
+
+                </small>
+              </p>
+            </div>
+          </li>
+        
+          <li class="recent-post-item media">
+            <figure class="media-left">
+              
+  <a href="/perf-kvm-to-profile-vm-exit/">
+    <img src="/images/music-equalizer-1.jpg" class="thumbnail is-6x6" alt="perf kvm to profile vm_exit">
+  </a>
+
+
+            </figure>
+            <div class="media-content">
+              <p class="">
+                <a href="/perf-kvm-to-profile-vm-exit/" class="">
+                  perf kvm to profile vm_exit
+                </a>
+              </p>
+              <p class="">
+                <!--small>
+                  2020-09-28
+
+                </small>
+                <br/-->
+                <small>
+                  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/perf/">perf</a>
+    
+  </div>
+
+
+                </small>
+              </p>
+            </div>
+          </li>
+        
+          <li class="recent-post-item media">
+            <figure class="media-left">
+              
+  <a href="/kexec-tools-with-the-hidden-purgatory/">
+    <img src="/images/purgatory.jpg" class="thumbnail is-6x6" alt="kexec - A travel to the purgatory">
+  </a>
+
+
+            </figure>
+            <div class="media-content">
+              <p class="">
+                <a href="/kexec-tools-with-the-hidden-purgatory/" class="">
+                  kexec - A travel to the purgatory
+                </a>
+              </p>
+              <p class="">
+                <!--small>
+                  2020-01-20
+
+                </small>
+                <br/-->
+                <small>
+                  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kernel/">kernel</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/ARMv8/">ARMv8</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/crazy-debugging/">crazy debugging</a>
+    
+  </div>
+
+
+                </small>
+              </p>
+            </div>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">tag cloud</h3>
+    <div class="widget">
+      <a href="/tags/ARM/" style="font-size: 10px;">ARM</a> <a href="/tags/ARMv8/" style="font-size: 12.5px;">ARMv8</a> <a href="/tags/C/" style="font-size: 10px;">C</a> <a href="/tags/Linux/" style="font-size: 10px;">Linux</a> <a href="/tags/RaspberryPi/" style="font-size: 15px;">RaspberryPi</a> <a href="/tags/about/" style="font-size: 10px;">about</a> <a href="/tags/bitbucket/" style="font-size: 10px;">bitbucket</a> <a href="/tags/build/" style="font-size: 12.5px;">build</a> <a href="/tags/c/" style="font-size: 10px;">c</a> <a href="/tags/chatbot/" style="font-size: 10px;">chatbot</a> <a href="/tags/clone/" style="font-size: 10px;">clone</a> <a href="/tags/compiler/" style="font-size: 10px;">compiler</a> <a href="/tags/cow/" style="font-size: 10px;">cow</a> <a href="/tags/crazy-debugging/" style="font-size: 10px;">crazy debugging</a> <a href="/tags/debian/" style="font-size: 10px;">debian</a> <a href="/tags/debug/" style="font-size: 12.5px;">debug</a> <a href="/tags/devpost/" style="font-size: 10px;">devpost</a> <a href="/tags/digitalocean/" style="font-size: 12.5px;">digitalocean</a> <a href="/tags/facebook/" style="font-size: 10px;">facebook</a> <a href="/tags/fork/" style="font-size: 10px;">fork</a> <a href="/tags/gcc/" style="font-size: 10px;">gcc</a> <a href="/tags/gdb/" style="font-size: 12.5px;">gdb</a> <a href="/tags/getpid/" style="font-size: 10px;">getpid</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/github/" style="font-size: 10px;">github</a> <a href="/tags/kernel/" style="font-size: 20px;">kernel</a> <a href="/tags/kernel-module/" style="font-size: 10px;">kernel module</a> <a href="/tags/kexec/" style="font-size: 10px;">kexec</a> <a href="/tags/linux/" style="font-size: 20px;">linux</a> <a href="/tags/memory-management/" style="font-size: 12.5px;">memory management</a> <a href="/tags/memory-management/" style="font-size: 10px;">memory_management</a> <a href="/tags/nodejs/" style="font-size: 12.5px;">nodejs</a> <a href="/tags/perf/" style="font-size: 15px;">perf</a> <a href="/tags/proc/" style="font-size: 10px;">proc</a> <a href="/tags/programming/" style="font-size: 10px;">programming</a> <a href="/tags/raspberrypi/" style="font-size: 12.5px;">raspberrypi</a> <a href="/tags/security/" style="font-size: 10px;">security</a> <a href="/tags/setup/" style="font-size: 15px;">setup</a> <a href="/tags/stack/" style="font-size: 10px;">stack</a> <a href="/tags/stretch/" style="font-size: 10px;">stretch</a> <a href="/tags/swap/" style="font-size: 10px;">swap</a> <a href="/tags/system-call/" style="font-size: 10px;">system call</a> <a href="/tags/ubuntu/" style="font-size: 12.5px;">ubuntu</a> <a href="/tags/upgrade/" style="font-size: 10px;">upgrade</a> <a href="/tags/vim/" style="font-size: 10px;">vim</a> <a href="/tags/virtual-memory/" style="font-size: 10px;">virtual_memory</a> <a href="/tags/vnc/" style="font-size: 10px;">vnc</a> <a href="/tags/wit-ai/" style="font-size: 10px;">wit.ai</a> <a href="/tags/yocto/" style="font-size: 17.5px;">yocto</a>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">September 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+
+      </div>
+    </div>
+  </div>
+  <footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <p>
+        <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/deed.ja">
+          <img alt="creative commons logo" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" />
+        </a>
+        <br />
+        <span xmlns:cc="http://creativecommons.org/ns#" property="cc:attributionName">this post is available under a </span> <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution ShareAlike license.</p>
+    </div>
+  </div>
+</footer>
+
+
+  <script>
+    // HACK: custom style goes here
+    tables = document.querySelectorAll('table');
+    for (i = 0; i < tables.length; i++) {
+      tables[i].classList.add("table", "is-bordered", "is-fullwidth");
+    }
+  </script>
+</body>
+</html>

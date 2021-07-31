@@ -1,0 +1,767 @@
+
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-115014323-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-115014323-1');
+  </script>
+  <meta charset="utf-8">
+  <title>Anatomy of Linux system call in ARM64 | East River Village</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1">
+  <meta name="description" content="Architecture of Linux system call. Explains ARM64 exception levels and privilege of each level. Walks through Linux code path related to interrupt vectors and instructions that handle the system call.">
+<meta name="keywords" content="gdb,system call,Linux,ARM,ARMv8">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Anatomy of Linux system call in ARM64">
+<meta property="og:url" content="https://eastrivervillage.com/Anatomy-of-Linux-system-call-in-ARM64/index.html">
+<meta property="og:site_name" content="East River Village">
+<meta property="og:description" content="Architecture of Linux system call. Explains ARM64 exception levels and privilege of each level. Walks through Linux code path related to interrupt vectors and instructions that handle the system call.">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://eastrivervillage.com/images/anatomy_of_system_call.png">
+<meta property="og:updated_time" content="2021-07-31T06:10:58.719Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Anatomy of Linux system call in ARM64">
+<meta name="twitter:description" content="Architecture of Linux system call. Explains ARM64 exception levels and privilege of each level. Walks through Linux code path related to interrupt vectors and instructions that handle the system call.">
+<meta name="twitter:image" content="https://eastrivervillage.com/images/anatomy_of_system_call.png">
+  <link rel="icon" href="/favicon.ico">
+  
+  
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-5LB7LCD');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.1/css/bulma.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Merriweather|Lobster|Lora|Roboto Mono">
+  <link rel="stylesheet" href="/css/style.css">
+  
+<script type="application/ld+json">
+  {
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Anatomy of Linux system call in ARM64",
+  "name": "Anatomy of Linux system call in ARM64",
+  "image": "/images/anatomy_of_system_call.png",
+  "datePublished": "2018-06-11T14:41:46.000Z",
+  "dateModified": "2021-07-31T06:10:58.719Z",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://eastrivervillage.com/Anatomy-of-Linux-system-call-in-ARM64/index.html"
+  },
+  "author": {
+    "@type": "Person",
+    "name": "Balakumaran Kannan",
+    "image": "/images/profile_author.jpg",
+    "description": "System software engineer specilied in Linux. Experience spans from ARM32 board bring-up to multi datacenter virtualization stack management. Open source contributer. From Bangalore, India."
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Balakumaran Kannan",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "/images/profile_author.jpg"
+    }
+  }
+}
+</script>
+
+  
+</head>
+</html>
+<body>
+  
+  
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-5LB7LCD');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  <header class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a href="/" class="navbar-item">
+      East River Village
+    </a>
+  </div>
+</header>
+
+  <div class="container">
+    <div class="columns">
+      <div style="overflow:hidden;" class="main column">
+        <article class="post">
+  <figure class="post-thumbnail">
+    
+  <img src="/images/anatomy_of_system_call.png" class="thumbnail " alt="Anatomy of Linux system call in ARM64">
+
+
+  </figure>
+  <span>2018-06-11
+</span>
+  <h1 class="title">Anatomy of Linux system call in ARM64</h1>
+  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/gdb/">gdb</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/system-call/">system call</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/Linux/">Linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/ARM/">ARM</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/ARMv8/">ARMv8</a>
+    
+  </div>
+
+
+  <div class="content">
+    <p>The purpose of an Operating System is to run user applications. But the OS cannot provide user applications full control due to security reasons. So to do some privileged operations applications should ask OS to do the job on behalf of themselves. The primary interaction mechanism in Linux and similar Operating Systems is System Call. In this article we are going to see the anatomy of Linux System Calls in ARM64 architecture. Most people working with applications doesn’t require it. It is only for those who have a printed copy of <code>Hitchhiker&#39;s guide to the galaxy</code>. DON’T PANIC!</p>
+<p>ARMv8 has four exception levels - EL0 to EL3. EL0 has lowest privilege where user applications run. EL3 has the highest privilege for Secure Monitor firmware (usually proprietary). Hypervisor runs in EL2 for virtualisation platforms. And our beloved Linux kernel runs in EL1. Elevation from one exception level to next exception level are achieved by setting exceptions. These exceptions will be set by one level and the next level will handle it. Explaining all types of exceptions is out of the scope of this article.</p>
+<p>The instruction used to set a synchronous exception [used for system call mechanism] to elevate from EL0 to EL1 is <code>svc</code> - supervisor call. Thus an application runs in Linux should issue <code>svc</code> with registers set with appropriate values. To know what are those appropriate values, Lets see how kernel handles <code>svc</code>.</p>
+<h1 id="Kernel-Part"><a href="#Kernel-Part" class="headerlink" title="Kernel Part"></a>Kernel Part</h1><div style="color:#3273dc"><br><span style="font-weight: bold;">NOTE:</span> All the code references given in this post are from Linux-4.9.57.<br></div>
+
+<h3 id="Vector-table-definition-in-Kernel"><a href="#Vector-table-definition-in-Kernel" class="headerlink" title="Vector table definition in Kernel"></a>Vector table definition in Kernel</h3><p>As I have mentioned already, there are multiple exceptions can be set by applications [EL0] which will be taken by Kernel [EL1]. The handlers for these exceptions are stored in a vector table. In ARMv8 the register that mentions the base address of that vector table is <code>VBAR_EL1</code> [Vector Base Address Register for EL1].</p>
+<blockquote><p>When an exception occurs, the processor must execute handler code which corresponds to the exception. The location in memory where the handler is stored is called the exception vector. In the ARM architecture, exception vectors are stored in a table, called the exception vector table. Each Exception level has its own vector table, that is, there is one for each of EL3, EL2 and EL1. The table contains instructions to be executed, rather than a set of addresses. Vectors for individual exceptions are located at fixed offsets from the beginning of the table. The virtual address of each table base is set by the Vector Based Address Registers VBAR_EL3, VBAR_EL2 and VBAR_EL1.</p>
+<footer><strong>ARM infocenter</strong></footer></blockquote>
+<p>As explained above the exception-handlers reside in a continuous memory and each vector spans up to 32 instructions long. Based on type of the exception, the execution will start from an instruction in a particular offset from the base address <code>VBAR_EL1</code>. Below is the ARM64 vector table. For example when an synchronous exception is set from EL0 is set, the handler at <code>VBAR_EL1 +0x400</code> will execute to handle the exception.</p>
+<table>
+<thead>
+<tr>
+<th>Offset from VBAR_EL1</th>
+<th>Exception type</th>
+<th>Exception set level</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>+0x000</td>
+<td>Synchronous</td>
+<td>Current EL with SP0</td>
+</tr>
+<tr>
+<td>+0x080</td>
+<td>IRQ/vIRQ</td>
+<td>“</td>
+</tr>
+<tr>
+<td>+0x100</td>
+<td>FIQ/vFIQ</td>
+<td>“</td>
+</tr>
+<tr>
+<td>+0x180</td>
+<td>SError/vSError</td>
+<td>“</td>
+</tr>
+<tr>
+<td>+0x200</td>
+<td>Synchronous</td>
+<td>Current EL with SPx</td>
+</tr>
+<tr>
+<td>+0x280</td>
+<td>IRQ/vIRQ</td>
+<td>“</td>
+</tr>
+<tr>
+<td>+0x300</td>
+<td>FIQ/vFIQ</td>
+<td>“</td>
+</tr>
+<tr>
+<td>+0x380</td>
+<td>SError/vSError</td>
+<td>“</td>
+</tr>
+<tr>
+<td>+0x400</td>
+<td>Synchronous</td>
+<td>Lower EL using ARM64</td>
+</tr>
+<tr>
+<td>+0x480</td>
+<td>IRQ/vIRQ</td>
+<td>“</td>
+</tr>
+<tr>
+<td>+0x500</td>
+<td>FIQ/vFIQ</td>
+<td>“</td>
+</tr>
+<tr>
+<td>+0x580</td>
+<td>SError/vSError</td>
+<td>“</td>
+</tr>
+<tr>
+<td>+0x600</td>
+<td>Synchronous</td>
+<td>Lower EL with ARM32</td>
+</tr>
+<tr>
+<td>+0x680</td>
+<td>IRQ/vIRQ</td>
+<td>“</td>
+</tr>
+<tr>
+<td>+0x700</td>
+<td>FIQ/vFIQ</td>
+<td>“</td>
+</tr>
+<tr>
+<td>+0x780</td>
+<td>SError/vSError</td>
+<td>“</td>
+</tr>
+</tbody>
+</table>
+<p>Linux defines the vector table at <code>arch/arm64/kernel/entry.S +259</code>. Each <code>ventry</code> is 32 instructions long. As an instruction in ARMv8 is 4 bytes long, next <code>ventry</code> will start at +0x80 of current <code>ventry</code>.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">ENTRY(vectors)</span><br><span class="line">    ventry    el1_sync_invalid           // Synchronous EL1t</span><br><span class="line">    ventry    el1_irq_invalid            // IRQ EL1t</span><br><span class="line">    ventry    el1_fiq_invalid            // FIQ EL1t</span><br><span class="line">    ventry    el1_error_invalid          // Error EL1t</span><br><span class="line"></span><br><span class="line">    ventry    el1_sync                   // Synchronous EL1h</span><br><span class="line">    ventry    el1_irq                    // IRQ EL1h</span><br><span class="line">    ventry    el1_fiq_invalid            // FIQ EL1h</span><br><span class="line">    ventry    el1_error_invalid          // Error EL1h</span><br><span class="line"></span><br><span class="line">    ventry    el0_sync                   // Synchronous 64-bit EL0</span><br><span class="line">    ventry    el0_irq                    // IRQ 64-bit EL0</span><br><span class="line">    ventry    el0_fiq_invalid            // FIQ 64-bit EL0</span><br><span class="line">    ventry    el0_error_invalid          // Error 64-bit EL0</span><br><span class="line"></span><br><span class="line">#ifdef CONFIG_COMPAT</span><br><span class="line">    ventry    el0_sync_compat            // Synchronous 32-bit EL0</span><br><span class="line">    ventry    el0_irq_compat             // IRQ 32-bit EL0</span><br><span class="line">    ventry    el0_fiq_invalid_compat     // FIQ 32-bit EL0</span><br><span class="line">    ventry    el0_error_invalid_compat   // Error 32-bit EL0</span><br><span class="line">#else</span><br><span class="line">    ventry    el0_sync_invalid           // Synchronous 32-bit EL0</span><br><span class="line">    ventry    el0_irq_invalid            // IRQ 32-bit EL0</span><br><span class="line">    ventry    el0_fiq_invalid            // FIQ 32-bit EL0</span><br><span class="line">    ventry    el0_error_invalid          // Error 32-bit EL0</span><br><span class="line">#endif</span><br><span class="line">END(vectors)</span><br></pre></td></tr></table></figure></p>
+<p>And loads the vector table into <code>VBAR_EL1</code> at <code>arch/arm64/kernel/head.S +433</code>.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">adr_l   x8, vectors                 // load VBAR_EL1 with virtual</span><br><span class="line">msr     vbar_el1, x8                // vector table address</span><br><span class="line">isb</span><br></pre></td></tr></table></figure></p>
+<p><code>VBAR_EL1</code> is an system register. So it cannot be accessed directly. Special system instructions <code>msr</code> and <code>mrs</code> should be used manipulate system registers.</p>
+<table>
+<thead>
+<tr>
+<th>Instruction</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>adr_l x8, vector</code></td>
+<td>loads the address of vector table into general purpose register <code>X8</code></td>
+</tr>
+<tr>
+<td><code>msr vbar_el1, x8</code></td>
+<td>moves value in <code>X8</code> to system register <code>VBAR_EL1</code></td>
+</tr>
+<tr>
+<td><code>isb</code></td>
+<td>instruction sync barrier</td>
+</tr>
+</tbody>
+</table>
+<h3 id="System-call-flow-in-Kernel"><a href="#System-call-flow-in-Kernel" class="headerlink" title="System call flow in Kernel"></a>System call flow in Kernel</h3><p>Now lets see what happens when an application issues the instruction <code>svc</code>. From the table, we can see for AArch64 synchronous exception from lower level, the offset is <code>+0x400</code>. In the Linux vector definition <code>VBAR_EL1+0x400</code> is <code>el0_sync</code>. Lets go to the <code>el0_sync</code> definition at <code>arch/arm64/kernel/entry.S +458</code><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">el0_sync:</span><br><span class="line">    kernel_entry 0</span><br><span class="line">    mrs    x25, esr_el1                     // read the syndrome register</span><br><span class="line">    lsr    x24, x25, #ESR_ELx_EC_SHIFT      // exception class</span><br><span class="line">    cmp    x24, #ESR_ELx_EC_SVC64           // SVC in 64-bit state</span><br><span class="line">    b.eq    el0_svc</span><br><span class="line">    cmp    x24, #ESR_ELx_EC_DABT_LOW        // data abort in EL0</span><br><span class="line">    b.eq    el0_da</span><br><span class="line">    cmp    x24, #ESR_ELx_EC_IABT_LOW        // instruction abort in EL0</span><br><span class="line">    b.eq    el0_ia</span><br><span class="line">    cmp    x24, #ESR_ELx_EC_FP_ASIMD        // FP/ASIMD access</span><br><span class="line">    b.eq    el0_fpsimd_acc</span><br><span class="line">    cmp    x24, #ESR_ELx_EC_FP_EXC64        // FP/ASIMD exception</span><br><span class="line">    b.eq    el0_fpsimd_exc</span><br><span class="line">    cmp    x24, #ESR_ELx_EC_SYS64           // configurable trap</span><br><span class="line">    b.eq    el0_sys</span><br><span class="line">    cmp    x24, #ESR_ELx_EC_SP_ALIGN        // stack alignment exception</span><br><span class="line">    b.eq    el0_sp_pc</span><br><span class="line">    cmp    x24, #ESR_ELx_EC_PC_ALIGN        // pc alignment exception</span><br><span class="line">    b.eq    el0_sp_pc</span><br><span class="line">    cmp    x24, #ESR_ELx_EC_UNKNOWN         // unknown exception in EL0</span><br><span class="line">    b.eq    el0_undef</span><br><span class="line">    cmp    x24, #ESR_ELx_EC_BREAKPT_LOW     // debug exception in EL0</span><br><span class="line">    b.ge    el0_dbg</span><br><span class="line">    b    el0_inv</span><br></pre></td></tr></table></figure></p>
+<p>The subroutine is nothing but a bunch of <code>if</code> conditions. The synchronous exception can have multiple reasons which will be  stored in the syndrome register <code>esr_el1</code>. Compare the value in syndrome register with predefined macros and branch to the corresponding subroutine.</p>
+<table>
+<thead>
+<tr>
+<th>Instruction</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>kernel_entry 0</code></td>
+<td>It is a macro defined at<br><code>arch/arm64/kernel/entry.S +71</code>. It stores<br>all the general purpose registers into<br>CPU stack as the sys_* function<br>expects its arguments from<br>CPU stack only</td>
+</tr>
+<tr>
+<td><code>mrs x25, esr_el1</code></td>
+<td>Move system register <code>esr_el1</code> to general<br>purpose register <code>X25</code>. <code>esr_el1</code> is the exception <br>syndrome register. It will have the syndrome code <br>that caused the exception.</td>
+</tr>
+<tr>
+<td><code>lsr x24, x25, #ESR_ELx_EC_SHIFT</code></td>
+<td>Left shift <code>X25</code> by <code>ESR_ELx_EC_SHIFT</code> bits <br>and store the result in <code>X24</code></td>
+</tr>
+<tr>
+<td><code>cmp x24, #ESR_ELx_EC_SVC64</code></td>
+<td>Compare the value in <code>X24</code> with <code>ESR_ELx_EC_SVC64</code>. <br>If both are equal <code>Z</code> bit will be set in <code>NZCV</code> <br>special purpose register.</td>
+</tr>
+<tr>
+<td><code>b.eq el0_svc</code></td>
+<td>If <code>Z</code> flag is set in <code>NZCV</code>, branch to <code>el0_svc</code>. <br>It is just <code>b</code> not <code>bl</code>. So the control will not come <br>back to caller. The condition check will happen until <br>it finds the appropriate reason. If all are wrong <code>el0_inv</code> <br>will be called.</td>
+</tr>
+</tbody>
+</table>
+<p>In a system call case, control will be branched to <code>el0_svc</code>. It is defined at <code>arm64/kernel/entry.S +742</code> as follows<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">/*</span><br><span class="line"> * SVC handler.</span><br><span class="line"> */</span><br><span class="line">    .align    6</span><br><span class="line">el0_svc:</span><br><span class="line">    adrp    stbl, sys_call_table            // load syscall table pointer</span><br><span class="line">    uxtw    scno, w8                        // syscall number in w8</span><br><span class="line">    mov     sc_nr, #__NR_syscalls</span><br><span class="line">el0_svc_naked:                              // compat entry point</span><br><span class="line">    stp     x0, scno, [sp, #S_ORIG_X0]      // save the original x0 and syscall number    enable_dbg_and_irq</span><br><span class="line">    ct_user_exit 1</span><br><span class="line"></span><br><span class="line">    ldr     x16, [tsk, #TI_FLAGS]           // check for syscall hooks</span><br><span class="line">    tst     x16, #_TIF_SYSCALL_WORK</span><br><span class="line">    b.ne    __sys_trace</span><br><span class="line">    cmp     scno, sc_nr                     // check upper syscall limit</span><br><span class="line">    b.hs    ni_sys</span><br><span class="line">    ldr     x16, [stbl, scno, lsl #3]       // address in the syscall table</span><br><span class="line">    blr     x16                             // call sys_* routine</span><br><span class="line">    b       ret_fast_syscall</span><br><span class="line">ni_sys:</span><br><span class="line">    mov     x0, sp</span><br><span class="line">    bl      do_ni_syscall</span><br><span class="line">    b       ret_fast_syscall</span><br><span class="line">ENDPROC(el0_svc)</span><br></pre></td></tr></table></figure></p>
+<p>Before going through the code, let me introduce the aliases<br><code>arch/arm64/kernel/entry.S +229</code><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">/*</span><br><span class="line"> * These are the registers used in the syscall handler, and allow us to</span><br><span class="line"> * have in theory up to 7 arguments to a function - x0 to x6.</span><br><span class="line"> *</span><br><span class="line"> * x7 is reserved for the system call number in 32-bit mode.</span><br><span class="line"> */</span><br><span class="line">sc_nr   .req    x25        // number of system calls</span><br><span class="line">scno    .req    x26        // syscall number</span><br><span class="line">stbl    .req    x27        // syscall table pointer</span><br><span class="line">tsk     .req    x28        // current thread_info</span><br></pre></td></tr></table></figure></p>
+<p>Now lets walk through function <code>el0_svc</code>,</p>
+<table>
+<thead>
+<tr>
+<th>Instruction</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>adrp stbl, sys_call_table</code></td>
+<td>I’ll come to the <code>sys_call_table</code> in next section. <br>It is the table indexed with syscall number and <br>corresponding function. It has to be in a <br>4K aligned memory. Thus this instruction adds the top <br>22-bits of <code>sys_call_table</code> address with top 52-bit of <br><code>PC</code> (program counter) and stores the value at <code>stbl</code>. <br>Actually it forms the PC-relative address to 4KB page.</td>
+</tr>
+<tr>
+<td><code>uxtw scno, w8</code></td>
+<td>unsigned extract from 32-bit word. <br>Read 32-bit form of General purpose register <code>X8</code> <br>and store it in <code>scno</code></td>
+</tr>
+<tr>
+<td><code>mov sc_nr, #__NR_syscalls</code></td>
+<td>Load <code>sc_nr</code> with number of system calls</td>
+</tr>
+<tr>
+<td><code>stp x0, scno, [sp, #S_ORIG_X0]</code></td>
+<td>Store a pair of registers <code>X0</code> and <code>scno</code> <br>at the memory location stack-pointer + <code>S_ORIG_X0</code>. <br>Value of <code>S_ORIG_X0</code> is not really important. <br>As long as stack-pointer is not modified, <br>we can access the stored values anytime.</td>
+</tr>
+<tr>
+<td><code>enable_dbg_and_irq</code></td>
+<td>it is a macro defined at <br><code>arch/arm64/include/asm/assembler.h +88</code>. <br>It actually enables IRQ and <br>debugging by setting appropriate <br>value at special purpose register <code>DAIF</code>.</td>
+</tr>
+<tr>
+<td><code>ct_user_exit 1</code></td>
+<td>another macro not much important <br>unless you bother about <code>CONFIG_CONTEXT_TRACKING</code></td>
+</tr>
+<tr>
+<td><code>ldr x16, [tsk, #TI_FLAGS]</code><br> <code>tst x16, #_TIF_SYSCALL_WORK</code> <br><code>b.ne __sys_trace</code></td>
+<td>These instructions are related to syscall hooks. <br>If syscall hooks are set, call <code>__sys_trace</code>. <br>For those who got confused about <code>b.ne</code> like me, <br><code>.ne</code> only check whether <code>Z</code> flag is non zero. <br><code>tst</code> instruction does an bitwise AND of both <br>operands. If both are equal, <code>Z</code> flag will be non zero.</td>
+</tr>
+<tr>
+<td><code>cmp scno, sc_nr</code> <br><code>b.hs ni_sys</code></td>
+<td>Just an error check. If the <br>syscall number is greater than<br><code>sc_nr</code> go to <code>ni_sys</code></td>
+</tr>
+<tr>
+<td><code>ldr x16, [stbl, scno, lsl #3]</code></td>
+<td>Load the address of corresponding <br><code>sys_*</code> function into <code>X16</code>.<br>Will explain detail in next section</td>
+</tr>
+<tr>
+<td><code>blr x16</code></td>
+<td>subroutine call to the actual <code>sys_*</code> <br>function</td>
+</tr>
+<tr>
+<td><code>b ret_fast_syscall</code></td>
+<td>Maybe a house-keeping function. <br>Control will not flow further down.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sys-call-table"><a href="#sys-call-table" class="headerlink" title="sys_call_table"></a>sys_call_table</h3><p>It is nothing but an array of function pointer indexed with the system call number. It has to be placed in an 4K aligned memory. For ARM64 <code>sys_call_table</code> is defined at <code>arch/arm64/kernel/sys.c +55</code>.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">#undef __SYSCALL</span><br><span class="line">#define __SYSCALL(nr, sym)  [nr] = sym,</span><br><span class="line"></span><br><span class="line">/*</span><br><span class="line"> * The sys_call_table array must be 4K aligned to be accessible from</span><br><span class="line"> * kernel/entry.S.</span><br><span class="line"> */</span><br><span class="line">void * const sys_call_table[__NR_syscalls] __aligned(4096) = &#123;</span><br><span class="line">    [0 ... __NR_syscalls - 1] = sys_ni_syscall,</span><br><span class="line">#include &lt;asm/unistd.h&gt;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li><code>__NR_syscalls</code> defines the number of system call. This varies from architecture to architecture.</li>
+<li>Initially all the system call numbers were set <code>sys_ni_syscall</code> - not implemented system call. If a system call is removed, its system call number will not be reused. Instead it will be assigned with <code>sys_ni_syscall</code> function.</li>
+<li><p>And the include goes like this <code>arch/arm64/include/asm/unistd.h</code> -&gt; <code>arch/arm64/include/uapi/asm/unistd.h</code> -&gt; <code>include/asm-generic/unistd.h</code> -&gt; <code>include/uapi/asm-generic/unistd.h</code>. The last file has the definition of all system calls. For example the <code>write</code> system call is defined here as</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#define __NR_write 64</span><br><span class="line">__SYSCALL(__NR_write, sys_write)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>The <code>sys_call_table</code> is an array of function pointers. As in ARM64 a function pointer is 8 bytes long, to calculate the address of actual system call, system call number <code>scno</code> is left shifted by 3 and added with system call table address <code>stbl</code> in the <code>el0_svc</code> subroutine - <code>ldr x16, [stbl, scno, lsl #3]</code></p>
+</li>
+</ul>
+<h3 id="System-call-definition"><a href="#System-call-definition" class="headerlink" title="System call definition"></a>System call definition</h3><p>Each system call is defined with a macro <code>SYSCALL_DEFINEn</code> macro. <code>n</code> is corresponding to the number of arguments the system call accepts. For example the <code>write</code> is implemented at <code>fs/read_write.c +599</code><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">SYSCALL_DEFINE3(write, unsigned int, fd, const char __user *, buf,</span><br><span class="line">        size_t, count)</span><br><span class="line">&#123;</span><br><span class="line">    struct fd f = fdget_pos(fd);</span><br><span class="line">    ssize_t ret = -EBADF;</span><br><span class="line"></span><br><span class="line">    if (f.file) &#123;</span><br><span class="line">        loff_t pos = file_pos_read(f.file);</span><br><span class="line">        ret = vfs_write(f.file, buf, count, &amp;pos);</span><br><span class="line">        if (ret &gt;= 0)</span><br><span class="line">            file_pos_write(f.file, pos);</span><br><span class="line">        fdput_pos(f);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    return ret;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>This macro will expand into <code>sys_write</code> function definition and other aliases functions as mentioned in this <a href="https://lwn.net/Articles/604287/" target="_blank" rel="noopener">LWN article</a>. The expanded function will have the compiler directive <code>asmlinkage</code> set. It instructs the compiler to look for arguments in CPU stack instead of registers. This is to implement system calls architecture independent. That’s why <code>kernel_entry</code> macro in <code>el0_sync</code> pushed all general purpose registers into stack. In ARM64 case registers <code>X0</code> to <code>X7</code> will have the arguments.</p>
+<h1 id="Application-part"><a href="#Application-part" class="headerlink" title="Application part"></a>Application part</h1><p>An user application should do following steps to make a system call</p>
+<ul>
+<li>Set the lower 32-bit of general purpose register <code>X8</code> with appropriate system call number - <code>el0_svc</code> loads the system call number from <code>W0</code></li>
+<li>And then issue the <code>svc</code> instruction</li>
+<li>Now kernel implemented <code>sys_*</code> function will run on behalf of the application</li>
+</ul>
+<p>Normally all the heavy lifting will be done by the <code>glibc</code> library. Dependency on <code>glibc</code> also makes the application portable across platforms having <code>glibc</code> support. Each platform will have different system call number and <code>glibc</code> takes care of that while compiling.</p>
+<h3 id="printf-implementation"><a href="#printf-implementation" class="headerlink" title="printf implementation"></a><code>printf</code> implementation</h3><p>In this section we’ll see how <code>glibc</code> implements the <code>printf</code> system call. Going deep into all <code>glibc</code> macro expansion is out of scope of this post. End of the day <code>printf</code> has to be a <code>write</code> towards the <code>stdout</code> file. Lets see that.</p>
+<p>Wrote a simple hello world program.<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">kaba@kaba-Vostro-1550:~/Desktop/workbench/code</span><br><span class="line">$ cat syscall.c</span><br><span class="line"><span class="comment">#include &lt;stdio.h&gt;</span></span><br><span class="line"></span><br><span class="line">int main()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"Hello world!\n"</span>);</span><br><span class="line">    <span class="built_in">return</span> 0;</span><br><span class="line">&#125;</span><br><span class="line">kaba@kaba-Vostro-1550:~/Desktop/workbench/code</span><br><span class="line">$</span><br></pre></td></tr></table></figure></p>
+<p>Compile it with symbols and export it to an ARM64 target [Raspberry Pi 3 in my case]. Run it in the target with <code>gdbserver</code> and connect remote GDB as mentioned in previous <a href="http://eastrivervillage.com/debugging-application-with-cross-gdb-yocto/">post</a>.</p>
+<p>The last function in <code>glibc</code> that issues <code>svc</code> is <code>__GI___libc_write</code>. I got this with the help of <code>GDB</code>. If you really want to go through <code>glibc</code> code to trace this function all the way from <code>printf</code>, prepare yourself. Here is the <code>GDB</code> backtrace output.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">(gdb) bt</span><br><span class="line">#0  __GI___libc_write (fd=1, buf=0x412260, nbytes=13) at /usr/src/debug/glibc/2.26-r0/git/sysdeps/unix/sysv/linux/write.c:26</span><br><span class="line">#1  0x0000007fb7eeddcc in _IO_new_file_write (f=0x7fb7fcd540 &lt;_IO_2_1_stdout_&gt;, data=0x412260, n=13) at /usr/src/debug/glibc/2.26-r0/git/libio/fileops.c:1255</span><br><span class="line">#2  0x0000007fb7eed160 in new_do_write (fp=0x7fb7fcd540 &lt;_IO_2_1_stdout_&gt;, data=0x412260 &quot;Hello world!\n&quot;, to_do=to_do@entry=13) at /usr/src/debug/glibc/2.26-r0/git/libio/fileops.c:510</span><br><span class="line">#3  0x0000007fb7eeefc4 in _IO_new_do_write (fp=fp@entry=0x7fb7fcd540 &lt;_IO_2_1_stdout_&gt;, data=&lt;optimized out&gt;, to_do=13) at /usr/src/debug/glibc/2.26-r0/git/libio/fileops.c:486</span><br><span class="line">#4  0x0000007fb7eef3f0 in _IO_new_file_overflow (f=0x7fb7fcd540 &lt;_IO_2_1_stdout_&gt;, ch=10) at /usr/src/debug/glibc/2.26-r0/git/libio/fileops.c:851</span><br><span class="line">#5  0x0000007fb7ee3d78 in _IO_puts (str=0x400638 &quot;Hello world!&quot;) at /usr/src/debug/glibc/2.26-r0/git/libio/ioputs.c:41</span><br><span class="line">#6  0x0000000000400578 in main () at syscall.c:5</span><br></pre></td></tr></table></figure></p>
+<p> Lets us see the assembly instructions of <code>__GI_libc_write</code> function in GDB TUI.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"> |0x7fb7f407a8 &lt;__GI___libc_write&gt;        stp    x29, x30, [sp, #-48]!</span><br><span class="line">&gt;│0x7fb7f407ac &lt;__GI___libc_write+4&gt;      adrp   x3, 0x7fb7fd1000 &lt;__libc_pthread_functions+184&gt;</span><br><span class="line"> │0x7fb7f407b0 &lt;__GI___libc_write+8&gt;      mov    x29, sp</span><br><span class="line"> │0x7fb7f407b4 &lt;__GI___libc_write+12&gt;     str    x19, [sp, #16]</span><br><span class="line"> │0x7fb7f407b8 &lt;__GI___libc_write+16&gt;     sxtw   x19, w0</span><br><span class="line"> │0x7fb7f407bc &lt;__GI___libc_write+20&gt;     ldr    w0, [x3, #264]</span><br><span class="line"> │0x7fb7f407c0 &lt;__GI___libc_write+24&gt;     cbnz   w0, 0x7fb7f407f0 &lt;__GI___libc_write+72&gt;</span><br><span class="line"> │0x7fb7f407c4 &lt;__GI___libc_write+28&gt;     mov    x0, x19</span><br><span class="line"> │0x7fb7f407c8 &lt;__GI___libc_write+32&gt;     mov    x8, #0x40                       // #64</span><br><span class="line"> │0x7fb7f407cc &lt;__GI___libc_write+36&gt;     svc    #0x0</span><br><span class="line"> .</span><br><span class="line"> .</span><br><span class="line"> .</span><br></pre></td></tr></table></figure></p>
+<table>
+<thead>
+<tr>
+<th>Instruction</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>stp    x29, x30, [sp, #-48]!</td>
+<td>Increment stack pointer and back-up<br>frame-pointer and link-register</td>
+</tr>
+<tr>
+<td>adrp   x3, 0x7fb7fd1000</td>
+<td>Load the PC related address<br>of <code>SINGLE_THREAD_P</code></td>
+</tr>
+<tr>
+<td>mov    x29, sp</td>
+<td>Move current stack-pointer<br>into frame-pointer</td>
+</tr>
+<tr>
+<td>str    x19, [sp, #16]</td>
+<td>Backup <code>X19</code> in stack</td>
+</tr>
+<tr>
+<td>sxtw   x19, w0</td>
+<td>Backup <code>W0</code> into <code>X19</code><br> the first parameter<br>This function has 3 parameters<br>So they will be in <code>X0</code>, <code>X1</code><br>and<code>X2</code>. Thus they have to be<br>backed-up before using</td>
+</tr>
+<tr>
+<td>ldr    w0, [x3, #264]</td>
+<td>Load the global into <code>W0</code><br>This global tells whether<br>it is a multi-threaded<br>program</td>
+</tr>
+<tr>
+<td>cbnz   w0, 0x7fb7f407f0</td>
+<td>Conditional branch if <code>W0</code><br>is non zero<br>Actually a jump in case of<br>multi-threaded program.<br>Our case is single threaded.<br>So fall through</td>
+</tr>
+<tr>
+<td>mov    x0, x19</td>
+<td>Restore <code>X19</code> into <code>X0</code>.<br>The first argument.<br>Here the <code>fd</code></td>
+</tr>
+<tr>
+<td>mov    x8, #0x40</td>
+<td>Load <code>X8</code> with the value <code>0x40</code>.<br>Kernel will look<br>for the system call number<br>at <code>X8</code>. So we load it with 64<br>which is the system call<br>number of <code>write</code></td>
+</tr>
+<tr>
+<td>svc    #0x0</td>
+<td>All set. Now <br><code>supervisor call</code></td>
+</tr>
+</tbody>
+</table>
+<p>From this point the almighty Linux kernel takes control. Pretty long article ahh!. At last the improbable drive comes to equilibrium as you complete this.</p>
+<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><ul>
+<li><a href="http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.den0024a/ch09s01s01.html" target="_blank" rel="noopener">http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.den0024a/ch09s01s01.html</a></li>
+<li><a href="http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.den0024a/CHDEEDDC.html" target="_blank" rel="noopener">http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.den0024a/CHDEEDDC.html</a></li>
+<li><a href="https://lwn.net/Articles/604287/" target="_blank" rel="noopener">https://lwn.net/Articles/604287/</a></li>
+<li><a href="https://courses.cs.washington.edu/courses/cse469/18wi/Materials/arm64.pdf" target="_blank" rel="noopener">https://courses.cs.washington.edu/courses/cse469/18wi/Materials/arm64.pdf</a></li>
+<li><a href="http://www.osteras.info/personal/2013/10/11/hello-world-analysis.html" target="_blank" rel="noopener">http://www.osteras.info/personal/2013/10/11/hello-world-analysis.html</a></li>
+<li>And the Linux kernel source. Thanks to <a href="https://elixir.bootlin.com" target="_blank" rel="noopener">https://elixir.bootlin.com</a></li>
+</ul>
+
+  </div>
+  
+<nav class="footer-nav">
+  
+    <div class="footer-nav__prev">
+      <div class="footer-nav__label">
+        Newer
+      </div>
+      <a href="/The-Volatile-keyword/">
+        The Volatile keyword
+      </a>
+    </div>
+  
+  
+    <div class="footer-nav__next">
+      <div class="footer-nav__label">
+        Older
+      </div>
+      <a href="/debugging-application-with-cross-gdb-yocto/">
+        Debugging application with cross-GDB in Yocto environment
+      </a>
+    </div>
+  
+</nav>
+
+
+</article>
+
+
+      </div>
+      <div class="sidebar column is-4">
+        <aside>
+  
+    <aside class="search widget">
+  <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form" target="_blank">
+    <div class="control has-icons-right">
+      <input type="search" name="q" class="input" placeholder="Search">
+      <span class="icon is-small is-right">
+        <i class="fa fa-search"></i>
+      </span>
+    </div>
+    <input type="hidden" name="sitesearch" value="https://eastrivervillage.com">
+  </form>
+</aside>
+
+  
+    <div class="widget-wrap">
+  <div class="widget-title">author</div>
+  <aside class="profile media widget">
+    <!--figure class="profile-avatar media-left">
+      <img src="/images/profile_author.jpg" class="avatar" alt="Balakumaran Kannan">
+    </figure-->
+    <div class="media-content">
+      <p>
+        <strong>
+          <span>Balakumaran Kannan</span>
+        </strong>
+        <br>
+        <span>System software engineer specilied in Linux. Experience spans from ARM32 board bring-up to multi datacenter virtualization stack management. Open source contributer. From Bangalore, India.</span>
+        <br/>
+        <br/>
+        <a href="/about" target="_blank">
+          <span style="color: orangered;text-decoration-line: underline;">Contact me</span>
+        </a>
+      </p>
+    </div>
+  </aside>
+</div>
+
+  
+    
+  <div class="widget-wrap">
+    <div class="widget-title">recents</div>
+    <div class="widget">
+      <ul class="recent-post">
+        
+          <li class="recent-post-item media">
+            <figure class="media-left">
+              
+  <a href="/Custom-perf-with-custom-kernel/">
+    <img src="/images/batmobile-tank.jpg" class="thumbnail is-6x6" alt="Custom perf with custom kernel">
+  </a>
+
+
+            </figure>
+            <div class="media-content">
+              <p class="">
+                <a href="/Custom-perf-with-custom-kernel/" class="">
+                  Custom perf with custom kernel
+                </a>
+              </p>
+              <p class="">
+                <!--small>
+                  2020-11-19
+
+                </small>
+                <br/-->
+                <small>
+                  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kernel/">kernel</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/perf/">perf</a>
+    
+  </div>
+
+
+                </small>
+              </p>
+            </div>
+          </li>
+        
+          <li class="recent-post-item media">
+            <figure class="media-left">
+              
+  <a href="/perf-setup/">
+    <img src="/images/batmobile-tank.jpg" class="thumbnail is-6x6" alt="perf setup">
+  </a>
+
+
+            </figure>
+            <div class="media-content">
+              <p class="">
+                <a href="/perf-setup/" class="">
+                  perf setup
+                </a>
+              </p>
+              <p class="">
+                <!--small>
+                  2020-10-31
+
+                </small>
+                <br/-->
+                <small>
+                  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/setup/">setup</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/ubuntu/">ubuntu</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kernel/">kernel</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/perf/">perf</a>
+    
+  </div>
+
+
+                </small>
+              </p>
+            </div>
+          </li>
+        
+          <li class="recent-post-item media">
+            <figure class="media-left">
+              
+  <a href="/Quick-kernel-upgrade-with-kexec/">
+    <img src="/images/time_to_upgrade.jpg" class="thumbnail is-6x6" alt="Quick kernel upgrade with kexec">
+  </a>
+
+
+            </figure>
+            <div class="media-content">
+              <p class="">
+                <a href="/Quick-kernel-upgrade-with-kexec/" class="">
+                  Quick kernel upgrade with kexec
+                </a>
+              </p>
+              <p class="">
+                <!--small>
+                  2020-10-01
+
+                </small>
+                <br/-->
+                <small>
+                  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kernel/">kernel</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/debian/">debian</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/stretch/">stretch</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kexec/">kexec</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/security/">security</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/upgrade/">upgrade</a>
+    
+  </div>
+
+
+                </small>
+              </p>
+            </div>
+          </li>
+        
+          <li class="recent-post-item media">
+            <figure class="media-left">
+              
+  <a href="/perf-kvm-to-profile-vm-exit/">
+    <img src="/images/music-equalizer-1.jpg" class="thumbnail is-6x6" alt="perf kvm to profile vm_exit">
+  </a>
+
+
+            </figure>
+            <div class="media-content">
+              <p class="">
+                <a href="/perf-kvm-to-profile-vm-exit/" class="">
+                  perf kvm to profile vm_exit
+                </a>
+              </p>
+              <p class="">
+                <!--small>
+                  2020-09-28
+
+                </small>
+                <br/-->
+                <small>
+                  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/perf/">perf</a>
+    
+  </div>
+
+
+                </small>
+              </p>
+            </div>
+          </li>
+        
+          <li class="recent-post-item media">
+            <figure class="media-left">
+              
+  <a href="/kexec-tools-with-the-hidden-purgatory/">
+    <img src="/images/purgatory.jpg" class="thumbnail is-6x6" alt="kexec - A travel to the purgatory">
+  </a>
+
+
+            </figure>
+            <div class="media-content">
+              <p class="">
+                <a href="/kexec-tools-with-the-hidden-purgatory/" class="">
+                  kexec - A travel to the purgatory
+                </a>
+              </p>
+              <p class="">
+                <!--small>
+                  2020-01-20
+
+                </small>
+                <br/-->
+                <small>
+                  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kernel/">kernel</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/ARMv8/">ARMv8</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/crazy-debugging/">crazy debugging</a>
+    
+  </div>
+
+
+                </small>
+              </p>
+            </div>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">tag cloud</h3>
+    <div class="widget">
+      <a href="/tags/ARM/" style="font-size: 10px;">ARM</a> <a href="/tags/ARMv8/" style="font-size: 12.5px;">ARMv8</a> <a href="/tags/C/" style="font-size: 10px;">C</a> <a href="/tags/Linux/" style="font-size: 10px;">Linux</a> <a href="/tags/RaspberryPi/" style="font-size: 15px;">RaspberryPi</a> <a href="/tags/about/" style="font-size: 10px;">about</a> <a href="/tags/bitbucket/" style="font-size: 10px;">bitbucket</a> <a href="/tags/build/" style="font-size: 12.5px;">build</a> <a href="/tags/c/" style="font-size: 10px;">c</a> <a href="/tags/chatbot/" style="font-size: 10px;">chatbot</a> <a href="/tags/clone/" style="font-size: 10px;">clone</a> <a href="/tags/compiler/" style="font-size: 10px;">compiler</a> <a href="/tags/cow/" style="font-size: 10px;">cow</a> <a href="/tags/crazy-debugging/" style="font-size: 10px;">crazy debugging</a> <a href="/tags/debian/" style="font-size: 10px;">debian</a> <a href="/tags/debug/" style="font-size: 12.5px;">debug</a> <a href="/tags/devpost/" style="font-size: 10px;">devpost</a> <a href="/tags/digitalocean/" style="font-size: 12.5px;">digitalocean</a> <a href="/tags/facebook/" style="font-size: 10px;">facebook</a> <a href="/tags/fork/" style="font-size: 10px;">fork</a> <a href="/tags/gcc/" style="font-size: 10px;">gcc</a> <a href="/tags/gdb/" style="font-size: 12.5px;">gdb</a> <a href="/tags/getpid/" style="font-size: 10px;">getpid</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/github/" style="font-size: 10px;">github</a> <a href="/tags/kernel/" style="font-size: 20px;">kernel</a> <a href="/tags/kernel-module/" style="font-size: 10px;">kernel module</a> <a href="/tags/kexec/" style="font-size: 10px;">kexec</a> <a href="/tags/linux/" style="font-size: 20px;">linux</a> <a href="/tags/memory-management/" style="font-size: 12.5px;">memory management</a> <a href="/tags/memory-management/" style="font-size: 10px;">memory_management</a> <a href="/tags/nodejs/" style="font-size: 12.5px;">nodejs</a> <a href="/tags/perf/" style="font-size: 15px;">perf</a> <a href="/tags/proc/" style="font-size: 10px;">proc</a> <a href="/tags/programming/" style="font-size: 10px;">programming</a> <a href="/tags/raspberrypi/" style="font-size: 12.5px;">raspberrypi</a> <a href="/tags/security/" style="font-size: 10px;">security</a> <a href="/tags/setup/" style="font-size: 15px;">setup</a> <a href="/tags/stack/" style="font-size: 10px;">stack</a> <a href="/tags/stretch/" style="font-size: 10px;">stretch</a> <a href="/tags/swap/" style="font-size: 10px;">swap</a> <a href="/tags/system-call/" style="font-size: 10px;">system call</a> <a href="/tags/ubuntu/" style="font-size: 12.5px;">ubuntu</a> <a href="/tags/upgrade/" style="font-size: 10px;">upgrade</a> <a href="/tags/vim/" style="font-size: 10px;">vim</a> <a href="/tags/virtual-memory/" style="font-size: 10px;">virtual_memory</a> <a href="/tags/vnc/" style="font-size: 10px;">vnc</a> <a href="/tags/wit-ai/" style="font-size: 10px;">wit.ai</a> <a href="/tags/yocto/" style="font-size: 17.5px;">yocto</a>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">September 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+
+      </div>
+    </div>
+  </div>
+  <footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <p>
+        <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/deed.ja">
+          <img alt="creative commons logo" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" />
+        </a>
+        <br />
+        <span xmlns:cc="http://creativecommons.org/ns#" property="cc:attributionName">this post is available under a </span> <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution ShareAlike license.</p>
+    </div>
+  </div>
+</footer>
+
+
+  <script>
+    // HACK: custom style goes here
+    tables = document.querySelectorAll('table');
+    for (i = 0; i < tables.length; i++) {
+      tables[i].classList.add("table", "is-bordered", "is-fullwidth");
+    }
+  </script>
+</body>
+</html>

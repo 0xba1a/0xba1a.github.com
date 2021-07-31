@@ -1,0 +1,500 @@
+
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-115014323-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-115014323-1');
+  </script>
+  <meta charset="utf-8">
+  <title>KGDB/KDB over serial with Raspberry Pi | East River Village</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1">
+  <meta name="description" content="Hardware setupWe need a USB to serial converter to connect Raspberry Pi to the PC serially. This is the cheapest among all converters available in Amazon. This is based on PL2302 chip. I’m not sure it">
+<meta name="keywords" content="RaspberryPi,yocto,kernel,debug">
+<meta property="og:type" content="article">
+<meta property="og:title" content="KGDB&#x2F;KDB over serial with Raspberry Pi">
+<meta property="og:url" content="https://eastrivervillage.com/KGDB-KDB-over-serial-with-RaspberryPi/index.html">
+<meta property="og:site_name" content="East River Village">
+<meta property="og:description" content="Hardware setupWe need a USB to serial converter to connect Raspberry Pi to the PC serially. This is the cheapest among all converters available in Amazon. This is based on PL2302 chip. I’m not sure it">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://eastrivervillage.com/images/raspberry_pi_pl2303_serial_2.jpg">
+<meta property="og:updated_time" content="2021-07-31T06:10:58.719Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="KGDB&#x2F;KDB over serial with Raspberry Pi">
+<meta name="twitter:description" content="Hardware setupWe need a USB to serial converter to connect Raspberry Pi to the PC serially. This is the cheapest among all converters available in Amazon. This is based on PL2302 chip. I’m not sure it">
+<meta name="twitter:image" content="https://eastrivervillage.com/images/raspberry_pi_pl2303_serial_2.jpg">
+  <link rel="icon" href="/favicon.ico">
+  
+  
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-5LB7LCD');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.1/css/bulma.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Merriweather|Lobster|Lora|Roboto Mono">
+  <link rel="stylesheet" href="/css/style.css">
+  
+<script type="application/ld+json">
+  {
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "headline": "KGDB/KDB over serial with Raspberry Pi",
+  "name": "KGDB/KDB over serial with Raspberry Pi",
+  "image": "/images/raspberry_pi_pl2303_serial_2.jpg",
+  "datePublished": "2018-05-23T14:17:53.000Z",
+  "dateModified": "2021-07-31T06:10:58.719Z",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://eastrivervillage.com/KGDB-KDB-over-serial-with-RaspberryPi/index.html"
+  },
+  "author": {
+    "@type": "Person",
+    "name": "Balakumaran Kannan",
+    "image": "/images/profile_author.jpg",
+    "description": "System software engineer specilied in Linux. Experience spans from ARM32 board bring-up to multi datacenter virtualization stack management. Open source contributer. From Bangalore, India."
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Balakumaran Kannan",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "/images/profile_author.jpg"
+    }
+  }
+}
+</script>
+
+  
+</head>
+</html>
+<body>
+  
+  
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-5LB7LCD');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  <header class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a href="/" class="navbar-item">
+      East River Village
+    </a>
+  </div>
+</header>
+
+  <div class="container">
+    <div class="columns">
+      <div style="overflow:hidden;" class="main column">
+        <article class="post">
+  <figure class="post-thumbnail">
+    
+  <img src="/images/raspberry_pi_pl2303_serial_2.jpg" class="thumbnail " alt="KGDB/KDB over serial with Raspberry Pi">
+
+
+  </figure>
+  <span>2018-05-23
+</span>
+  <h1 class="title">KGDB/KDB over serial with Raspberry Pi</h1>
+  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/RaspberryPi/">RaspberryPi</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/yocto/">yocto</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kernel/">kernel</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/debug/">debug</a>
+    
+  </div>
+
+
+  <div class="content">
+    <h3 id="Hardware-setup"><a href="#Hardware-setup" class="headerlink" title="Hardware setup"></a>Hardware setup</h3><p>We need a USB to serial converter to connect Raspberry Pi to the PC serially. <a href="https://www.amazon.in/PL2303-Converter-Adapter-Aurdino-Raspberry/dp/B00UZERG94/ref=sr_1_1?ie=UTF8&amp;qid=1527085291&amp;sr=8-1&amp;keywords=pl2303+usb+to+rs232" target="_blank" rel="noopener">This</a> is the cheapest among all converters available in Amazon. This is based on PL2302 chip. I’m not sure it’s original or Chinese replica. In my case it worked out of the box with Ubuntu-17.10. In case if it throws error-10, try downgrading your PL2303 driver. Because the manufacturer blocked all counterfeit chips in his latest driver. I ordered this one and a set of <a href="https://www.amazon.in/Jumper-Wires-Male-female-Pieces/dp/B00ZYFX6A2/ref=sr_1_4?s=industrial&amp;ie=UTF8&amp;qid=1527085464&amp;sr=1-4&amp;keywords=jumper+wires" target="_blank" rel="noopener">female-to-female jumper wires</a>. Wait for three days and continue with this article.</p>
+<p><br><br>Interfacing is simple</p>
+<ul>
+<li>Connect 5V to 5V</li>
+<li>Connect TX of converter with RxD of Raspberry’s GPIO UART</li>
+<li>Connect RX of converter with TxD of Raspberry’s GPIO UART</li>
+<li>Connect the ground to ground</li>
+</ul>
+<p><br><br>Below the Raspberry Pi GPIO pin layout<br><img src="/images/raspberry_pi_3_pin_layout.jpg" alt="Raspberry Pi 3 GPIO pin layout"><br><br><br>PL2303’s pin layout<br><img src="/images/pl2303_pin_layout.jpg" alt="PL2303 USB to TTL converter pin layout"><br><br><br>And the connection goes like this,<br><img src="/images/raspberry_pi_pl2303_serial_1.jpg" alt="Raspberry Pi 3 serial connection"><br><img src="/images/raspberry_pi_pl2303_serial_2.jpg" alt="Raspberry Pi 3 serial connection"><br><br><br>As power is supplied via GPIO pin, there is no need of external power supply. I don’t know what will happen if both power sources are connected. I’m not dare to try.</p>
+<h3 id="Software-setup"><a href="#Software-setup" class="headerlink" title="Software setup"></a>Software setup</h3><ul>
+<li>Kernel has to be built with debug support</li>
+<li>Enable <code>tui</code> support for GDB - if required</li>
+</ul>
+<p>For that I have created a custom layer with following tree structure.<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">meta-kaba-hacks/</span><br><span class="line">├── conf</span><br><span class="line">│   └── layer.conf</span><br><span class="line">├── COPYING.MIT</span><br><span class="line">├── recipes-devtools</span><br><span class="line">│   └── gdb</span><br><span class="line">│       └── gdb-%.bbappend</span><br><span class="line">└── recipes-kernel</span><br><span class="line">    └── linux</span><br><span class="line">        ├── linux-raspberrypi</span><br><span class="line">        │   ├── debug.cfg</span><br><span class="line">        │   └── enable_proc_zconfig.cfg</span><br><span class="line">        └── linux-raspberrypi_4.9.bbappend</span><br></pre></td></tr></table></figure></p>
+<p>Enable debug symbols and KGDB/KDB related configs in Linux.<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">kaba@kaba-Vostro-1550:~/Desktop/yocto/yocto</span><br><span class="line">$ cat meta-kaba-hacks/recipes-kernel/linux/linux-raspberrypi_4.9.bbappend </span><br><span class="line">FILESEXTRAPATHS_prepend := <span class="string">"<span class="variable">$&#123;THISDIR&#125;</span>/<span class="variable">$&#123;PN&#125;</span>:"</span></span><br><span class="line">SRC_URI += <span class="string">"\</span></span><br><span class="line"><span class="string">			file://debug.cfg \</span></span><br><span class="line"><span class="string">			file://enable_proc_zconfig.cfg \</span></span><br><span class="line"><span class="string">			"</span></span><br><span class="line">kaba@kaba-Vostro-1550:~/Desktop/yocto/yocto</span><br><span class="line">$ cat meta-kaba-hacks/recipes-kernel/linux/linux-raspberrypi/debug.cfg </span><br><span class="line"><span class="comment"># CONFIG_STRICT_KERNEL_RWX is not set</span></span><br><span class="line">CONFIG_DEBUG_INFO=y</span><br><span class="line">CONFIG_FRAME_POINTER=y</span><br><span class="line">CONFIG_KGDB=y</span><br><span class="line">CONFIG_KGDB_SERIAL_CONSOLE=y</span><br><span class="line">CONFIG_KGDB_KDB=y</span><br><span class="line">CONFIG_KDB_KEYBOARD=y</span><br><span class="line">kaba@kaba-Vostro-1550:~/Desktop/yocto/yocto</span><br><span class="line">$ cat meta-kaba-hacks/recipes-kernel/linux/linux-raspberrypi/enable_proc_zconfig.cfg </span><br><span class="line">CONFIG_IKCONFIG=y</span><br><span class="line">CONFIG_IKCONFIG_PROC=y</span><br><span class="line">kaba@kaba-Vostro-1550:~/Desktop/yocto/yocto</span><br><span class="line">$</span><br></pre></td></tr></table></figure></p>
+<p>By default <code>tui</code> options is disabled for <code>GDB</code> in yocto. So I’m overriding it to enable it.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">kaba@kaba-Vostro-1550:~/Desktop/yocto/yocto</span><br><span class="line">$ cat meta-kaba-hacks/recipes-devtools/gdb/gdb-%.bbappend </span><br><span class="line">EXTRA_OECONF += &quot; --enable-tui&quot;</span><br><span class="line">kaba@kaba-Vostro-1550:~/Desktop/yocto/yocto</span><br><span class="line">$</span><br></pre></td></tr></table></figure></p>
+<p>Build <code>kernel</code> and <code>populate_sdk</code>. Refer <a href="http://eastrivervillage.com/KGDBoE-on-RaspberryPi-building-out-of-the-kernel-tree-module-with-yocto/">this</a> and <a href="http://eastrivervillage.com/Raspberry-Pi-dishes-from-Yocto-cuisine/">this</a> if you need help on working with Yocto. And copy the newly built image to Raspberry Pi.</p>
+<h3 id="Enable-Serial-in-Raspberry-Pi"><a href="#Enable-Serial-in-Raspberry-Pi" class="headerlink" title="Enable Serial in Raspberry Pi"></a>Enable Serial in Raspberry Pi</h3><p>By default serial interface is not enabled in yocto built Raspberry Pi distribution. We have to enable it in the config.txt file. Connect the SD-card written with Raspberry Pi image to PC and mount first partition. Append <code>enable_uart=1</code> to the config.txt file.<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">kaba@kaba-Vostro-1550:~/Desktop/yocto/build/rpi3</span><br><span class="line">$ mount | grep sdb1</span><br><span class="line">/dev/sdb1 on /media/kaba/raspberrypi <span class="built_in">type</span> vfat (rw,nosuid,nodev,relatime,uid=1000,gid=1000,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,showexec,utf8,flush,errors=remount-ro,uhelper=udisks2)</span><br><span class="line">kaba@kaba-Vostro-1550:~/Desktop/yocto/build/rpi3</span><br><span class="line">$ tail /media/kaba/raspberrypi/config.txt </span><br><span class="line"><span class="comment">#dtparam=pwr_led_gpio=35</span></span><br><span class="line"><span class="comment"># Enable VC4 Graphics</span></span><br><span class="line">dtoverlay=vc4-fkms-v3d,cma-256</span><br><span class="line"><span class="comment"># have a properly sized image</span></span><br><span class="line">disable_overscan=1</span><br><span class="line"><span class="comment"># Enable audio (loads snd_bcm2835)</span></span><br><span class="line">dtparam=audio=on</span><br><span class="line"><span class="comment"># Load correct Device Tree for Aarch64</span></span><br><span class="line">device_tree=bcm2710-rpi-3-b.dtb</span><br><span class="line">enable_uart=1</span><br><span class="line">kaba@kaba-Vostro-1550:~/Desktop/yocto/build/rpi3</span><br><span class="line">$</span><br></pre></td></tr></table></figure></p>
+<p>In the host machine open serial console using <code>screen</code>. And connect the USB to ttl converter with PC. You should see the logs of Raspberry Pi booting.<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo screen /det/ttyUSB0 115200</span><br></pre></td></tr></table></figure></p>
+<h3 id="Debug-after-boot-complete"><a href="#Debug-after-boot-complete" class="headerlink" title="Debug after boot complete"></a>Debug after boot complete</h3><p>Configure <code>KDBoC</code> module to use <code>ttyS0</code> and enter <code>KDB</code> mode using <code>sysrq-trigger</code>. In <code>KDB</code> console, enter <code>kgdb</code> to make kernel listen to remote <code>GDB</code> debugger.<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">root@raspberrypi3-64:~<span class="comment"># echo ttyS0 &gt; /sys/module/kgdboc/parameters/kgdboc </span></span><br><span class="line">[  219.105202] KGDB: Registered I/O driver kgdboc</span><br><span class="line">root@raspberrypi3-64:~<span class="comment"># echo g &gt; /proc/sysrq-trigger </span></span><br><span class="line">[  255.963036] sysrq: SysRq : DEBUG</span><br><span class="line"></span><br><span class="line">Entering kdb (current=0xfffffff2f7f60000, pid 396) on processor 3 due to Keyboard Entry</span><br><span class="line">[3]kdb&gt; kgdb</span><br><span class="line">Entering please attach debugger or use <span class="variable">$D</span><span class="comment">#44+ or $3#33</span></span><br></pre></td></tr></table></figure></p>
+<p>Raspberry Pi will be waiting for <code>GDB</code> client debugger connect serially.</p>
+<h3 id="Debug-during-boot"><a href="#Debug-during-boot" class="headerlink" title="Debug during boot"></a>Debug during boot</h3><p>If you want to debug something during boot, you have to connect <code>GDB</code> at very early stage of booting. Linux provides a command line argument option to achieve this. Configure <code>kgdboc</code> and <code>kgdbwait</code> in kernel <code>bootargs</code>. So kernel will wait after minimal initialization of hardware.</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">root@raspberrypi3-64:~<span class="comment"># cat /boot/cmdline.txt </span></span><br><span class="line">dwc_otg.lpm_enable=0 console=serial0,115200 kgdboc=ttyS0,115200 kgdbwait root=/dev/mmcblk0p2 rootfstype=ext4 rootwait    </span><br><span class="line">root@raspberrypi3-64:~<span class="comment"># reboot</span></span><br></pre></td></tr></table></figure>
+<div style="color:red;"><br><span style="font-weight: bold;">WARNING:</span> As mentioned <a href="https://github.com/raspberrypi/linux/issues/2245" target="_blank" rel="noopener">here</a>, it is a known issue that Raspberry Pi 3 doesn’t boot with <code>kgdboc</code> set. So this will not work as of now. Let me find a work-around and update that in a future post.<br></div>
+
+<h3 id="GDB-connect"><a href="#GDB-connect" class="headerlink" title="GDB connect"></a>GDB connect</h3><p>When Pi started waiting for <code>GDB</code> to connect, run the <code>cross-GDB</code> from host. You have to run this as a root.<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">root@kaba-Vostro-1550:/home/kaba/Desktop/yocto/build/rpi3/tmp/work/raspberrypi3_64-poky-linux/linux-raspberrypi/1_4.9.59+gitAUTOINC+e7976b2aff-r0/image/boot<span class="comment"># /home/kaba/Desktop/yocto/build/rpi3/tmp/work/x86_64-nativesdk-pokysdk-linux/gdb-cross-canadian-aarch64/8.0-r0/image/opt/poky/2.4.2/sysroots/x86_64-pokysdk-linux/usr/bin/aarch64-poky-linux/aarch64-poky-linux-gdb -tui ./vmlinux-4.9.59</span></span><br></pre></td></tr></table></figure></p>
+<p>Once <code>GDB</code> is connected to the board, it will look like this.<br><img src="/images/gdb_home_screenshot.png" alt="Raspberry Pi GDB session"></p>
+<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><ul>
+<li>[<a href="https://kaiwantech.wordpress.com/2013/07/04/a-kdb-kgdb-session-on-the-popular-raspberry-pi-embedded-linux-board/]" target="_blank" rel="noopener">https://kaiwantech.wordpress.com/2013/07/04/a-kdb-kgdb-session-on-the-popular-raspberry-pi-embedded-linux-board/]</a></li>
+<li>[<a href="https://github.com/FooDeas/raspberrypi-ua-netinst/issues/122]" target="_blank" rel="noopener">https://github.com/FooDeas/raspberrypi-ua-netinst/issues/122]</a></li>
+<li>[<a href="https://www.raspberrypi.org/forums/viewtopic.php?t=19186]" target="_blank" rel="noopener">https://www.raspberrypi.org/forums/viewtopic.php?t=19186]</a></li>
+</ul>
+
+  </div>
+  
+<nav class="footer-nav">
+  
+    <div class="footer-nav__prev">
+      <div class="footer-nav__label">
+        Newer
+      </div>
+      <a href="/debugging-application-with-cross-gdb-yocto/">
+        Debugging application with cross-GDB in Yocto environment
+      </a>
+    </div>
+  
+  
+    <div class="footer-nav__next">
+      <div class="footer-nav__label">
+        Older
+      </div>
+      <a href="/KGDBoE-on-RaspberryPi-building-out-of-the-kernel-tree-module-with-yocto/">
+        KGDBoE on RaspberryPi - building out of the kernel tree module with yocto
+      </a>
+    </div>
+  
+</nav>
+
+
+</article>
+
+
+      </div>
+      <div class="sidebar column is-4">
+        <aside>
+  
+    <aside class="search widget">
+  <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form" target="_blank">
+    <div class="control has-icons-right">
+      <input type="search" name="q" class="input" placeholder="Search">
+      <span class="icon is-small is-right">
+        <i class="fa fa-search"></i>
+      </span>
+    </div>
+    <input type="hidden" name="sitesearch" value="https://eastrivervillage.com">
+  </form>
+</aside>
+
+  
+    <div class="widget-wrap">
+  <div class="widget-title">author</div>
+  <aside class="profile media widget">
+    <!--figure class="profile-avatar media-left">
+      <img src="/images/profile_author.jpg" class="avatar" alt="Balakumaran Kannan">
+    </figure-->
+    <div class="media-content">
+      <p>
+        <strong>
+          <span>Balakumaran Kannan</span>
+        </strong>
+        <br>
+        <span>System software engineer specilied in Linux. Experience spans from ARM32 board bring-up to multi datacenter virtualization stack management. Open source contributer. From Bangalore, India.</span>
+        <br/>
+        <br/>
+        <a href="/about" target="_blank">
+          <span style="color: orangered;text-decoration-line: underline;">Contact me</span>
+        </a>
+      </p>
+    </div>
+  </aside>
+</div>
+
+  
+    
+  <div class="widget-wrap">
+    <div class="widget-title">recents</div>
+    <div class="widget">
+      <ul class="recent-post">
+        
+          <li class="recent-post-item media">
+            <figure class="media-left">
+              
+  <a href="/Custom-perf-with-custom-kernel/">
+    <img src="/images/batmobile-tank.jpg" class="thumbnail is-6x6" alt="Custom perf with custom kernel">
+  </a>
+
+
+            </figure>
+            <div class="media-content">
+              <p class="">
+                <a href="/Custom-perf-with-custom-kernel/" class="">
+                  Custom perf with custom kernel
+                </a>
+              </p>
+              <p class="">
+                <!--small>
+                  2020-11-19
+
+                </small>
+                <br/-->
+                <small>
+                  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kernel/">kernel</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/perf/">perf</a>
+    
+  </div>
+
+
+                </small>
+              </p>
+            </div>
+          </li>
+        
+          <li class="recent-post-item media">
+            <figure class="media-left">
+              
+  <a href="/perf-setup/">
+    <img src="/images/batmobile-tank.jpg" class="thumbnail is-6x6" alt="perf setup">
+  </a>
+
+
+            </figure>
+            <div class="media-content">
+              <p class="">
+                <a href="/perf-setup/" class="">
+                  perf setup
+                </a>
+              </p>
+              <p class="">
+                <!--small>
+                  2020-10-31
+
+                </small>
+                <br/-->
+                <small>
+                  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/setup/">setup</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/ubuntu/">ubuntu</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kernel/">kernel</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/perf/">perf</a>
+    
+  </div>
+
+
+                </small>
+              </p>
+            </div>
+          </li>
+        
+          <li class="recent-post-item media">
+            <figure class="media-left">
+              
+  <a href="/Quick-kernel-upgrade-with-kexec/">
+    <img src="/images/time_to_upgrade.jpg" class="thumbnail is-6x6" alt="Quick kernel upgrade with kexec">
+  </a>
+
+
+            </figure>
+            <div class="media-content">
+              <p class="">
+                <a href="/Quick-kernel-upgrade-with-kexec/" class="">
+                  Quick kernel upgrade with kexec
+                </a>
+              </p>
+              <p class="">
+                <!--small>
+                  2020-10-01
+
+                </small>
+                <br/-->
+                <small>
+                  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kernel/">kernel</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/debian/">debian</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/stretch/">stretch</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kexec/">kexec</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/security/">security</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/upgrade/">upgrade</a>
+    
+  </div>
+
+
+                </small>
+              </p>
+            </div>
+          </li>
+        
+          <li class="recent-post-item media">
+            <figure class="media-left">
+              
+  <a href="/perf-kvm-to-profile-vm-exit/">
+    <img src="/images/music-equalizer-1.jpg" class="thumbnail is-6x6" alt="perf kvm to profile vm_exit">
+  </a>
+
+
+            </figure>
+            <div class="media-content">
+              <p class="">
+                <a href="/perf-kvm-to-profile-vm-exit/" class="">
+                  perf kvm to profile vm_exit
+                </a>
+              </p>
+              <p class="">
+                <!--small>
+                  2020-09-28
+
+                </small>
+                <br/-->
+                <small>
+                  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/perf/">perf</a>
+    
+  </div>
+
+
+                </small>
+              </p>
+            </div>
+          </li>
+        
+          <li class="recent-post-item media">
+            <figure class="media-left">
+              
+  <a href="/kexec-tools-with-the-hidden-purgatory/">
+    <img src="/images/purgatory.jpg" class="thumbnail is-6x6" alt="kexec - A travel to the purgatory">
+  </a>
+
+
+            </figure>
+            <div class="media-content">
+              <p class="">
+                <a href="/kexec-tools-with-the-hidden-purgatory/" class="">
+                  kexec - A travel to the purgatory
+                </a>
+              </p>
+              <p class="">
+                <!--small>
+                  2020-01-20
+
+                </small>
+                <br/-->
+                <small>
+                  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kernel/">kernel</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/ARMv8/">ARMv8</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/crazy-debugging/">crazy debugging</a>
+    
+  </div>
+
+
+                </small>
+              </p>
+            </div>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">tag cloud</h3>
+    <div class="widget">
+      <a href="/tags/ARM/" style="font-size: 10px;">ARM</a> <a href="/tags/ARMv8/" style="font-size: 12.5px;">ARMv8</a> <a href="/tags/C/" style="font-size: 10px;">C</a> <a href="/tags/Linux/" style="font-size: 10px;">Linux</a> <a href="/tags/RaspberryPi/" style="font-size: 15px;">RaspberryPi</a> <a href="/tags/about/" style="font-size: 10px;">about</a> <a href="/tags/bitbucket/" style="font-size: 10px;">bitbucket</a> <a href="/tags/build/" style="font-size: 12.5px;">build</a> <a href="/tags/c/" style="font-size: 10px;">c</a> <a href="/tags/chatbot/" style="font-size: 10px;">chatbot</a> <a href="/tags/clone/" style="font-size: 10px;">clone</a> <a href="/tags/compiler/" style="font-size: 10px;">compiler</a> <a href="/tags/cow/" style="font-size: 10px;">cow</a> <a href="/tags/crazy-debugging/" style="font-size: 10px;">crazy debugging</a> <a href="/tags/debian/" style="font-size: 10px;">debian</a> <a href="/tags/debug/" style="font-size: 12.5px;">debug</a> <a href="/tags/devpost/" style="font-size: 10px;">devpost</a> <a href="/tags/digitalocean/" style="font-size: 12.5px;">digitalocean</a> <a href="/tags/facebook/" style="font-size: 10px;">facebook</a> <a href="/tags/fork/" style="font-size: 10px;">fork</a> <a href="/tags/gcc/" style="font-size: 10px;">gcc</a> <a href="/tags/gdb/" style="font-size: 12.5px;">gdb</a> <a href="/tags/getpid/" style="font-size: 10px;">getpid</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/github/" style="font-size: 10px;">github</a> <a href="/tags/kernel/" style="font-size: 20px;">kernel</a> <a href="/tags/kernel-module/" style="font-size: 10px;">kernel module</a> <a href="/tags/kexec/" style="font-size: 10px;">kexec</a> <a href="/tags/linux/" style="font-size: 20px;">linux</a> <a href="/tags/memory-management/" style="font-size: 12.5px;">memory management</a> <a href="/tags/memory-management/" style="font-size: 10px;">memory_management</a> <a href="/tags/nodejs/" style="font-size: 12.5px;">nodejs</a> <a href="/tags/perf/" style="font-size: 15px;">perf</a> <a href="/tags/proc/" style="font-size: 10px;">proc</a> <a href="/tags/programming/" style="font-size: 10px;">programming</a> <a href="/tags/raspberrypi/" style="font-size: 12.5px;">raspberrypi</a> <a href="/tags/security/" style="font-size: 10px;">security</a> <a href="/tags/setup/" style="font-size: 15px;">setup</a> <a href="/tags/stack/" style="font-size: 10px;">stack</a> <a href="/tags/stretch/" style="font-size: 10px;">stretch</a> <a href="/tags/swap/" style="font-size: 10px;">swap</a> <a href="/tags/system-call/" style="font-size: 10px;">system call</a> <a href="/tags/ubuntu/" style="font-size: 12.5px;">ubuntu</a> <a href="/tags/upgrade/" style="font-size: 10px;">upgrade</a> <a href="/tags/vim/" style="font-size: 10px;">vim</a> <a href="/tags/virtual-memory/" style="font-size: 10px;">virtual_memory</a> <a href="/tags/vnc/" style="font-size: 10px;">vnc</a> <a href="/tags/wit-ai/" style="font-size: 10px;">wit.ai</a> <a href="/tags/yocto/" style="font-size: 17.5px;">yocto</a>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">September 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+
+      </div>
+    </div>
+  </div>
+  <footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <p>
+        <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/deed.ja">
+          <img alt="creative commons logo" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" />
+        </a>
+        <br />
+        <span xmlns:cc="http://creativecommons.org/ns#" property="cc:attributionName">this post is available under a </span> <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution ShareAlike license.</p>
+    </div>
+  </div>
+</footer>
+
+
+  <script>
+    // HACK: custom style goes here
+    tables = document.querySelectorAll('table');
+    for (i = 0; i < tables.length; i++) {
+      tables[i].classList.add("table", "is-bordered", "is-fullwidth");
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,496 @@
+
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-115014323-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-115014323-1');
+  </script>
+  <meta charset="utf-8">
+  <title>Virtual memory to Physical memory | East River Village</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1">
+  <meta name="description" content="We all know that processes running in Linux acts only in virtual address space. So whenever a process wants to access a data (okay datum) it requests CPU for a virtual address. The CPU intern converts">
+<meta name="keywords" content="proc,memory management">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Virtual memory to Physical memory">
+<meta property="og:url" content="https://eastrivervillage.com/Virtual-memory-to-Physical-memory/index.html">
+<meta property="og:site_name" content="East River Village">
+<meta property="og:description" content="We all know that processes running in Linux acts only in virtual address space. So whenever a process wants to access a data (okay datum) it requests CPU for a virtual address. The CPU intern converts">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://eastrivervillage.com/images/virtual_memory_to_physical_memory.jpg">
+<meta property="og:updated_time" content="2021-07-31T06:10:58.715Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Virtual memory to Physical memory">
+<meta name="twitter:description" content="We all know that processes running in Linux acts only in virtual address space. So whenever a process wants to access a data (okay datum) it requests CPU for a virtual address. The CPU intern converts">
+<meta name="twitter:image" content="https://eastrivervillage.com/images/virtual_memory_to_physical_memory.jpg">
+  <link rel="icon" href="/favicon.ico">
+  
+  
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-5LB7LCD');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.1/css/bulma.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Merriweather|Lobster|Lora|Roboto Mono">
+  <link rel="stylesheet" href="/css/style.css">
+  
+<script type="application/ld+json">
+  {
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Virtual memory to Physical memory",
+  "name": "Virtual memory to Physical memory",
+  "image": "/images/virtual_memory_to_physical_memory.jpg",
+  "datePublished": "2018-03-02T14:44:24.000Z",
+  "dateModified": "2021-07-31T06:10:58.715Z",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://eastrivervillage.com/Virtual-memory-to-Physical-memory/index.html"
+  },
+  "author": {
+    "@type": "Person",
+    "name": "Balakumaran Kannan",
+    "image": "/images/profile_author.jpg",
+    "description": "System software engineer specilied in Linux. Experience spans from ARM32 board bring-up to multi datacenter virtualization stack management. Open source contributer. From Bangalore, India."
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Balakumaran Kannan",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "/images/profile_author.jpg"
+    }
+  }
+}
+</script>
+
+  
+</head>
+</html>
+<body>
+  
+  
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-5LB7LCD');</script>
+    <!-- End Google Tag Manager -->
+  
+
+
+  <header class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a href="/" class="navbar-item">
+      East River Village
+    </a>
+  </div>
+</header>
+
+  <div class="container">
+    <div class="columns">
+      <div style="overflow:hidden;" class="main column">
+        <article class="post">
+  <figure class="post-thumbnail">
+    
+  <img src="/images/virtual_memory_to_physical_memory.jpg" class="thumbnail " alt="Virtual memory to Physical memory">
+
+
+  </figure>
+  <span>2018-03-02
+</span>
+  <h1 class="title">Virtual memory to Physical memory</h1>
+  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/proc/">proc</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/memory-management/">memory management</a>
+    
+  </div>
+
+
+  <div class="content">
+    <p>We all know that processes running in Linux acts only in virtual address space. So whenever a process wants to access a data <em>(okay datum)</em> it requests CPU for a virtual address. The CPU intern converts it into physical address and fetches the data. It will be nice to have a program that converts virtual address to physical address, won’t it?</p>
+<p>Linux from 2.5.26 provides a <code>proc</code> interface, <code>pagemap</code> that contains information what we want. Each process has its <code>pagemap</code> at <code>/proc/p_id/pagemap</code>. According to the <a href="https://www.kernel.org/doc/Documentation/vm/pagemap.txt" target="_blank" rel="noopener">Documentation</a> it is a binary file contains a sequence of 64-bit words. Each word contains information regarding one virtual page for full virtual address space. Among them bits 0-54 (55-bits) represents the address of the physical frame number (<code>PFN</code>). I think that’s all we need. Adding the <code>offset</code> of a variable from virtual page address to the <code>PFN</code> will give us the physical memory address.</p>
+<p><strong>WARNING:</strong> Don’t try to read the <code>pagemap</code> file directly. <code>cat /proc/self/pagemap</code> or <code>vim /proc/p_id/pagemap</code> is not going to return anytime soon.</p>
+<p>We’ll write a small C program and the let’s try to get physical address of a variable used in that C program. As the <code>PFN</code> data will be present only if the data is not moved to <em>swap</em>, lets use <code>mlock()</code> to lock the memory in physical memory.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/mman.h&gt; 	/* for mlock() */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;		/* for malloc() */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;		/* for memset() */</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* for getpid() */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MEM_LENGTH 1024</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">/* Allocate 1024 bytes in heap */</span></span><br><span class="line">	<span class="keyword">char</span> *ptr = <span class="literal">NULL</span>;</span><br><span class="line">	ptr = <span class="built_in">malloc</span>(MEM_LENGTH);</span><br><span class="line">	<span class="keyword">if</span> (!ptr) &#123;</span><br><span class="line">		perror(<span class="string">"malloc fails. "</span>);</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* obtain physical memory */</span></span><br><span class="line">	<span class="built_in">memset</span>(ptr, <span class="number">1</span>, MEM_LENGTH);</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* lock the allocated memory in RAM */</span></span><br><span class="line">	mlock(ptr, MEM_LENGTH);</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* print the pid and vaddr. Thus we can work on him */</span></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"my pid: %d\n\n"</span>, getpid());</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"virtual address to work: 0x%lx\n"</span>, (<span class="keyword">unsigned</span> <span class="keyword">long</span>)ptr);</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* make the program to wait for user input */</span></span><br><span class="line">	<span class="built_in">scanf</span>(<span class="string">"%c"</span>, &amp;ptr[<span class="number">16</span>]);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><br></p>
+<p>Run the <code>specimen.c</code> program, get its <code>p_id</code> and start the dissection.</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ gcc specimen.c -o specimen</span><br><span class="line">$ ./specimen</span><br><span class="line">my pid: 11953</span><br><span class="line"></span><br><span class="line">virtual address to work: 0x55cd75821260</span><br></pre></td></tr></table></figure>
+<p><br></p>
+<p>In a 64-bit machine, virtual address-space is from <em>0x00</em> and to <em>2^64 - 1</em>. First we have to calculate the page offset for the given virtual address [find on which virtual memory page, the address resides]. And multiply that with 8 as each virtual page table has 8-byte information word in the <code>pagemap</code> file.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PAGEMAP_LENGTH 8</span></span><br><span class="line">page_size = getpagesize();</span><br><span class="line">offset = (vaddr page_size) * PAGEMAP_LENGTH;</span><br></pre></td></tr></table></figure>
+<p><br></p>
+<p>Open the <code>pagemap</code> file and seek to that offset location.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pagemap = fopen(filename, <span class="string">"rb"</span>);</span><br><span class="line">fseek(pagemap, (<span class="keyword">unsigned</span> <span class="keyword">long</span>)offset, SEEK_SET)</span><br></pre></td></tr></table></figure>
+<p><br></p>
+<p>Now cursor is on the first byte of 64-bit word containing the information we need. According to the <a href="https://www.kernel.org/doc/Documentation/vm/pagemap.txt" target="_blank" rel="noopener">Documentation</a> bits 0-54 represents the physical page frame number (<code>PFN</code>). So read 7-bytes and discard most significant bit.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">fread(&amp;paddr, <span class="number">1</span>, (PAGEMAP_LENGTH<span class="number">-1</span>), pagemap)</span><br><span class="line">paddr = paddr &amp; <span class="number">0x7fffffffffffff</span>;</span><br></pre></td></tr></table></figure>
+<p><br></p>
+<p>This is the <code>PFN</code>. Add offset of the virtual address from its virtual page base address to the page shifted <code>PFN</code> to get the physical address of the memory.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">offset = vaddr % page_size;</span><br><span class="line"><span class="comment">/* PAGE_SIZE = 1U &lt;&lt; PAGE_SHIFT */</span></span><br><span class="line"><span class="keyword">while</span> (!((<span class="number">1U</span>L &lt;&lt; ++page_shift) &amp; page_size));</span><br><span class="line">paddr = (<span class="keyword">unsigned</span> <span class="keyword">long</span>)((<span class="keyword">unsigned</span> <span class="keyword">long</span>)paddr &lt;&lt; page_shift) + offset;</span><br></pre></td></tr></table></figure>
+<p><br></p>
+<p>Here is the complete program.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;errno.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PAGE_SHIFT 12</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PAGEMAP_LENGTH 8</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> vaddr, pid, paddr = <span class="number">0</span>, offset;</span><br><span class="line">	<span class="keyword">char</span> *endptr;</span><br><span class="line">	FILE *pagemap;</span><br><span class="line">	<span class="keyword">char</span> filename[<span class="number">1024</span>] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line">	<span class="keyword">int</span> ret = <span class="number">-1</span>;</span><br><span class="line">	<span class="keyword">int</span> page_size, page_shift = <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line">	page_size = getpagesize();</span><br><span class="line">	pid = strtol(argv[<span class="number">1</span>], &amp;endptr, <span class="number">10</span>);</span><br><span class="line">	vaddr = strtol(argv[<span class="number">2</span>], &amp;endptr, <span class="number">16</span>);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"getting page number of virtual address %lu of process %ld\n"</span>,vaddr, pid);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">sprintf</span>(filename, <span class="string">"/proc/%ld/pagemap"</span>, pid);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"opening pagemap %s\n"</span>, filename);</span><br><span class="line">	pagemap = fopen(filename, <span class="string">"rb"</span>);</span><br><span class="line">	<span class="keyword">if</span> (!pagemap) &#123;</span><br><span class="line">		perror(<span class="string">"can't open file. "</span>);</span><br><span class="line">		<span class="keyword">goto</span> err;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	offset = (vaddr / page_size) * PAGEMAP_LENGTH;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"moving to %ld\n"</span>, offset);</span><br><span class="line">	<span class="keyword">if</span> (fseek(pagemap, (<span class="keyword">unsigned</span> <span class="keyword">long</span>)offset, SEEK_SET) != <span class="number">0</span>) &#123;</span><br><span class="line">		perror(<span class="string">"fseek failed. "</span>);</span><br><span class="line">		<span class="keyword">goto</span> err;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (fread(&amp;paddr, <span class="number">1</span>, (PAGEMAP_LENGTH<span class="number">-1</span>), pagemap) &lt; (PAGEMAP_LENGTH<span class="number">-1</span>)) &#123;</span><br><span class="line">		perror(<span class="string">"fread fails. "</span>);</span><br><span class="line">		<span class="keyword">goto</span> err;</span><br><span class="line">	&#125;</span><br><span class="line">	paddr = paddr &amp; <span class="number">0x7fffffffffffff</span>;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"physical frame address is 0x%lx\n"</span>, paddr);</span><br><span class="line"></span><br><span class="line">	offset = vaddr % page_size;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* PAGE_SIZE = 1U &lt;&lt; PAGE_SHIFT */</span></span><br><span class="line">	<span class="keyword">while</span> (!((<span class="number">1U</span>L &lt;&lt; ++page_shift) &amp; page_size));</span><br><span class="line"></span><br><span class="line">	paddr = (<span class="keyword">unsigned</span> <span class="keyword">long</span>)((<span class="keyword">unsigned</span> <span class="keyword">long</span>)paddr &lt;&lt; page_shift) + offset;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"physical address is 0x%lx\n"</span>, paddr);</span><br><span class="line"></span><br><span class="line">	ret = <span class="number">0</span>;</span><br><span class="line">err:</span><br><span class="line">	fclose(pagemap);</span><br><span class="line">	<span class="keyword">return</span> ret;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><br></p>
+<p>And the output</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ sudo ./a.out 11953 0x55cd75821260</span><br><span class="line">getting page number of virtual address 94340928115296 of process 11953</span><br><span class="line">opening pagemap /proc/11953/pagemap</span><br><span class="line">moving to 184259625224</span><br><span class="line">physical frame address is 0x20508</span><br><span class="line">physical address is 0x20508260</span><br></pre></td></tr></table></figure>
+<p><br></p>
+<h3 id="References"><a href="#References" class="headerlink" title="References"></a>References</h3><ol>
+<li><a href="https://www.kernel.org/doc/Documentation/vm/pagemap.txt" target="_blank" rel="noopener">https://www.kernel.org/doc/Documentation/vm/pagemap.txt</a></li>
+<li><a href="https://elixir.bootlin.com/linux/latest/source/arch/x86/include/asm/page_types.h" target="_blank" rel="noopener">https://elixir.bootlin.com/linux/latest/source/arch/x86/include/asm/page_types.h</a></li>
+<li>man pages</li>
+</ol>
+
+  </div>
+  
+<nav class="footer-nav">
+  
+    <div class="footer-nav__prev">
+      <div class="footer-nav__label">
+        Newer
+      </div>
+      <a href="/The-Linux-COW/">
+        The Linux COW
+      </a>
+    </div>
+  
+  
+    <div class="footer-nav__next">
+      <div class="footer-nav__label">
+        Older
+      </div>
+      <a href="/git-from-facebook/">
+        Github from Facebook
+      </a>
+    </div>
+  
+</nav>
+
+
+</article>
+
+
+      </div>
+      <div class="sidebar column is-4">
+        <aside>
+  
+    <aside class="search widget">
+  <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form" target="_blank">
+    <div class="control has-icons-right">
+      <input type="search" name="q" class="input" placeholder="Search">
+      <span class="icon is-small is-right">
+        <i class="fa fa-search"></i>
+      </span>
+    </div>
+    <input type="hidden" name="sitesearch" value="https://eastrivervillage.com">
+  </form>
+</aside>
+
+  
+    <div class="widget-wrap">
+  <div class="widget-title">author</div>
+  <aside class="profile media widget">
+    <!--figure class="profile-avatar media-left">
+      <img src="/images/profile_author.jpg" class="avatar" alt="Balakumaran Kannan">
+    </figure-->
+    <div class="media-content">
+      <p>
+        <strong>
+          <span>Balakumaran Kannan</span>
+        </strong>
+        <br>
+        <span>System software engineer specilied in Linux. Experience spans from ARM32 board bring-up to multi datacenter virtualization stack management. Open source contributer. From Bangalore, India.</span>
+        <br/>
+        <br/>
+        <a href="/about" target="_blank">
+          <span style="color: orangered;text-decoration-line: underline;">Contact me</span>
+        </a>
+      </p>
+    </div>
+  </aside>
+</div>
+
+  
+    
+  <div class="widget-wrap">
+    <div class="widget-title">recents</div>
+    <div class="widget">
+      <ul class="recent-post">
+        
+          <li class="recent-post-item media">
+            <figure class="media-left">
+              
+  <a href="/Custom-perf-with-custom-kernel/">
+    <img src="/images/batmobile-tank.jpg" class="thumbnail is-6x6" alt="Custom perf with custom kernel">
+  </a>
+
+
+            </figure>
+            <div class="media-content">
+              <p class="">
+                <a href="/Custom-perf-with-custom-kernel/" class="">
+                  Custom perf with custom kernel
+                </a>
+              </p>
+              <p class="">
+                <!--small>
+                  2020-11-19
+
+                </small>
+                <br/-->
+                <small>
+                  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kernel/">kernel</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/perf/">perf</a>
+    
+  </div>
+
+
+                </small>
+              </p>
+            </div>
+          </li>
+        
+          <li class="recent-post-item media">
+            <figure class="media-left">
+              
+  <a href="/perf-setup/">
+    <img src="/images/batmobile-tank.jpg" class="thumbnail is-6x6" alt="perf setup">
+  </a>
+
+
+            </figure>
+            <div class="media-content">
+              <p class="">
+                <a href="/perf-setup/" class="">
+                  perf setup
+                </a>
+              </p>
+              <p class="">
+                <!--small>
+                  2020-10-31
+
+                </small>
+                <br/-->
+                <small>
+                  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/setup/">setup</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/ubuntu/">ubuntu</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kernel/">kernel</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/perf/">perf</a>
+    
+  </div>
+
+
+                </small>
+              </p>
+            </div>
+          </li>
+        
+          <li class="recent-post-item media">
+            <figure class="media-left">
+              
+  <a href="/Quick-kernel-upgrade-with-kexec/">
+    <img src="/images/time_to_upgrade.jpg" class="thumbnail is-6x6" alt="Quick kernel upgrade with kexec">
+  </a>
+
+
+            </figure>
+            <div class="media-content">
+              <p class="">
+                <a href="/Quick-kernel-upgrade-with-kexec/" class="">
+                  Quick kernel upgrade with kexec
+                </a>
+              </p>
+              <p class="">
+                <!--small>
+                  2020-10-01
+
+                </small>
+                <br/-->
+                <small>
+                  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kernel/">kernel</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/debian/">debian</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/stretch/">stretch</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kexec/">kexec</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/security/">security</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/upgrade/">upgrade</a>
+    
+  </div>
+
+
+                </small>
+              </p>
+            </div>
+          </li>
+        
+          <li class="recent-post-item media">
+            <figure class="media-left">
+              
+  <a href="/perf-kvm-to-profile-vm-exit/">
+    <img src="/images/music-equalizer-1.jpg" class="thumbnail is-6x6" alt="perf kvm to profile vm_exit">
+  </a>
+
+
+            </figure>
+            <div class="media-content">
+              <p class="">
+                <a href="/perf-kvm-to-profile-vm-exit/" class="">
+                  perf kvm to profile vm_exit
+                </a>
+              </p>
+              <p class="">
+                <!--small>
+                  2020-09-28
+
+                </small>
+                <br/-->
+                <small>
+                  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/perf/">perf</a>
+    
+  </div>
+
+
+                </small>
+              </p>
+            </div>
+          </li>
+        
+          <li class="recent-post-item media">
+            <figure class="media-left">
+              
+  <a href="/kexec-tools-with-the-hidden-purgatory/">
+    <img src="/images/purgatory.jpg" class="thumbnail is-6x6" alt="kexec - A travel to the purgatory">
+  </a>
+
+
+            </figure>
+            <div class="media-content">
+              <p class="">
+                <a href="/kexec-tools-with-the-hidden-purgatory/" class="">
+                  kexec - A travel to the purgatory
+                </a>
+              </p>
+              <p class="">
+                <!--small>
+                  2020-01-20
+
+                </small>
+                <br/-->
+                <small>
+                  
+  <div class="tags">
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/kernel/">kernel</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/ARMv8/">ARMv8</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/linux/">linux</a>
+    
+      <a class="tag is-white" style="color: darkmagenta; padding-left:0;" href="/tags/crazy-debugging/">crazy debugging</a>
+    
+  </div>
+
+
+                </small>
+              </p>
+            </div>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">tag cloud</h3>
+    <div class="widget">
+      <a href="/tags/ARM/" style="font-size: 10px;">ARM</a> <a href="/tags/ARMv8/" style="font-size: 12.5px;">ARMv8</a> <a href="/tags/C/" style="font-size: 10px;">C</a> <a href="/tags/Linux/" style="font-size: 10px;">Linux</a> <a href="/tags/RaspberryPi/" style="font-size: 15px;">RaspberryPi</a> <a href="/tags/about/" style="font-size: 10px;">about</a> <a href="/tags/bitbucket/" style="font-size: 10px;">bitbucket</a> <a href="/tags/build/" style="font-size: 12.5px;">build</a> <a href="/tags/c/" style="font-size: 10px;">c</a> <a href="/tags/chatbot/" style="font-size: 10px;">chatbot</a> <a href="/tags/clone/" style="font-size: 10px;">clone</a> <a href="/tags/compiler/" style="font-size: 10px;">compiler</a> <a href="/tags/cow/" style="font-size: 10px;">cow</a> <a href="/tags/crazy-debugging/" style="font-size: 10px;">crazy debugging</a> <a href="/tags/debian/" style="font-size: 10px;">debian</a> <a href="/tags/debug/" style="font-size: 12.5px;">debug</a> <a href="/tags/devpost/" style="font-size: 10px;">devpost</a> <a href="/tags/digitalocean/" style="font-size: 12.5px;">digitalocean</a> <a href="/tags/facebook/" style="font-size: 10px;">facebook</a> <a href="/tags/fork/" style="font-size: 10px;">fork</a> <a href="/tags/gcc/" style="font-size: 10px;">gcc</a> <a href="/tags/gdb/" style="font-size: 12.5px;">gdb</a> <a href="/tags/getpid/" style="font-size: 10px;">getpid</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/github/" style="font-size: 10px;">github</a> <a href="/tags/kernel/" style="font-size: 20px;">kernel</a> <a href="/tags/kernel-module/" style="font-size: 10px;">kernel module</a> <a href="/tags/kexec/" style="font-size: 10px;">kexec</a> <a href="/tags/linux/" style="font-size: 20px;">linux</a> <a href="/tags/memory-management/" style="font-size: 12.5px;">memory management</a> <a href="/tags/memory-management/" style="font-size: 10px;">memory_management</a> <a href="/tags/nodejs/" style="font-size: 12.5px;">nodejs</a> <a href="/tags/perf/" style="font-size: 15px;">perf</a> <a href="/tags/proc/" style="font-size: 10px;">proc</a> <a href="/tags/programming/" style="font-size: 10px;">programming</a> <a href="/tags/raspberrypi/" style="font-size: 12.5px;">raspberrypi</a> <a href="/tags/security/" style="font-size: 10px;">security</a> <a href="/tags/setup/" style="font-size: 15px;">setup</a> <a href="/tags/stack/" style="font-size: 10px;">stack</a> <a href="/tags/stretch/" style="font-size: 10px;">stretch</a> <a href="/tags/swap/" style="font-size: 10px;">swap</a> <a href="/tags/system-call/" style="font-size: 10px;">system call</a> <a href="/tags/ubuntu/" style="font-size: 12.5px;">ubuntu</a> <a href="/tags/upgrade/" style="font-size: 10px;">upgrade</a> <a href="/tags/vim/" style="font-size: 10px;">vim</a> <a href="/tags/virtual-memory/" style="font-size: 10px;">virtual_memory</a> <a href="/tags/vnc/" style="font-size: 10px;">vnc</a> <a href="/tags/wit-ai/" style="font-size: 10px;">wit.ai</a> <a href="/tags/yocto/" style="font-size: 17.5px;">yocto</a>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">September 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+
+      </div>
+    </div>
+  </div>
+  <footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <p>
+        <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/deed.ja">
+          <img alt="creative commons logo" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" />
+        </a>
+        <br />
+        <span xmlns:cc="http://creativecommons.org/ns#" property="cc:attributionName">this post is available under a </span> <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution ShareAlike license.</p>
+    </div>
+  </div>
+</footer>
+
+
+  <script>
+    // HACK: custom style goes here
+    tables = document.querySelectorAll('table');
+    for (i = 0; i < tables.length; i++) {
+      tables[i].classList.add("table", "is-bordered", "is-fullwidth");
+    }
+  </script>
+</body>
+</html>
