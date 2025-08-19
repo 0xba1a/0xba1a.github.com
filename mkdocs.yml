@@ -1,0 +1,72 @@
+site_name: East River Village
+site_url: https://eastrivervillage.com
+site_author: Balakumaran Kannan
+theme:
+  name: material
+  icon:
+    logo: material/code-greater-than
+  palette:
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/white-balance-sunny
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      accent: indigo
+      toggle:
+        icon: material/theme-light-dark
+        name: Switch to system preference
+  features:
+    - navigation.indexes
+
+plugins:
+  - search
+  - blog:
+      blog_toc: true
+      archive_date_format: MMMM yyyy
+      categories_allowed:
+        - Holidays
+        - News
+      authors_profiles: true
+      pagination_per_page: 1
+      archive_pagination_per_page: 10
+      categories_pagination_per_page: 10
+      # post_slugify: !!python/object/apply:ext.slugs.slugify
+      #   kwds:
+      #     short: true
+  - meta
+  - tags
+  - rss:
+      match_path: "blog/posts/.*"
+      date_from_meta:
+        as_creation: date.created
+        as_update: date.updated
+
+# extra:
+#   social:
+#     # - icon: fontawesome/brands/mastodon
+#       name: squidfunk on Mastodon
+#       link: https://fosstodon.org/@squidfunk
+
+hooks:
+  - hooks/socialmedia.py
+
+markdown_extensions:
+  - attr_list
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+nav:
+  - Home: index.md
+  - Blog:
+     - blog/index.md
+     - blog/tags.md
