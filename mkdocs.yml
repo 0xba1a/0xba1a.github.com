@@ -50,11 +50,15 @@ plugins:
         as_creation: date.created
         as_update: date.updated
 
-# extra:
-#   social:
-#     # - icon: fontawesome/brands/mastodon
-#       name: squidfunk on Mastodon
-#       link: https://fosstodon.org/@squidfunk
+extra:
+  social:
+    - icon: fontawesome/brands/linkedin
+      name: LinkedIn
+      link: https://www.linkedin.com/in/balakumaran-kannan/
+    - icon: fontawesome/brands/github
+      name: GitHub
+      link: https://github.com/0xba1a
+
 
 hooks:
   - hooks/socialmedia.py
