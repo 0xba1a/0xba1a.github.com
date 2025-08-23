@@ -1,7 +1,6 @@
 site_name: East River Village
 site_url: https://eastrivervillage.com
 site_author: Bala
-icon: material/code-greater-than
 theme:
   name: material
   favicon: blog/images/fabicon.png
