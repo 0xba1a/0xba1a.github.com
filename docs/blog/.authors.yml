@@ -1,0 +1,7 @@
+authors:
+  Bala:
+    name: Bala                                            # Author name
+    description: Principal Software Engineer @ Microsoft  # Author description
+    avatar: assets/author_image.jpg                       # Author avatar
+    slug: bala                                            # Author profile slug
+    url: https://eastrivervillage.com                     # Author website URL

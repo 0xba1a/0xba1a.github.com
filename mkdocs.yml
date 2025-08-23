@@ -1,0 +1,83 @@
+site_name: East River Village
+site_url: https://eastrivervillage.com
+site_author: Bala
+icon: material/code-greater-than
+theme:
+  name: material
+  favicon: blog/images/fabicon.png
+  icon:
+    logo: material/code-greater-than
+  palette:
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/white-balance-sunny
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      accent: indigo
+      toggle:
+        icon: material/theme-light-dark
+        name: Switch to system preference
+  features:
+    - navigation.indexes
+
+plugins:
+  - search
+  - meta
+  - blog:
+      authors: true
+      authors_profiles: true
+      blog_toc: true
+      archive_date_format: MMMM yyyy
+      categories_allowed:
+        - Holidays
+        - News
+      pagination_per_page: 1
+      # post_slugify: !!python/object/apply:ext.slugs.slugify
+      #   kwds:
+      #     short: true
+  - tags
+  - rss:
+      match_path: "blog/posts/.*"
+      date_from_meta:
+        as_creation: date.created
+        as_update: date.updated
+
+extra:
+  homepage: https://eastrivervillage.com
+  social:
+    - icon: fontawesome/brands/linkedin
+      name: LinkedIn
+      link: https://www.linkedin.com/in/balakumaran-kannan/
+    - icon: fontawesome/brands/github
+      name: GitHub
+      link: https://github.com/0xba1a
+
+
+hooks:
+  - hooks/socialmedia.py
+
+markdown_extensions:
+  - attr_list
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - attr_list
+  - md_in_html
+
+nav:
+  - Home: index.md
+  - Blog:
+     - blog/index.md
+     - blog/tags.md
