@@ -9,16 +9,16 @@ include = re.compile(r"blog/[1-9].*")
 
 def on_page_markdown(markdown, **kwargs):
     page = kwargs['page']
-    # config = kwargs['config']
+    config = kwargs['config']
     if not include.match(page.url):
         return markdown
 
-    # page_url = urllib.parse.quote(config.site_url+page.url, safe=':/?&=')
+    page_url = urllib.parse.quote(config.site_url+page.url, safe=':/?&=')
     # page_title = urllib.parse.quote(page.title+'\n')
 
     return markdown + dedent(f"""<div class="flex">
         <script src="https://platform.linkedin.com/in.js" type="text/javascript">lang: en_US</script>
-        <script type="IN/Share" data-url="{page.url}"></script>
+        <script type="IN/Share" data-url="{page_url}"></script>
     </div>""")
 
         # <script type="text/javascript" async src="https://platform.twitter.com/widgets.js"></script>
