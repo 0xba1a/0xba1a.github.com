@@ -5,6 +5,7 @@ thumbnail: "/images/virtual_memory_to_physical_memory.jpg"
 tags:
  - proc
  - memory management
+ - virtual memory
 ---
 
 We all know that processes running in Linux acts only in virtual address space. So whenever a process wants to access a data *(okay datum)* it requests CPU for a virtual address. The CPU intern converts it into physical address and fetches the data. It will be nice to have a program that converts virtual address to physical address, won't it?

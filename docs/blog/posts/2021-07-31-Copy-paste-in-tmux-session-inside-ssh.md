@@ -28,4 +28,4 @@ So if I copy any text in tmux using `y`, it will be populated into a environment
 **NOTE:** *As the environmental variable will be loaded upon next prompt only, after copying, you need to press `enter` once it to take effect*
 
 Below gif will show how it works
-![tmux copy paste hack](/images/tmux_copy_paste_demo.gif)
+![tmux copy paste hack](images/tmux_copy_paste_demo.gif)

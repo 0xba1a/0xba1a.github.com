@@ -5,7 +5,7 @@
 
 Welcome to my blog! :wave:
 
-I'm Balakumaran Kannan, a **Principal Software Engineer** at **:fontawesome-brands-microsoft: Microsoft**.
+I'm Bala, a **Principal Software Engineer** at **:fontawesome-brands-microsoft: Microsoft**.
 
 With a background as a Linux Systems Engineer, I've recently embarked on an exciting journey into the world of Artificial Intelligence. My current focus lies at the intersection of these domains—exploring how Large Language Models (LLMs) can better understand Linux code to enhance developer productivity and streamline the development process.
 
@@ -42,7 +42,7 @@ As a Stable Maintainer of Azure Linux (Microsoft's in-house Linux distribution),
 :fontawesome-solid-graduation-cap: [System and method of optimizing vm disk data transfer time for cold migration by preloading page-cache](https://patents.google.com/patent/US20220214905A1) <br />
 :fontawesome-solid-graduation-cap: Ind. patent application - 202141004517: Common IP based network communication between virtual machine and host
 
-## :fontawesome-brands-github: [GitHub](https://github.com/0xba1a)
+## :fontawesome-brands-github: [0xba1a](https://github.com/0xba1a)
 <iframe  width=800px height=200px frameborder=0 src="https://greptile-stats.vercel.app/api/widget/0xba1a/stats">
 </iframe>
 <iframe width=800px height=260px frameborder=0 src="https://greptile-stats.vercel.app/api/widget/0xba1a/contributions">

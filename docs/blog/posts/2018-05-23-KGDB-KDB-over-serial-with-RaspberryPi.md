@@ -2,6 +2,8 @@
 title: KGDB/KDB over serial with Raspberry Pi
 date: 2018-05-23 19:47:53
 thumbnail: "/images/raspberry_pi_pl2303_serial_2.jpg"
+authors:
+ - Bala
 tags:
  - RaspberryPi
  - yocto
@@ -21,14 +23,14 @@ Interfacing is simple
 
 <br />
 Below the Raspberry Pi GPIO pin layout
-![Raspberry Pi 3 GPIO pin layout](/images/raspberry_pi_3_pin_layout.jpg)
-<br /> 
+![Raspberry Pi 3 GPIO pin layout](images/raspberry_pi_3_pin_layout.jpg)
+<br />
 PL2303's pin layout
-![PL2303 USB to TTL converter pin layout](/images/pl2303_pin_layout.jpg)
+![PL2303 USB to TTL converter pin layout](images/pl2303_pin_layout.jpg)
 <br />
 And the connection goes like this,
-![Raspberry Pi 3 serial connection](/images/raspberry_pi_pl2303_serial_1.jpg)
-![Raspberry Pi 3 serial connection](/images/raspberry_pi_pl2303_serial_2.jpg)
+![Raspberry Pi 3 serial connection](images/raspberry_pi_pl2303_serial_1.jpg)
+![Raspberry Pi 3 serial connection](images/raspberry_pi_pl2303_serial_2.jpg)
 <br />
 As power is supplied via GPIO pin, there is no need of external power supply. I don't know what will happen if both power sources are connected. I'm not dare to try.
 
@@ -55,14 +57,14 @@ meta-kaba-hacks/
 Enable debug symbols and KGDB/KDB related configs in Linux.
 ```sh
 kaba@kaba-Vostro-1550:~/Desktop/yocto/yocto
-$ cat meta-kaba-hacks/recipes-kernel/linux/linux-raspberrypi_4.9.bbappend 
+$ cat meta-kaba-hacks/recipes-kernel/linux/linux-raspberrypi_4.9.bbappend
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 SRC_URI += "\
 			file://debug.cfg \
 			file://enable_proc_zconfig.cfg \
 			"
 kaba@kaba-Vostro-1550:~/Desktop/yocto/yocto
-$ cat meta-kaba-hacks/recipes-kernel/linux/linux-raspberrypi/debug.cfg 
+$ cat meta-kaba-hacks/recipes-kernel/linux/linux-raspberrypi/debug.cfg
 # CONFIG_STRICT_KERNEL_RWX is not set
 CONFIG_DEBUG_INFO=y
 CONFIG_FRAME_POINTER=y
@@ -71,7 +73,7 @@ CONFIG_KGDB_SERIAL_CONSOLE=y
 CONFIG_KGDB_KDB=y
 CONFIG_KDB_KEYBOARD=y
 kaba@kaba-Vostro-1550:~/Desktop/yocto/yocto
-$ cat meta-kaba-hacks/recipes-kernel/linux/linux-raspberrypi/enable_proc_zconfig.cfg 
+$ cat meta-kaba-hacks/recipes-kernel/linux/linux-raspberrypi/enable_proc_zconfig.cfg
 CONFIG_IKCONFIG=y
 CONFIG_IKCONFIG_PROC=y
 kaba@kaba-Vostro-1550:~/Desktop/yocto/yocto
@@ -80,7 +82,7 @@ $
 By default `tui` options is disabled for `GDB` in yocto. So I'm overriding it to enable it.
 ```
 kaba@kaba-Vostro-1550:~/Desktop/yocto/yocto
-$ cat meta-kaba-hacks/recipes-devtools/gdb/gdb-%.bbappend 
+$ cat meta-kaba-hacks/recipes-devtools/gdb/gdb-%.bbappend
 EXTRA_OECONF += " --enable-tui"
 kaba@kaba-Vostro-1550:~/Desktop/yocto/yocto
 $
@@ -95,7 +97,7 @@ kaba@kaba-Vostro-1550:~/Desktop/yocto/build/rpi3
 $ mount | grep sdb1
 /dev/sdb1 on /media/kaba/raspberrypi type vfat (rw,nosuid,nodev,relatime,uid=1000,gid=1000,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,showexec,utf8,flush,errors=remount-ro,uhelper=udisks2)
 kaba@kaba-Vostro-1550:~/Desktop/yocto/build/rpi3
-$ tail /media/kaba/raspberrypi/config.txt 
+$ tail /media/kaba/raspberrypi/config.txt
 #dtparam=pwr_led_gpio=35
 # Enable VC4 Graphics
 dtoverlay=vc4-fkms-v3d,cma-256
@@ -117,9 +119,9 @@ $ sudo screen /det/ttyUSB0 115200
 ### Debug after boot complete
 Configure `KDBoC` module to use `ttyS0` and enter `KDB` mode using `sysrq-trigger`. In `KDB` console, enter `kgdb` to make kernel listen to remote `GDB` debugger.
 ```sh
-root@raspberrypi3-64:~# echo ttyS0 > /sys/module/kgdboc/parameters/kgdboc 
+root@raspberrypi3-64:~# echo ttyS0 > /sys/module/kgdboc/parameters/kgdboc
 [  219.105202] KGDB: Registered I/O driver kgdboc
-root@raspberrypi3-64:~# echo g > /proc/sysrq-trigger 
+root@raspberrypi3-64:~# echo g > /proc/sysrq-trigger
 [  255.963036] sysrq: SysRq : DEBUG
 
 Entering kdb (current=0xfffffff2f7f60000, pid 396) on processor 3 due to Keyboard Entry
@@ -134,8 +136,8 @@ Raspberry Pi will be waiting for `GDB` client debugger connect serially.
 If you want to debug something during boot, you have to connect `GDB` at very early stage of booting. Linux provides a command line argument option to achieve this. Configure `kgdboc` and `kgdbwait` in kernel `bootargs`. So kernel will wait after minimal initialization of hardware.
 
 ```sh
-root@raspberrypi3-64:~# cat /boot/cmdline.txt 
-dwc_otg.lpm_enable=0 console=serial0,115200 kgdboc=ttyS0,115200 kgdbwait root=/dev/mmcblk0p2 rootfstype=ext4 rootwait    
+root@raspberrypi3-64:~# cat /boot/cmdline.txt
+dwc_otg.lpm_enable=0 console=serial0,115200 kgdboc=ttyS0,115200 kgdbwait root=/dev/mmcblk0p2 rootfstype=ext4 rootwait
 root@raspberrypi3-64:~# reboot
 ```
 <div style="color:red;">
@@ -148,7 +150,7 @@ When Pi started waiting for `GDB` to connect, run the `cross-GDB` from host. You
 root@kaba-Vostro-1550:/home/kaba/Desktop/yocto/build/rpi3/tmp/work/raspberrypi3_64-poky-linux/linux-raspberrypi/1_4.9.59+gitAUTOINC+e7976b2aff-r0/image/boot# /home/kaba/Desktop/yocto/build/rpi3/tmp/work/x86_64-nativesdk-pokysdk-linux/gdb-cross-canadian-aarch64/8.0-r0/image/opt/poky/2.4.2/sysroots/x86_64-pokysdk-linux/usr/bin/aarch64-poky-linux/aarch64-poky-linux-gdb -tui ./vmlinux-4.9.59
 ```
 Once `GDB` is connected to the board, it will look like this.
-![Raspberry Pi GDB session](/images/gdb_home_screenshot.png)
+![Raspberry Pi GDB session](images/gdb_home_screenshot.png)
 
 # References
  * [https://kaiwantech.wordpress.com/2013/07/04/a-kdb-kgdb-session-on-the-popular-raspberry-pi-embedded-linux-board/]
