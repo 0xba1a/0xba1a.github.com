@@ -1060,6 +1060,6 @@ print("Datasets saved successfully!")
 ```
 
 ## Conclusion
-Let's wrap up this blog here. In the upcoming posts, we will explore various models and training methodologies to determine which approach yields the best results. The dataset prepared in this blog will serve as the foundation for all those experiments. You can access the code discussed in this blog in the [n50_dataset_prep](https://github.com/0xba1a/0xba1a.github.com/ai_market_prediction/dataset/n50_dataset_prep.ipynb) notebook.
+Let's wrap up this blog here. In the upcoming posts, we will explore various models and training methodologies to determine which approach yields the best results. The dataset prepared in this blog will serve as the foundation for all those experiments. You can access the code discussed in this blog in the [n50_dataset_prep](https://github.com/0xba1a/0xba1a.github.com/blob/master/ai_market_prediction/n50_dataset_prep.ipynb) notebook.
 
 
