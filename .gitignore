@@ -3,3 +3,4 @@ site
 .cache
 __pycache__
 .venv
+.env
