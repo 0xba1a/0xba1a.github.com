@@ -27,6 +27,9 @@ theme:
         name: Switch to system preference
   features:
     - navigation.indexes
+    - content.code.copy
+    - content.code.select
+    - content.code.annotate
 
 plugins:
   - search
