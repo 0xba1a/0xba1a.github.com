@@ -22,14 +22,14 @@ Our system will keep watching the market movement until 2.30 PM. And based on th
 The performance of a model is relying only on the data it is trained. So, collecting and preparing the historical Nifty50 data is very crucial. Simply dumping the historical data to any LLM won't make any good other than getting you pay for the GPUs.
 
 Prepare the environment
-```
+``` bash linenums="1"
  $ python3 -m venv .venv
  $ source .venv/bin/activate
  $ pip install pandas
 ```
 
 I took the 9 years of Nifty-50 candlestick data from this [GitHub repo](https://github.com/sandeepkapri/Nifty50-Minute-Data). It has minute level Open, High, Low and Close information for every market functioning day. We just need one number per minute. So, let's remove everything else other than open.
-```
+``` py linenums="1"
 import pandas as pd
 
 candle_stick_data = pd.read_csv("dataset/nifty50_candlestick_data.csv")
@@ -95,7 +95,7 @@ n50_minute_level_opens.head()
 
 We need to train the model on daily movements. So, the data should be grouped date-wise. In the dataset the second value is not proper. As we don't worry much about the second, we'll unify that to the the minute. Also, remove any data that is beyond typical Indian market hours.
 
-```
+``` py linenums="1"
 market_hours_filter = (n50_minute_level_opens.index.time >= pd.Timestamp('09:15:00').time()) & \
                       (n50_minute_level_opens.index.time <= pd.Timestamp('15:30:00').time())
 
@@ -309,7 +309,7 @@ n50_daily_opens.head()
 This data is very refreshing. Nifty50 was in its eight thousands in 2015. If you have invested in the index, you would've trippled your money in the past 10 years. This gives us a small problem. I try to make the LLM to understand the trend in human price setting behaviour. Whether the price is 8000 or 24000, the trend should be same. But if I pass different prices (tokens), LLM may consider them as different behaviours. This may lead to a situation where LLM will give less importance to the original feature that defines the trend.
 
 So, I decide to pass the price difference in percentage instead of passing the price itself. The idea here is to keep the open price at 9.15 as the reference and calculate the difference in percentage for 9:16. Then using price of 9.16 as reference calculate the different for 9.17. Like this we continue for the whole day with respective to the previous minute price. My assumption is whatever the price is, we humans tend to set the new price relatively.
-```
+``` py linenums="1"
 # Calculate percentage price movements within each day
 # For each day, calculate percentage change from previous minute
 n50_daily_price_movements = n50_daily_opens.pct_change(axis=1, fill_method=None) * 100
@@ -511,7 +511,7 @@ n50_daily_price_movements.head()
 </div>
 
 Let's analyze the price movement for insights. Since the true value of an asset (like Nifty50) is often unclear, we use the current and previous prices as proxies—a concept tied to Daniel Kahneman's Anchoring Bias. This bias suggests that sudden price increases are likely to be corrected downward, while sharp decreases are adjusted upward. As a result, the average price movement should ideally converge to zero.
-```
+``` py linenums="1"
 # Calculate statistics excluding NaN values and the first column (which is all zeros)
 movements_data = n50_daily_price_movements.iloc[:, 1:].values.flatten()  # Exclude first column
 movements_data_clean = movements_data[~pd.isna(movements_data)]  # Remove NaN values
@@ -523,7 +523,7 @@ print(f"Min movement: {movements_data_clean.min():.4f}%")
 print(f"Max movement: {movements_data_clean.max():.4f}%")
 ```
 **Output**
-```
+``` bash
 Total data points: 849,150
 Mean movement: -0.0002%
 Std deviation: 0.0409%
@@ -543,7 +543,7 @@ Let's clean the data.
 
 1. Fill any NaN with previous value
 2. Fix the precision to two decimal degits. *It's safe to have 0.04% as our approximate std.*
-```
+``` py linenums="1"
 # Fill NaN values with previous value (forward fill along rows)
 n50_daily_price_movements = n50_daily_price_movements.ffill(axis=1)
 
@@ -757,7 +757,7 @@ To further refine the dataset, we will remove high-stress days. These are days w
 By removing these high-stress days, we ensure that the dataset focuses on regular market conditions, which are more representative of typical trading patterns. This adjustment will help the model generalize better and avoid overfitting to rare, extreme scenarios.
 
 To identify and filter out high-stress days, we will use the daily standard deviation as a measure of volatility. Days with a standard deviation outside the range of ±2σ (calculated from the mean daily standard deviation) will be considered high-stress days and excluded from the dataset. Here we calculate the std of every day. And put that in a series then calculate mean and std of that series. So, please don't get confused with `std of std`.
-```
+``` py linenums="1"
 # Calculate daily standard deviation for each trading day
 daily_std = n50_daily_price_movements.std(axis=1)  # std across columns (time) for each day
 
@@ -1025,7 +1025,7 @@ Finally, let's split the dataset into training and validation sets and store the
 
 Let's take out every nineth day into validation set. As it is more than seven, the subsequent nineth day will be different day of the week.
 
-```
+``` py linenums="1"
 # Split into training and validation sets
 # Every 9th day goes to validation, rest goes to training
 total_days = len(n50_daily_price_movements_filtered)
