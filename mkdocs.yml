@@ -55,6 +55,9 @@ plugins:
 
 extra:
   homepage: https://eastrivervillage.com
+  analytics:
+    provider: google
+    property: G-3JJ45DK8YN
   social:
     - icon: fontawesome/brands/linkedin
       name: LinkedIn
