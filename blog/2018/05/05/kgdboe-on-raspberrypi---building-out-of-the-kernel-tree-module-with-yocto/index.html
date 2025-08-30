@@ -1,0 +1,1044 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+        <meta name="author" content="Bala">
+      
+      
+        <link rel="canonical" href="https://eastrivervillage.com/blog/2018/05/05/kgdboe-on-raspberrypi---building-out-of-the-kernel-tree-module-with-yocto/">
+      
+      
+        <link rel="prev" href="../../../04/25/raspberry-pi-dishes-from-yocto-cuisine/">
+      
+      
+        <link rel="next" href="../../23/kgdbkdb-over-serial-with-raspberry-pi/">
+      
+      
+        <link rel="alternate" type="application/rss+xml" title="RSS feed" href="../../../../../feed_rss_created.xml">
+        <link rel="alternate" type="application/rss+xml" title="RSS feed of updated content" href="../../../../../feed_rss_updated.xml">
+      
+      <link rel="icon" href="../../../../images/fabicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.18">
+    
+    
+      
+        <title>KGDBoE on RaspberryPi - building out of the kernel tree module with yocto - East River Village</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../../assets/stylesheets/main.7e37652d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function e(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],e("js",new Date),e("config","G-3JJ45DK8YN"),document.addEventListener("DOMContentLoaded",(function(){document.forms.search&&document.forms.search.query.addEventListener("blur",(function(){this.value&&e("event","search",{search_term:this.value})}));document$.subscribe((function(){var t=document.forms.feedback;if(void 0!==t)for(var a of t.querySelectorAll("[type=submit]"))a.addEventListener("click",(function(a){a.preventDefault();var n=document.location.pathname,d=this.getAttribute("data-md-value");e("event","feedback",{page:n,data:d}),t.firstElementChild.disabled=!0;var r=t.querySelector(".md-feedback__note [data-md-value='"+d+"']");r&&(r.hidden=!1)})),t.hidden=!1})),location$.subscribe((function(t){e("config","G-3JJ45DK8YN",{page_path:t.pathname})}))}));var t=document.createElement("script");t.async=!0,t.src="https://www.googletagmanager.com/gtag/js?id=G-3JJ45DK8YN",document.getElementById("__analytics").insertAdjacentElement("afterEnd",t)}</script>
+  
+    <script>"undefined"!=typeof __md_analytics&&__md_analytics()</script>
+  
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#on-host" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="https://eastrivervillage.com" title="East River Village" class="md-header__button md-logo" aria-label="East River Village" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10.41 7.41 15 12l-4.59 4.6L9 15.18 12.18 12 9 8.82M5 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            East River Village
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              KGDBoE on RaspberryPi - building out of the kernel tree module with yocto
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m3.55 19.09 1.41 1.41 1.8-1.79-1.42-1.42M12 6c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6c0-3.32-2.69-6-6-6m8 7h3v-2h-3m-2.76 7.71 1.8 1.79 1.41-1.41-1.79-1.8M20.45 5l-1.41-1.4-1.8 1.79 1.42 1.42M13 1h-2v3h2M6.76 5.39 4.96 3.6 3.55 5l1.79 1.81zM1 13h3v-2H1m12 9h-2v3h2"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="indigo"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7.5 2c-1.79 1.15-3 3.18-3 5.5s1.21 4.35 3.03 5.5C4.46 13 2 10.54 2 7.5A5.5 5.5 0 0 1 7.5 2m11.57 1.5 1.43 1.43L4.93 20.5 3.5 19.07zm-6.18 2.43L11.41 5 9.97 6l.42-1.7L9 3.24l1.75-.12.58-1.65L12 3.1l1.73.03-1.35 1.13zm-3.3 3.61-1.16-.73-1.12.78.34-1.32-1.09-.83 1.36-.09.45-1.29.51 1.27 1.36.03-1.05.87zM19 13.5a5.5 5.5 0 0 1-5.5 5.5c-1.22 0-2.35-.4-3.26-1.07l7.69-7.69c.67.91 1.07 2.04 1.07 3.26m-4.4 6.58 2.77-1.15-.24 3.35zm4.33-2.7 1.15-2.77 2.2 2.54zm1.15-4.96-1.14-2.78 3.34.24zM9.63 18.93l2.77 1.15-2.53 2.19z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+                
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" hidden>
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="https://eastrivervillage.com" title="East River Village" class="md-nav__button md-logo" aria-label="East River Village" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10.41 7.41 15 12l-4.59 4.6L9 15.18 12.18 12 9 8.82M5 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/></svg>
+
+    </a>
+    East River Village
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../../" class="md-nav__link ">
+              
+  
+  
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10.41 7.41 15 12l-4.59 4.6L9 15.18 12.18 12 9 8.82M5 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/></svg>
+  
+  <span class="md-ellipsis">
+    Blog
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Blog
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../tags/" class="md-nav__link">
+        
+  
+  
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10.41 7.41 15 12l-4.59 4.6L9 15.18 12.18 12 9 8.82M5 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/></svg>
+  
+  <span class="md-ellipsis">
+    Tags
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_3" id="__nav_2_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Archive
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            Archive
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../archive/2025/" class="md-nav__link">
+        
+  
+  
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10.41 7.41 15 12l-4.59 4.6L9 15.18 12.18 12 9 8.82M5 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/></svg>
+  
+  <span class="md-ellipsis">
+    September 2025
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../archive/2021/" class="md-nav__link">
+        
+  
+  
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10.41 7.41 15 12l-4.59 4.6L9 15.18 12.18 12 9 8.82M5 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/></svg>
+  
+  <span class="md-ellipsis">
+    July 2021
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../archive/2020/" class="md-nav__link">
+        
+  
+  
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10.41 7.41 15 12l-4.59 4.6L9 15.18 12.18 12 9 8.82M5 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/></svg>
+  
+  <span class="md-ellipsis">
+    November 2020
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../archive/2019/" class="md-nav__link">
+        
+  
+  
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10.41 7.41 15 12l-4.59 4.6L9 15.18 12.18 12 9 8.82M5 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/></svg>
+  
+  <span class="md-ellipsis">
+    June 2019
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../archive/2018/" class="md-nav__link">
+        
+  
+  
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10.41 7.41 15 12l-4.59 4.6L9 15.18 12.18 12 9 8.82M5 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/></svg>
+  
+  <span class="md-ellipsis">
+    October 2018
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../archive/2017/" class="md-nav__link">
+        
+  
+  
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10.41 7.41 15 12l-4.59 4.6L9 15.18 12.18 12 9 8.82M5 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/></svg>
+  
+  <span class="md-ellipsis">
+    September 2017
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+                
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#on-host" class="md-nav__link">
+    <span class="md-ellipsis">
+      On host
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#on-target" class="md-nav__link">
+    <span class="md-ellipsis">
+      On Target
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      References
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+  <div class="md-content md-content--post" data-md-component="content">
+    <div class="md-sidebar md-sidebar--post" data-md-component="sidebar" data-md-type="navigation">
+      <div class="md-sidebar__scrollwrap">
+        <div class="md-sidebar__inner md-post">
+          <nav class="md-nav md-nav--primary">
+            <div class="md-post__back">
+              <div class="md-nav__title md-nav__container">
+                <a href="../../../../" class="md-nav__link">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+                  <span class="md-ellipsis">
+                    Back to index
+                  </span>
+                </a>
+              </div>
+            </div>
+            
+              <div class="md-post__authors md-typeset">
+                
+                  <div class="md-profile md-post__profile">
+                    <span class="md-author md-author--long">
+                      <img src="../../../../../assets/author_image.jpg" alt="Bala">
+                    </span>
+                    <span class="md-profile__description">
+                      <strong>
+                        
+                          <a href="https://eastrivervillage.com">Bala</a>
+                        
+                      </strong>
+                      <br>
+                      Principal Software Engineer @ Microsoft
+                    </span>
+                  </div>
+                
+              </div>
+            
+            <ul class="md-post__meta md-nav__list">
+              <li class="md-nav__item md-nav__item--section">
+                <div class="md-post__title">
+                  <span class="md-ellipsis">
+                    Metadata
+                  </span>
+                </div>
+                <nav class="md-nav">
+                  <ul class="md-nav__list">
+                    <li class="md-nav__item">
+                      <div class="md-nav__link">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 19H5V8h14m-3-7v2H8V1H6v2H5c-1.11 0-2 .89-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-1V1m-1 11h-5v5h5z"/></svg>
+                        <time datetime="2018-05-05 14:43:36+00:00" class="md-ellipsis">May 5, 2018</time>
+                      </div>
+                    </li>
+                    
+                    
+                    
+                      
+                      <li class="md-nav__item">
+                        <div class="md-nav__link">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 20a8 8 0 0 0 8-8 8 8 0 0 0-8-8 8 8 0 0 0-8 8 8 8 0 0 0 8 8m0-18a10 10 0 0 1 10 10 10 10 0 0 1-10 10C6.47 22 2 17.5 2 12A10 10 0 0 1 12 2m.5 5v5.25l4.5 2.67-.75 1.23L11 13V7z"/></svg>
+                          <span class="md-ellipsis">
+                            
+                              7 min read
+                            
+                          </span>
+                        </div>
+                      </li>
+                    
+                  </ul>
+                </nav>
+              </li>
+            </ul>
+            
+          </nav>
+          
+        </div>
+      </div>
+    </div>
+    <article class="md-content__inner md-typeset">
+      
+        
+  
+
+
+  <nav class="md-tags" >
+    
+      
+      
+      
+        <a href="../../../../tags/#tag:raspberrypi" class="md-tag">RaspberryPi</a>
+      
+    
+      
+      
+      
+        <a href="../../../../tags/#tag:build" class="md-tag">build</a>
+      
+    
+      
+      
+      
+        <a href="../../../../tags/#tag:kernel-module" class="md-tag">kernel module</a>
+      
+    
+      
+      
+      
+        <a href="../../../../tags/#tag:yocto" class="md-tag">yocto</a>
+      
+    
+  </nav>
+
+
+
+<div style="color:red;">
+<span style="font-weight: bold;">WARNING:</span> KGDBoE cannot be used in Raspberry Pi due to lack of polling support in its network drivers. This post will be useful in future if polling is added. Also this post can be used as a reference for building kernel module that is out of kernel tree.
+</div>
+
+<h3 id="on-host">On host</h3>
+<p>Building module in Raspberry Pi itself will take more time. Also it requires multiple development tools to be added to final image which will drastically increase the image size. To cross-compile we need SDK for Raspberry Pi.
+<div class="highlight"><pre><span></span><code>kaba@kaba-Vostro-1550:~/Desktop/yocto/yocto
+$<span class="w"> </span><span class="nb">source</span><span class="w"> </span>poky/oe-init-build-env<span class="w"> </span>../build/rpi3/
+
+<span class="c1">### Shell environment set up for builds. ###</span>
+
+You<span class="w"> </span>can<span class="w"> </span>now<span class="w"> </span>run<span class="w"> </span><span class="s1">&#39;bitbake &lt;target&gt;&#39;</span>
+
+Common<span class="w"> </span>targets<span class="w"> </span>are:
+<span class="w">    </span>core-image-minimal
+<span class="w">    </span>core-image-sato
+<span class="w">    </span>meta-toolchain
+<span class="w">    </span>meta-ide-support
+
+You<span class="w"> </span>can<span class="w"> </span>also<span class="w"> </span>run<span class="w"> </span>generated<span class="w"> </span>qemu<span class="w"> </span>images<span class="w"> </span>with<span class="w"> </span>a<span class="w"> </span><span class="nb">command</span><span class="w"> </span>like<span class="w"> </span><span class="s1">&#39;runqemu qemux86&#39;</span>
+kaba@kaba-Vostro-1550:~/Desktop/yocto/build/rpi3
+$
+kaba@kaba-Vostro-1550:~/Desktop/yocto/build/rpi3
+$<span class="w"> </span>bitbake<span class="w"> </span>core-image-base<span class="w"> </span>-c<span class="w"> </span>populate_sdk
+WARNING:<span class="w"> </span>Host<span class="w"> </span>distribution<span class="w"> </span><span class="s2">&quot;ubuntu-17.10&quot;</span><span class="w"> </span>has<span class="w"> </span>not<span class="w"> </span>been<span class="w"> </span>validated<span class="w"> </span>with<span class="w"> </span>this<span class="w"> </span>version<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>build<span class="w"> </span>system<span class="p">;</span><span class="w"> </span>you<span class="w"> </span>may<span class="w"> </span>possibly<span class="w"> </span>experience<span class="w"> </span>unexpected<span class="w"> </span>failures.<span class="w"> </span>It<span class="w"> </span>is<span class="w"> </span>recommended<span class="w"> </span>that<span class="w"> </span>you<span class="w"> </span>use<span class="w"> </span>a<span class="w"> </span>tested<span class="w"> </span>distribution.
+Loading<span class="w"> </span>cache:<span class="w"> </span><span class="m">100</span>%<span class="w"> </span><span class="p">|</span><span class="c1">#####################################################################################################| Time: 0:00:00</span>
+Loaded<span class="w"> </span><span class="m">2783</span><span class="w"> </span>entries<span class="w"> </span>from<span class="w"> </span>dependency<span class="w"> </span>cache.
+NOTE:<span class="w"> </span>Resolving<span class="w"> </span>any<span class="w"> </span>missing<span class="w"> </span>task<span class="w"> </span>queue<span class="w"> </span>dependencies
+
+Build<span class="w"> </span>Configuration:
+<span class="nv">BB_VERSION</span><span class="w">           </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;1.36.0&quot;</span>
+<span class="nv">BUILD_SYS</span><span class="w">            </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;x86_64-linux&quot;</span>
+<span class="nv">NATIVELSBSTRING</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;universal&quot;</span>
+<span class="nv">TARGET_SYS</span><span class="w">           </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;aarch64-poky-linux&quot;</span>
+<span class="nv">MACHINE</span><span class="w">              </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;raspberrypi3-64&quot;</span>
+<span class="nv">DISTRO</span><span class="w">               </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;poky&quot;</span>
+<span class="nv">DISTRO_VERSION</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;2.4.2&quot;</span>
+<span class="nv">TUNE_FEATURES</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;aarch64&quot;</span>
+<span class="nv">TARGET_FPU</span><span class="w">           </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;&quot;</span>
+meta<span class="w">                 </span>
+meta-poky<span class="w">            </span>
+meta-yocto-bsp<span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;rocko:fdeecc901196bbccd7c5b1ea4268a2cf56764a62&quot;</span>
+meta-oe<span class="w">              </span>
+meta-multimedia<span class="w">      </span>
+meta-networking<span class="w">      </span>
+meta-python<span class="w">          </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;rocko:a65c1acb1822966c3553de9fc98d8bb6be705c4e&quot;</span>
+meta-raspberrypi<span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;rocko:20358ec57a8744b0a02da77b283620fb718b0ee0&quot;</span>
+
+Initialising<span class="w"> </span>tasks:<span class="w"> </span><span class="m">100</span>%<span class="w"> </span><span class="p">|</span><span class="c1">################################################################################################| Time: 0:00:11</span>
+NOTE:<span class="w"> </span>Executing<span class="w"> </span>SetScene<span class="w"> </span>Tasks
+NOTE:<span class="w"> </span>Executing<span class="w"> </span>RunQueue<span class="w"> </span>Tasks
+NOTE:<span class="w"> </span>Tasks<span class="w"> </span>Summary:<span class="w"> </span>Attempted<span class="w"> </span><span class="m">3589</span><span class="w"> </span>tasks<span class="w"> </span>of<span class="w"> </span>which<span class="w"> </span><span class="m">3589</span><span class="w"> </span>didn<span class="err">&#39;</span>t<span class="w"> </span>need<span class="w"> </span>to<span class="w"> </span>be<span class="w"> </span>rerun<span class="w"> </span>and<span class="w"> </span>all<span class="w"> </span>succeeded.
+
+Summary:<span class="w"> </span>There<span class="w"> </span>was<span class="w"> </span><span class="m">1</span><span class="w"> </span>WARNING<span class="w"> </span>message<span class="w"> </span>shown.
+kaba@kaba-Vostro-1550:~/Desktop/yocto/build/rpi3
+</code></pre></div>
+Once done, the script to install SDK will be present in <code>./tmp/deploy/sdk/</code>. Run the script <code>poky-glibc-x86_64-core-image-base-aarch64-toolchain-2.4.2.sh</code>. This will install the SDK in <code>/opt/</code> directory by default.
+<div class="highlight"><pre><span></span><code>kaba@kaba-Vostro-1550:~/Desktop/yocto/build/rpi3
+$<span class="w"> </span>./tmp/deploy/sdk/poky-glibc-x86_64-core-image-base-aarch64-toolchain-2.4.2.sh<span class="w"> </span>
+Poky<span class="w"> </span><span class="o">(</span>Yocto<span class="w"> </span>Project<span class="w"> </span>Reference<span class="w"> </span>Distro<span class="o">)</span><span class="w"> </span>SDK<span class="w"> </span>installer<span class="w"> </span>version<span class="w"> </span><span class="m">2</span>.4.2
+<span class="o">=================================================================</span>
+Enter<span class="w"> </span>target<span class="w"> </span>directory<span class="w"> </span><span class="k">for</span><span class="w"> </span>SDK<span class="w"> </span><span class="o">(</span>default:<span class="w"> </span>/opt/poky/2.4.2<span class="o">)</span>:<span class="w"> </span>
+The<span class="w"> </span>directory<span class="w"> </span><span class="s2">&quot;/opt/poky/2.4.2&quot;</span><span class="w"> </span>already<span class="w"> </span>contains<span class="w"> </span>a<span class="w"> </span>SDK<span class="w"> </span><span class="k">for</span><span class="w"> </span>this<span class="w"> </span>architecture.
+If<span class="w"> </span>you<span class="w"> </span><span class="k">continue</span>,<span class="w"> </span>existing<span class="w"> </span>files<span class="w"> </span>will<span class="w"> </span>be<span class="w"> </span>overwritten!<span class="w"> </span>Proceed<span class="o">[</span>y/N<span class="o">]</span>?<span class="w"> </span>N
+Installation<span class="w"> </span>aborted!
+kaba@kaba-Vostro-1550:~/Desktop/yocto/build/rpi3
+$<span class="w"> </span>ls<span class="w"> </span>/opt/poky/2.4.2/
+environment-setup-aarch64-poky-linux<span class="w">  </span>sysroots/<span class="w">                             </span>
+site-config-aarch64-poky-linux<span class="w">        </span>version-aarch64-poky-linux<span class="w">            </span>
+kaba@kaba-Vostro-1550:~/Desktop/yocto/build/rpi3
+$<span class="w"> </span>
+</code></pre></div>
+I didn't overwrite files as I have installed it already. The script <code>environment-setup-aarch64-poky-linux</code> is the one that will setup the cross-build environment for us.</p>
+<p>Clone the KGDBoE source from Github. Setup cross-build environment and build the module.
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/sysprogs/kgdboe.git
+Cloning<span class="w"> </span>into<span class="w"> </span><span class="s1">&#39;kgdboe&#39;</span>...
+remote:<span class="w"> </span>Counting<span class="w"> </span>objects:<span class="w"> </span><span class="m">172</span>,<span class="w"> </span><span class="k">done</span>.
+remote:<span class="w"> </span>Total<span class="w"> </span><span class="m">172</span><span class="w"> </span><span class="o">(</span>delta<span class="w"> </span><span class="m">0</span><span class="o">)</span>,<span class="w"> </span>reused<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="o">(</span>delta<span class="w"> </span><span class="m">0</span><span class="o">)</span>,<span class="w"> </span>pack-reused<span class="w"> </span><span class="m">171</span>
+Receiving<span class="w"> </span>objects:<span class="w"> </span><span class="m">100</span>%<span class="w"> </span><span class="o">(</span><span class="m">172</span>/172<span class="o">)</span>,<span class="w"> </span><span class="m">51</span>.95<span class="w"> </span>KiB<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="m">81</span>.00<span class="w"> </span>KiB/s,<span class="w"> </span><span class="k">done</span>.
+Resolving<span class="w"> </span>deltas:<span class="w"> </span><span class="m">100</span>%<span class="w"> </span><span class="o">(</span><span class="m">114</span>/114<span class="o">)</span>,<span class="w"> </span><span class="k">done</span>.
+kaba@kaba-Vostro-1550:~/Desktop/yocto/build/rpi3/cross-compile
+$
+kaba@kaba-Vostro-1550:~/Desktop/yocto/build/rpi3/cross-compile
+$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>kgdboe
+kaba@kaba-Vostro-1550:~/Desktop/yocto/build/rpi3/cross-compile/kgdboe
+$<span class="w"> </span><span class="nb">source</span><span class="w"> </span>/opt/poky/2.4.2/environment-setup-aarch64-poky-linux<span class="w"> </span>
+kaba@kaba-Vostro-1550:~/Desktop/yocto/build/rpi3/cross-compile/kgdboe
+$<span class="w"> </span>make<span class="w"> </span>-C<span class="w"> </span>/home/kaba/Desktop/yocto/build/rpi3/tmp/work/raspberrypi3_64-poky-linux/linux-raspberrypi/1_4.9.59+gitAUTOINC+e7976b2aff-r0/linux-raspberrypi3_64-standard-build<span class="w"> </span><span class="nv">M</span><span class="o">=</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>
+make:<span class="w"> </span>Entering<span class="w"> </span>directory<span class="w"> </span><span class="s1">&#39;/home/kaba/Desktop/yocto/build/rpi3/tmp/work/raspberrypi3_64-poky-linux/linux-raspberrypi/1_4.9.59+gitAUTOINC+e7976b2aff-r0/linux-raspberrypi3_64-standard-build&#39;</span>
+<span class="w">  </span>LD<span class="w">      </span>/home/kaba/Desktop/yocto/build/rpi3/cross-compile/kgdboe/built-in.o
+<span class="w">  </span>CC<span class="w"> </span><span class="o">[</span>M<span class="o">]</span><span class="w">  </span>/home/kaba/Desktop/yocto/build/rpi3/cross-compile/kgdboe/irqsync.o
+<span class="w">  </span>CC<span class="w"> </span><span class="o">[</span>M<span class="o">]</span><span class="w">  </span>/home/kaba/Desktop/yocto/build/rpi3/cross-compile/kgdboe/kgdboe_main.o
+<span class="w">  </span>CC<span class="w"> </span><span class="o">[</span>M<span class="o">]</span><span class="w">  </span>/home/kaba/Desktop/yocto/build/rpi3/cross-compile/kgdboe/kgdboe_io.o
+/home/kaba/Desktop/yocto/build/rpi3/cross-compile/kgdboe/kgdboe_io.c:<span class="w"> </span>In<span class="w"> </span><span class="k">function</span><span class="w"> </span><span class="s1">&#39;force_single_cpu_mode&#39;</span>:
+/home/kaba/Desktop/yocto/build/rpi3/cross-compile/kgdboe/kgdboe_io.c:119:3:<span class="w"> </span>error:<span class="w"> </span>implicit<span class="w"> </span>declaration<span class="w"> </span>of<span class="w"> </span><span class="k">function</span><span class="w"> </span><span class="s1">&#39;cpu_down&#39;</span><span class="p">;</span><span class="w"> </span>did<span class="w"> </span>you<span class="w"> </span>mean<span class="w"> </span><span class="s1">&#39;cpu_die&#39;</span>?<span class="w"> </span><span class="o">[</span>-Werror<span class="o">=</span>implicit-function-declaration<span class="o">]</span>
+<span class="w">   </span>cpu_down<span class="o">(</span>i<span class="o">)</span><span class="p">;</span>
+<span class="w">   </span>^~~~~~~~
+<span class="w">   </span>cpu_die
+cc1:<span class="w"> </span>some<span class="w"> </span>warnings<span class="w"> </span>being<span class="w"> </span>treated<span class="w"> </span>as<span class="w"> </span>errors
+/home/kaba/Desktop/yocto/build/rpi3/tmp/work-shared/raspberrypi3-64/kernel-source/scripts/Makefile.build:293:<span class="w"> </span>recipe<span class="w"> </span><span class="k">for</span><span class="w"> </span>target<span class="w"> </span><span class="s1">&#39;/home/kaba/Desktop/yocto/build/rpi3/cross-compile/kgdboe/kgdboe_io.o&#39;</span><span class="w"> </span>failed
+make<span class="o">[</span><span class="m">3</span><span class="o">]</span>:<span class="w"> </span>***<span class="w"> </span><span class="o">[</span>/home/kaba/Desktop/yocto/build/rpi3/cross-compile/kgdboe/kgdboe_io.o<span class="o">]</span><span class="w"> </span>Error<span class="w"> </span><span class="m">1</span>
+/home/kaba/Desktop/yocto/build/rpi3/tmp/work-shared/raspberrypi3-64/kernel-source/Makefile:1493:<span class="w"> </span>recipe<span class="w"> </span><span class="k">for</span><span class="w"> </span>target<span class="w"> </span><span class="s1">&#39;_module_/home/kaba/Desktop/yocto/build/rpi3/cross-compile/kgdboe&#39;</span><span class="w"> </span>failed
+make<span class="o">[</span><span class="m">2</span><span class="o">]</span>:<span class="w"> </span>***<span class="w"> </span><span class="o">[</span>_module_/home/kaba/Desktop/yocto/build/rpi3/cross-compile/kgdboe<span class="o">]</span><span class="w"> </span>Error<span class="w"> </span><span class="m">2</span>
+Makefile:150:<span class="w"> </span>recipe<span class="w"> </span><span class="k">for</span><span class="w"> </span>target<span class="w"> </span><span class="s1">&#39;sub-make&#39;</span><span class="w"> </span>failed
+make<span class="o">[</span><span class="m">1</span><span class="o">]</span>:<span class="w"> </span>***<span class="w"> </span><span class="o">[</span>sub-make<span class="o">]</span><span class="w"> </span>Error<span class="w"> </span><span class="m">2</span>
+Makefile:24:<span class="w"> </span>recipe<span class="w"> </span><span class="k">for</span><span class="w"> </span>target<span class="w"> </span><span class="s1">&#39;__sub-make&#39;</span><span class="w"> </span>failed
+make:<span class="w"> </span>***<span class="w"> </span><span class="o">[</span>__sub-make<span class="o">]</span><span class="w"> </span>Error<span class="w"> </span><span class="m">2</span>
+make:<span class="w"> </span>Leaving<span class="w"> </span>directory<span class="w"> </span><span class="s1">&#39;/home/kaba/Desktop/yocto/build/rpi3/tmp/work/raspberrypi3_64-poky-linux/linux-raspberrypi/1_4.9.59+gitAUTOINC+e7976b2aff-r0/linux-raspberrypi3_64-standard-build&#39;</span>
+kaba@kaba-Vostro-1550:~/Desktop/yocto/build/rpi3/cross-compile/kgdboe
+$
+</code></pre></div>
+<code>cpu_down</code> function is not available in ARM platform. It is used to shutdown all but one core when debugging, because debugging with single CPU is desirable unless e debug SMP related issues. I couldn't find equivalent ARM function. So let's comment out this call and disable CPUs during boot using <code>bootargs</code>.
+<div class="highlight"><pre><span></span><code>kaba@kaba-Vostro-1550:~/Desktop/yocto/build/rpi3/cross-compile/kgdboe
+$ git diff
+diff --git a/kgdboe_io.c b/kgdboe_io.c
+index 1d02360..0d32c36 100644
+--- a/kgdboe_io.c
++++ b/kgdboe_io.c
+@@ -115,8 +115,8 @@ void force_single_cpu_mode(void)
+        printk(KERN_INFO &quot;kgdboe: single-core mode enabled. Shutting down all cores except #0. This is slower, but safer.\n&quot;);
+        printk(KERN_INFO &quot;kgdboe: you can try using multi-core mode by specifying the following argument:\n&quot;);
+        printk(KERN_INFO &quot;\tinsmod kgdboe.ko force_single_core = 0\n&quot;);
+-       for (int i = 1; i &lt; nr_cpu_ids; i++)
+-               cpu_down(i);
++       /*for (int i = 1; i &lt; nr_cpu_ids; i++)*/
++               /*cpu_down(i);*/
+ }
+kaba@kaba-Vostro-1550:~/Desktop/yocto/build/rpi3/cross-compile/kgdboe
+$
+</code></pre></div>
+This time the build gave following linker error.
+<div class="highlight"><pre><span></span><code>aarch64-poky-linux-ld:<span class="w"> </span>unrecognized<span class="w"> </span>option<span class="w"> </span><span class="s1">&#39;-Wl,-O1&#39;</span>
+</code></pre></div>
+This is because the <code>LDFLAGS</code> environment variable. Kernel module Makefile requires <code>LDFLAGS</code> to be set as only the options without <code>-Wl</code>. So it appends whatever there in <code>LDFLAGS</code> with <code>-Wl</code>. As <code>LDFLAGS</code> has another <code>-Wl</code>, we are getting unrecognized option error. So remove all <code>-Wl</code>s from <code>LDFLAGS</code>.
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="nv">$LDFLAGS</span><span class="w"> </span>
+-Wl,-O1<span class="w"> </span>-Wl,--hash-style<span class="o">=</span>gnu<span class="w"> </span>-Wl,--as-needed
+$<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="nv">LDFLAGS</span><span class="o">=</span><span class="s2">&quot;-O1 --hash-style=gnu --as-needed&quot;</span>
+$<span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="nv">$LDFLAGS</span><span class="w"> </span>
+-O1<span class="w"> </span>--hash-style<span class="o">=</span>gnu<span class="w"> </span>--as-needed
+</code></pre></div>
+And build now.
+<div class="highlight"><pre><span></span><code>kaba@kaba-Vostro-1550:~/Desktop/yocto/build/rpi3/cross-compile/kgdboe
+$<span class="w"> </span>make<span class="w"> </span>-C<span class="w"> </span>/home/kaba/Desktop/yocto/build/rpi3/tmp/work/raspberrypi3_64-poky-linux/linux-raspberrypi/1_4.9.59+gitAUTOINC+e7976b2aff-r0/linux-raspberrypi3_64-standard-build<span class="w"> </span><span class="nv">M</span><span class="o">=</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>
+make:<span class="w"> </span>Entering<span class="w"> </span>directory<span class="w"> </span><span class="s1">&#39;/home/kaba/Desktop/yocto/build/rpi3/tmp/work/raspberrypi3_64-poky-linux/linux-raspberrypi/1_4.9.59+gitAUTOINC+e7976b2aff-r0/linux-raspberrypi3_64-standard-build&#39;</span>
+<span class="w">  </span>LD<span class="w"> </span><span class="o">[</span>M<span class="o">]</span><span class="w">  </span>/home/kaba/Desktop/yocto/build/rpi3/cross-compile/kgdboe/kgdboe.o
+<span class="w">  </span>Building<span class="w"> </span>modules,<span class="w"> </span>stage<span class="w"> </span><span class="m">2</span>.
+<span class="w">  </span>MODPOST<span class="w"> </span><span class="m">1</span><span class="w"> </span>modules
+<span class="w">  </span>CC<span class="w">      </span>/home/kaba/Desktop/yocto/build/rpi3/cross-compile/kgdboe/kgdboe.mod.o
+<span class="w">  </span>LD<span class="w"> </span><span class="o">[</span>M<span class="o">]</span><span class="w">  </span>/home/kaba/Desktop/yocto/build/rpi3/cross-compile/kgdboe/kgdboe.ko
+make:<span class="w"> </span>Leaving<span class="w"> </span>directory<span class="w"> </span><span class="s1">&#39;/home/kaba/Desktop/yocto/build/rpi3/tmp/work/raspberrypi3_64-poky-linux/linux-raspberrypi/1_4.9.59+gitAUTOINC+e7976b2aff-r0/linux-raspberrypi3_64-standard-build&#39;</span>
+kaba@kaba-Vostro-1550:~/Desktop/yocto/build/rpi3/cross-compile/kgdboe
+$<span class="w"> </span>ls<span class="w"> </span>kgdboe.ko
+-rw-r--r--<span class="w"> </span><span class="m">1</span><span class="w"> </span>kaba<span class="w"> </span>kaba<span class="w"> </span><span class="m">2</span>.1M<span class="w"> </span>May<span class="w">  </span><span class="m">5</span><span class="w"> </span><span class="m">16</span>:11<span class="w"> </span>kgdboe.ko
+kaba@kaba-Vostro-1550:~/Desktop/yocto/build/rpi3/cross-compile/kgdboe
+$
+</code></pre></div>
+Now <code>scp</code> the module <code>kgdboe.ko</code> to Raspberry Pi.
+<div class="highlight"><pre><span></span><code>kaba@kaba-Vostro-1550:~/Desktop/yocto/build/rpi3/cross-compile/kgdboe
+$ scp kgdboe.ko root@192.168.0.101
+</code></pre></div></p>
+<h3 id="on-target">On Target</h3>
+<p>Add <code>maxcpus=1</code> option to Raspberry Pi's kernel command line to disable all but one core. The <code>bootargs</code> can be found in the file <code>cmdline.txt</code> in first partition of the SD card.
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>ssh<span class="w"> </span>root@192.168.0.101
+Last<span class="w"> </span>login:<span class="w"> </span>Sat<span class="w"> </span>May<span class="w">  </span><span class="m">5</span><span class="w"> </span><span class="m">07</span>:59:44<span class="w"> </span><span class="m">2018</span><span class="w"> </span>from<span class="w"> </span><span class="m">192</span>.168.0.108
+root@raspberrypi3-64:~#<span class="w"> </span>ls
+kgdboe.ko
+root@raspberrypi3-64:~#<span class="w"> </span>mount<span class="w"> </span>/dev/mmcblk0p1<span class="w"> </span>/boot
+root@raspberrypi3-64:~#<span class="w"> </span>cat<span class="w"> </span>/boot/cmdline.txt<span class="w"> </span>
+dwc_otg.lpm_enable<span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="nv">console</span><span class="o">=</span>serial0,115200<span class="w"> </span><span class="nv">root</span><span class="o">=</span>/dev/mmcblk0p2<span class="w"> </span><span class="nv">rootfstype</span><span class="o">=</span>ext4<span class="w"> </span>rootwait<span class="w"> </span><span class="nv">maxcpus</span><span class="o">=</span><span class="m">1</span>
+root@raspberrypi3-64:~#
+</code></pre></div>
+Reboot the Pi and try installing the module.
+<div class="highlight"><pre><span></span><code>root@raspberrypi3-64:~#<span class="w"> </span>cat<span class="w"> </span>/proc/cmdline<span class="w"> </span>
+<span class="m">8250</span>.nr_uarts<span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="nv">cma</span><span class="o">=</span>256M<span class="w"> </span>bcm2708_fb.fbwidth<span class="o">=</span><span class="m">1920</span><span class="w"> </span>bcm2708_fb.fbheight<span class="o">=</span><span class="m">1080</span><span class="w"> </span>bcm2708_fb.fbswap<span class="o">=</span><span class="m">1</span><span class="w"> </span>vc_mem.mem_base<span class="o">=</span>0x3ec00000<span class="w"> </span>vc_mem.mem_size<span class="o">=</span>0x40000000<span class="w">  </span>dwc_otg.lpm_enable<span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="nv">console</span><span class="o">=</span>ttyS0,115200<span class="w"> </span><span class="nv">root</span><span class="o">=</span>/dev/mmcblk0p2<span class="w"> </span><span class="nv">rootfstype</span><span class="o">=</span>ext4<span class="w"> </span>rootwait<span class="w"> </span><span class="nv">maxcpus</span><span class="o">=</span><span class="m">1</span>
+root@raspberrypi3-64:~#<span class="w"> </span>insmod<span class="w"> </span>kgdboe.ko<span class="w"> </span>
+insmod:<span class="w"> </span>ERROR:<span class="w"> </span>could<span class="w"> </span>not<span class="w"> </span>insert<span class="w"> </span>module<span class="w"> </span>kgdboe.ko:<span class="w"> </span>Invalid<span class="w"> </span>parameters
+root@raspberrypi3-64:~#<span class="w"> </span>dmesg<span class="w"> </span><span class="p">|</span><span class="w"> </span>tail<span class="w"> </span>-5
+<span class="o">[</span><span class="w"> </span><span class="m">1211</span>.816691<span class="o">]</span><span class="w"> </span>kgdboe:<span class="w"> </span>Failed<span class="w"> </span>to<span class="w"> </span>setup<span class="w"> </span>netpoll<span class="w"> </span><span class="k">for</span><span class="w"> </span>eth0,<span class="w"> </span>code<span class="w"> </span>-524
+<span class="o">[</span><span class="w"> </span><span class="m">8814</span>.348313<span class="o">]</span><span class="w"> </span>netpoll:<span class="w"> </span>kgdboe:<span class="w"> </span><span class="nb">local</span><span class="w"> </span>IP<span class="w"> </span><span class="m">1</span>.1.1.101
+<span class="o">[</span><span class="w"> </span><span class="m">8814</span>.348344<span class="o">]</span><span class="w"> </span>netpoll:<span class="w"> </span>kgdboe:<span class="w"> </span>eth0<span class="w"> </span>doesn<span class="err">&#39;</span>t<span class="w"> </span>support<span class="w"> </span>polling,<span class="w"> </span>aborting
+<span class="o">[</span><span class="w"> </span><span class="m">8814</span>.348360<span class="o">]</span><span class="w"> </span>kgdboe:<span class="w"> </span>Failed<span class="w"> </span>to<span class="w"> </span>setup<span class="w"> </span>netpoll<span class="w"> </span><span class="k">for</span><span class="w"> </span>eth0,<span class="w"> </span>code<span class="w"> </span>-524
+root@raspberrypi3-64:~#
+</code></pre></div>
+Due to lack of polling support, Kernel debugging over Ethernet is not available for as of now. If you are reading this, you are part of the clan having hope.</p>
+<h1 id="references">References</h1>
+<ul>
+<li>[http://sysprogs.com/VisualKernel/kgdboe/tutorial/]</li>
+<li>[https://github.com/raspberrypi/linux/blob/rpi-4.14.y/arch/arm64/Kconfig]</li>
+<li>[https://sysprogs.com/w/forums/topic/two-problems-1-linuxkerneldebughelper-seg-fault-and-2-kgdboe-build-fails/]</li>
+<li>[https://stackoverflow.com/questions/25407320/what-is-the-signification-of-ldflags]</li>
+<li>[https://github.com/raspberrypi/linux/issues/1877]</li>
+</ul>
+<div class="flex">
+        <script src="https://platform.linkedin.com/in.js" type="text/javascript">lang: en_US</script>
+        <script type="IN/Share" data-url="https://eastrivervillage.com/blog/2018/05/05/kgdboe-on-raspberrypi---building-out-of-the-kernel-tree-module-with-yocto/"></script>
+    </div>
+
+
+
+
+
+
+
+  
+  
+
+
+
+  
+
+
+  
+
+
+
+      
+    </article>
+  </div>
+
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://www.linkedin.com/in/balakumaran-kannan/" target="_blank" rel="noopener" title="LinkedIn" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3M135.4 416H69V202.2h66.5V416zM102.2 96a38.5 38.5 0 1 1 0 77 38.5 38.5 0 1 1 0-77m282.1 320h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="https://github.com/0xba1a" target="_blank" rel="noopener" title="GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../../../../..", "features": ["navigation.indexes", "content.code.copy", "content.code.select", "content.code.annotate"], "search": "../../../../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../../../assets/javascripts/bundle.92b07e13.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,1913 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Learn how to fine-tune GPT-4 with historical NIFTY50 data to predict stock prices and assess its performance through backtesting.">
+      
+      
+        <meta name="author" content="Bala">
+      
+      
+        <link rel="canonical" href="https://eastrivervillage.com/blog/2025/08/25/fine-tuning-gpt-model-to-predict-nifty50-prices/">
+      
+      
+        <link rel="prev" href="../../23/fine-tuning-llms-to-predict-nifty50-prices/">
+      
+      
+        <link rel="next" href="../../../09/01/gpt-5-for-programmers/">
+      
+      
+        <link rel="alternate" type="application/rss+xml" title="RSS feed" href="../../../../../feed_rss_created.xml">
+        <link rel="alternate" type="application/rss+xml" title="RSS feed of updated content" href="../../../../../feed_rss_updated.xml">
+      
+      <link rel="icon" href="../../../../images/fabicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.18">
+    
+    
+      
+        <title>Fine-Tuning GPT model to Predict NIFTY50 Prices - East River Village</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../../assets/stylesheets/main.7e37652d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function e(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],e("js",new Date),e("config","G-3JJ45DK8YN"),document.addEventListener("DOMContentLoaded",(function(){document.forms.search&&document.forms.search.query.addEventListener("blur",(function(){this.value&&e("event","search",{search_term:this.value})}));document$.subscribe((function(){var t=document.forms.feedback;if(void 0!==t)for(var a of t.querySelectorAll("[type=submit]"))a.addEventListener("click",(function(a){a.preventDefault();var n=document.location.pathname,d=this.getAttribute("data-md-value");e("event","feedback",{page:n,data:d}),t.firstElementChild.disabled=!0;var r=t.querySelector(".md-feedback__note [data-md-value='"+d+"']");r&&(r.hidden=!1)})),t.hidden=!1})),location$.subscribe((function(t){e("config","G-3JJ45DK8YN",{page_path:t.pathname})}))}));var t=document.createElement("script");t.async=!0,t.src="https://www.googletagmanager.com/gtag/js?id=G-3JJ45DK8YN",document.getElementById("__analytics").insertAdjacentElement("afterEnd",t)}</script>
+  
+    <script>"undefined"!=typeof __md_analytics&&__md_analytics()</script>
+  
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#prepare-training-conversations" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="https://eastrivervillage.com" title="East River Village" class="md-header__button md-logo" aria-label="East River Village" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10.41 7.41 15 12l-4.59 4.6L9 15.18 12.18 12 9 8.82M5 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            East River Village
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Fine-Tuning GPT model to Predict NIFTY50 Prices
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m3.55 19.09 1.41 1.41 1.8-1.79-1.42-1.42M12 6c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6c0-3.32-2.69-6-6-6m8 7h3v-2h-3m-2.76 7.71 1.8 1.79 1.41-1.41-1.79-1.8M20.45 5l-1.41-1.4-1.8 1.79 1.42 1.42M13 1h-2v3h2M6.76 5.39 4.96 3.6 3.55 5l1.79 1.81zM1 13h3v-2H1m12 9h-2v3h2"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="indigo"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7.5 2c-1.79 1.15-3 3.18-3 5.5s1.21 4.35 3.03 5.5C4.46 13 2 10.54 2 7.5A5.5 5.5 0 0 1 7.5 2m11.57 1.5 1.43 1.43L4.93 20.5 3.5 19.07zm-6.18 2.43L11.41 5 9.97 6l.42-1.7L9 3.24l1.75-.12.58-1.65L12 3.1l1.73.03-1.35 1.13zm-3.3 3.61-1.16-.73-1.12.78.34-1.32-1.09-.83 1.36-.09.45-1.29.51 1.27 1.36.03-1.05.87zM19 13.5a5.5 5.5 0 0 1-5.5 5.5c-1.22 0-2.35-.4-3.26-1.07l7.69-7.69c.67.91 1.07 2.04 1.07 3.26m-4.4 6.58 2.77-1.15-.24 3.35zm4.33-2.7 1.15-2.77 2.2 2.54zm1.15-4.96-1.14-2.78 3.34.24zM9.63 18.93l2.77 1.15-2.53 2.19z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+                
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" hidden>
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="https://eastrivervillage.com" title="East River Village" class="md-nav__button md-logo" aria-label="East River Village" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10.41 7.41 15 12l-4.59 4.6L9 15.18 12.18 12 9 8.82M5 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/></svg>
+
+    </a>
+    East River Village
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../../" class="md-nav__link ">
+              
+  
+  
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10.41 7.41 15 12l-4.59 4.6L9 15.18 12.18 12 9 8.82M5 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/></svg>
+  
+  <span class="md-ellipsis">
+    Blog
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Blog
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../tags/" class="md-nav__link">
+        
+  
+  
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10.41 7.41 15 12l-4.59 4.6L9 15.18 12.18 12 9 8.82M5 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/></svg>
+  
+  <span class="md-ellipsis">
+    Tags
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_3" id="__nav_2_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Archive
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            Archive
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../archive/2025/" class="md-nav__link">
+        
+  
+  
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10.41 7.41 15 12l-4.59 4.6L9 15.18 12.18 12 9 8.82M5 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/></svg>
+  
+  <span class="md-ellipsis">
+    September 2025
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../archive/2021/" class="md-nav__link">
+        
+  
+  
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10.41 7.41 15 12l-4.59 4.6L9 15.18 12.18 12 9 8.82M5 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/></svg>
+  
+  <span class="md-ellipsis">
+    July 2021
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../archive/2020/" class="md-nav__link">
+        
+  
+  
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10.41 7.41 15 12l-4.59 4.6L9 15.18 12.18 12 9 8.82M5 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/></svg>
+  
+  <span class="md-ellipsis">
+    November 2020
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../archive/2019/" class="md-nav__link">
+        
+  
+  
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10.41 7.41 15 12l-4.59 4.6L9 15.18 12.18 12 9 8.82M5 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/></svg>
+  
+  <span class="md-ellipsis">
+    June 2019
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../archive/2018/" class="md-nav__link">
+        
+  
+  
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10.41 7.41 15 12l-4.59 4.6L9 15.18 12.18 12 9 8.82M5 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/></svg>
+  
+  <span class="md-ellipsis">
+    October 2018
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../archive/2017/" class="md-nav__link">
+        
+  
+  
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10.41 7.41 15 12l-4.59 4.6L9 15.18 12.18 12 9 8.82M5 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/></svg>
+  
+  <span class="md-ellipsis">
+    September 2017
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+                
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#prepare-training-conversations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Prepare Training Conversations
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-to-determine-target-price" class="md-nav__link">
+    <span class="md-ellipsis">
+      How to determine target price?
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#training-gpt-llm" class="md-nav__link">
+    <span class="md-ellipsis">
+      Training GPT LLM
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Training GPT LLM">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-create-an-azure-hub-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Create an Azure Hub project
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-start-fine-tuning" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Start Fine-Tuning
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backtesting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Backtesting
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verdict" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verdict
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conclusion
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+  <div class="md-content md-content--post" data-md-component="content">
+    <div class="md-sidebar md-sidebar--post" data-md-component="sidebar" data-md-type="navigation">
+      <div class="md-sidebar__scrollwrap">
+        <div class="md-sidebar__inner md-post">
+          <nav class="md-nav md-nav--primary">
+            <div class="md-post__back">
+              <div class="md-nav__title md-nav__container">
+                <a href="../../../../" class="md-nav__link">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+                  <span class="md-ellipsis">
+                    Back to index
+                  </span>
+                </a>
+              </div>
+            </div>
+            
+              <div class="md-post__authors md-typeset">
+                
+                  <div class="md-profile md-post__profile">
+                    <span class="md-author md-author--long">
+                      <img src="../../../../../assets/author_image.jpg" alt="Bala">
+                    </span>
+                    <span class="md-profile__description">
+                      <strong>
+                        
+                          <a href="https://eastrivervillage.com">Bala</a>
+                        
+                      </strong>
+                      <br>
+                      Principal Software Engineer @ Microsoft
+                    </span>
+                  </div>
+                
+              </div>
+            
+            <ul class="md-post__meta md-nav__list">
+              <li class="md-nav__item md-nav__item--section">
+                <div class="md-post__title">
+                  <span class="md-ellipsis">
+                    Metadata
+                  </span>
+                </div>
+                <nav class="md-nav">
+                  <ul class="md-nav__list">
+                    <li class="md-nav__item">
+                      <div class="md-nav__link">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 19H5V8h14m-3-7v2H8V1H6v2H5c-1.11 0-2 .89-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-1V1m-1 11h-5v5h5z"/></svg>
+                        <time datetime="2025-08-25 00:00:00+00:00" class="md-ellipsis">August 25, 2025</time>
+                      </div>
+                    </li>
+                    
+                    
+                    
+                      
+                      <li class="md-nav__item">
+                        <div class="md-nav__link">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 20a8 8 0 0 0 8-8 8 8 0 0 0-8-8 8 8 0 0 0-8 8 8 8 0 0 0 8 8m0-18a10 10 0 0 1 10 10 10 10 0 0 1-10 10C6.47 22 2 17.5 2 12A10 10 0 0 1 12 2m.5 5v5.25l4.5 2.67-.75 1.23L11 13V7z"/></svg>
+                          <span class="md-ellipsis">
+                            
+                              20 min read
+                            
+                          </span>
+                        </div>
+                      </li>
+                    
+                  </ul>
+                </nav>
+              </li>
+            </ul>
+            
+          </nav>
+          
+        </div>
+      </div>
+    </div>
+    <article class="md-content__inner md-typeset">
+      
+        
+  
+
+
+  <nav class="md-tags" >
+    
+      
+      
+      
+        <a href="../../../../tags/#tag:azure" class="md-tag">Azure</a>
+      
+    
+      
+      
+      
+        <a href="../../../../tags/#tag:fine-tuning" class="md-tag">Fine-Tuning</a>
+      
+    
+      
+      
+      
+        <a href="../../../../tags/#tag:gpt" class="md-tag">GPT</a>
+      
+    
+      
+      
+      
+        <a href="../../../../tags/#tag:llm" class="md-tag">LLM</a>
+      
+    
+      
+      
+      
+        <a href="../../../../tags/#tag:nifty50" class="md-tag">NIFTY50</a>
+      
+    
+      
+      
+      
+        <a href="../../../../tags/#tag:openai" class="md-tag">OpenAI</a>
+      
+    
+      
+      
+      
+        <a href="../../../../tags/#tag:stock-market" class="md-tag">Stock Market</a>
+      
+    
+      
+      
+      
+        <a href="../../../../tags/#tag:time-series" class="md-tag">Time Series</a>
+      
+    
+  </nav>
+
+
+
+  <h1>Fine-Tuning GPT model to Predict NIFTY50 Prices</h1>
+
+<p>In the previous <a href="../../23/fine-tuning-llms-to-predict-nifty50-prices/">post</a> we have prepared a dataset consisting of minute level Nifty50 index price for the last 10 years. We've done some data cleansing and split the dataset into training and validation set. Please skim through that if you haven't yet. In this blog we're going to use the training set to fine-tune a GPT model in Azure AI Foundry. Then we'll use the validation set to check whether the fine-tuned model can make a profit for us.</p>
+<h2 id="prepare-training-conversations">Prepare Training Conversations</h2>
+<p>The prepared dataset is stored under the <a href="https://github.com/0xba1a/0xba1a.github.com/blob/master/ai_market_prediction/dataset/">dataset</a> directory. We'll use the <em>train_price_movements.csv</em> for fine-tuning the model. Here is the glimpse of the content of the file.
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="n">training_set</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;dataset/train_price_movements.csv&#39;</span><span class="p">)</span>
+<span class="n">training_set</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</code></pre></div></td></tr></table></div>
+<strong>Output</strong></p>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>date</th>
+      <th>09:15</th>
+      <th>09:16</th>
+      <th>09:17</th>
+      <th>09:18</th>
+      <th>09:19</th>
+      <th>09:20</th>
+      <th>09:21</th>
+      <th>09:22</th>
+      <th>09:23</th>
+      <th>...</th>
+      <th>15:20</th>
+      <th>15:21</th>
+      <th>15:22</th>
+      <th>15:23</th>
+      <th>15:24</th>
+      <th>15:25</th>
+      <th>15:26</th>
+      <th>15:27</th>
+      <th>15:28</th>
+      <th>15:29</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2015-01-09</td>
+      <td>0.0</td>
+      <td>0.09</td>
+      <td>-0.06</td>
+      <td>0.08</td>
+      <td>0.08</td>
+      <td>-0.00</td>
+      <td>0.00</td>
+      <td>0.02</td>
+      <td>-0.09</td>
+      <td>...</td>
+      <td>-0.01</td>
+      <td>0.02</td>
+      <td>0.01</td>
+      <td>0.01</td>
+      <td>0.03</td>
+      <td>-0.00</td>
+      <td>-0.04</td>
+      <td>-0.01</td>
+      <td>0.01</td>
+      <td>-0.03</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2015-01-12</td>
+      <td>0.0</td>
+      <td>-0.45</td>
+      <td>0.01</td>
+      <td>0.04</td>
+      <td>0.06</td>
+      <td>0.05</td>
+      <td>-0.02</td>
+      <td>0.03</td>
+      <td>0.06</td>
+      <td>...</td>
+      <td>0.04</td>
+      <td>-0.04</td>
+      <td>0.02</td>
+      <td>0.00</td>
+      <td>-0.01</td>
+      <td>0.04</td>
+      <td>0.01</td>
+      <td>-0.01</td>
+      <td>0.00</td>
+      <td>-0.01</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2015-01-13</td>
+      <td>0.0</td>
+      <td>0.11</td>
+      <td>-0.08</td>
+      <td>-0.05</td>
+      <td>-0.02</td>
+      <td>-0.03</td>
+      <td>-0.01</td>
+      <td>0.01</td>
+      <td>-0.09</td>
+      <td>...</td>
+      <td>0.08</td>
+      <td>0.01</td>
+      <td>0.01</td>
+      <td>0.01</td>
+      <td>0.01</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>-0.01</td>
+      <td>-0.02</td>
+      <td>0.03</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2015-01-14</td>
+      <td>0.0</td>
+      <td>-0.08</td>
+      <td>0.07</td>
+      <td>0.02</td>
+      <td>-0.04</td>
+      <td>-0.01</td>
+      <td>-0.03</td>
+      <td>-0.11</td>
+      <td>0.04</td>
+      <td>...</td>
+      <td>0.08</td>
+      <td>-0.01</td>
+      <td>0.02</td>
+      <td>0.03</td>
+      <td>0.01</td>
+      <td>0.01</td>
+      <td>0.00</td>
+      <td>0.02</td>
+      <td>0.02</td>
+      <td>0.01</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2015-01-15</td>
+      <td>0.0</td>
+      <td>0.18</td>
+      <td>-0.55</td>
+      <td>-0.10</td>
+      <td>0.18</td>
+      <td>0.32</td>
+      <td>-0.23</td>
+      <td>-0.12</td>
+      <td>0.22</td>
+      <td>...</td>
+      <td>-0.04</td>
+      <td>-0.07</td>
+      <td>-0.11</td>
+      <td>-0.06</td>
+      <td>-0.11</td>
+      <td>-0.05</td>
+      <td>0.06</td>
+      <td>-0.05</td>
+      <td>0.03</td>
+      <td>0.00</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p><br /></p>
+<p>Our expectation is when feed the price movement till 2.30PM, the model should tell us what is the most probable price it will reach before the market close. Based on that price we'll either buy or sell (short) the index at 2.30.</p>
+<p>OpenAI GPTs are conversational models. So, the training dataset should be converted into set of conversations. Each conversation should have a system message, a user message and an assistant message. In our case the system message will be a role assignment for the LLM. The user message will be the market movement and the assistant message will be the target price for that day.</p>
+<h2 id="how-to-determine-target-price">How to determine target price?</h2>
+<p>Before converting the current dataset into conversations, we need to establish a method for determining the target price for each day in the training dataset. This is essential because the training conversation requires the <code>target_price</code> to be included as the assistant's response. Therefore, we must devise a systematic approach to calculate the target price using the price movement data available after 2:30 PM.</p>
+<p>We have price movement in percentage from 2.31PM to 3.29PM. As we're going to square off our position by 3.25PM itself, let's consider only upto 3.25PM. And each number in the dataset is relative percentage difference from the previous price. So, it is a geometric progression.</p>
+<p>We should know price oscillations with respect to the price at 2.30 at every minute until 3.25. So, if we're buying at 2.30, we should sell at a time when the price reached the peak. Or if we're selling (shorting) we should buy back when the price is at the bottom of the graph. Here we are going to identify the most probable price (or movement) close to the maximum or minimum and use that as the target price.</p>
+<p>Please note that we're not taking the best price here. Because the best price will be an outlier in the sequence. It may not properly represent the trend in the price setting. So, take the price ocillation range and take the first standard deviation. By this we have approximately 66% possibility to reach the target price. And this is our expectation from the LLM also. To make profit in long-term, we trade high profit in a day for more stable returns.</p>
+<p>Let's create a sequence of price difference with respect to the base price at 2.30 and find it's mean and std. If the mean is positive, let's set the target price as <code>mean+std</code>. Otherwise the short target price is <code>mean-std</code>. Let's do this for first sequence in this dataset.
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1"># Set the date column as index</span>
+<span class="n">training_set_indexed</span> <span class="o">=</span> <span class="n">training_set</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;date&#39;</span><span class="p">)</span>
+
+<span class="n">target_date</span> <span class="o">=</span> <span class="s1">&#39;2015-01-09&#39;</span>
+<span class="n">target_time</span> <span class="o">=</span> <span class="s1">&#39;14:30&#39;</span>
+
+<span class="c1"># Get data for the target date</span>
+<span class="n">day_data</span> <span class="o">=</span> <span class="n">training_set_indexed</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">target_date</span><span class="p">]</span>
+
+<span class="c1"># Print the price movement at 2:30 PM</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Price movement at </span><span class="si">{</span><span class="n">target_time</span><span class="si">}</span><span class="s2"> on </span><span class="si">{</span><span class="n">target_date</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">day_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">target_time</span><span class="p">]</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
+
+<span class="c1"># Calculate cumulative price changes from 2:30 PM onwards</span>
+<span class="c1"># Starting with 1.0 at 2:30 PM (baseline)</span>
+<span class="n">price_diff_with_respect_to_230</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">time_labels</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">cur</span> <span class="o">=</span> <span class="mf">1.0</span>  <span class="c1"># Starting value at 2:30 PM</span>
+
+<span class="c1"># Generate times from 2:31 PM to 3:25 PM</span>
+<span class="k">for</span> <span class="n">hour</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">14</span><span class="p">,</span> <span class="mi">15</span><span class="p">]:</span>  <span class="c1"># 2 PM and 3 PM in 24-hour format</span>
+    <span class="n">start_min</span> <span class="o">=</span> <span class="mi">31</span> <span class="k">if</span> <span class="n">hour</span> <span class="o">==</span> <span class="mi">14</span> <span class="k">else</span> <span class="mi">0</span>  <span class="c1"># Start from 31 min for 2 PM, 0 min for 3 PM</span>
+    <span class="n">end_min</span> <span class="o">=</span> <span class="mi">60</span> <span class="k">if</span> <span class="n">hour</span> <span class="o">==</span> <span class="mi">14</span> <span class="k">else</span> <span class="mi">26</span>   <span class="c1"># End at 60 min for 2 PM, 26 min for 3 PM</span>
+
+    <span class="k">for</span> <span class="n">minute</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start_min</span><span class="p">,</span> <span class="n">end_min</span><span class="p">):</span>
+        <span class="n">time_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">hour</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">minute</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">if</span> <span class="n">time_str</span> <span class="ow">in</span> <span class="n">day_data</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+            <span class="c1"># Apply the percentage change: new_value = current * (1 + percentage_change/100)</span>
+            <span class="n">percentage_change</span> <span class="o">=</span> <span class="n">day_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">time_str</span><span class="p">]</span>
+            <span class="n">cur</span> <span class="o">=</span> <span class="n">cur</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">percentage_change</span> <span class="o">/</span> <span class="mi">100</span><span class="p">)</span>
+            <span class="n">price_diff_with_respect_to_230</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cur</span><span class="p">)</span>
+            <span class="n">time_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">time_str</span><span class="p">)</span>
+
+<span class="c1"># Create DataFrame with results</span>
+<span class="n">result_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="n">time_labels</span><span class="p">,</span>
+    <span class="s1">&#39;cumulative_price_factor&#39;</span><span class="p">:</span> <span class="n">price_diff_with_respect_to_230</span>
+<span class="p">})</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Cumulative price changes from 2:30 PM baseline:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Mean: </span><span class="si">{</span><span class="n">result_df</span><span class="p">[</span><span class="s1">&#39;cumulative_price_factor&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Std: </span><span class="si">{</span><span class="n">result_df</span><span class="p">[</span><span class="s1">&#39;cumulative_price_factor&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Min: </span><span class="si">{</span><span class="n">result_df</span><span class="p">[</span><span class="s1">&#39;cumulative_price_factor&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Max: </span><span class="si">{</span><span class="n">result_df</span><span class="p">[</span><span class="s1">&#39;cumulative_price_factor&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="n">mean</span> <span class="o">=</span> <span class="n">result_df</span><span class="p">[</span><span class="s1">&#39;cumulative_price_factor&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="n">std</span> <span class="o">=</span> <span class="n">result_df</span><span class="p">[</span><span class="s1">&#39;cumulative_price_factor&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="n">mean</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+    <span class="n">position</span> <span class="o">=</span> <span class="s2">&quot;Call&quot;</span>
+    <span class="n">target_percentage</span> <span class="o">=</span> <span class="nb">round</span><span class="p">((</span><span class="n">mean</span> <span class="o">+</span> <span class="n">std</span><span class="p">),</span> <span class="mi">4</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">position</span> <span class="o">=</span> <span class="s2">&quot;Put&quot;</span>
+    <span class="n">target_percentage</span> <span class="o">=</span> <span class="nb">round</span><span class="p">((</span><span class="n">mean</span> <span class="o">-</span> <span class="n">std</span><span class="p">),</span> <span class="mi">4</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">position</span><span class="si">}</span><span class="s2">. Target Percentage: </span><span class="si">{</span><span class="n">target_percentage</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+<strong>Output</strong>
+<div class="highlight"><pre><span></span><code>Price movement at 14:30 on 2015-01-09: 0.01%
+
+Cumulative price changes from 2:30 PM baseline:
+Mean: 1.35
+Std: 0.24
+Min: 0.90
+Max: 1.84
+Call. Target Percentage: 1.0053
+</code></pre></div></p>
+<p>By multiplying the <code>target_percentage</code> with the base price i.e. the price at 2.30PM, we'll get the target price. We have the price sequence data in <code>dataset/train_daily_opens.csv</code>. Let's calculate the position and target price for <code>09-01-2015</code>.
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span>
+<span class="normal">8</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">training_prices</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;dataset/train_daily_opens.csv&#39;</span><span class="p">)</span>
+<span class="c1"># training_prices.head()</span>
+<span class="n">training_prices</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;date&#39;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">day_price</span> <span class="o">=</span> <span class="n">training_prices</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">target_date</span><span class="p">]</span>
+<span class="n">base_price</span> <span class="o">=</span> <span class="n">day_price</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">target_time</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Base Price at </span><span class="si">{</span><span class="n">target_time</span><span class="si">}</span><span class="s2"> on </span><span class="si">{</span><span class="n">target_date</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">base_price</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">target_price</span> <span class="o">=</span> <span class="n">base_price</span> <span class="o">*</span> <span class="n">target_percentage</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">position</span><span class="si">}</span><span class="s2">. Target Price: </span><span class="si">{</span><span class="n">target_price</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+<strong>OutPut</strong>
+<div class="highlight"><pre><span></span><code>Base Price at 14:30 on 2015-01-09: 8240.0
+Call. Target Price: 8283.672
+</code></pre></div>
+<em>This price calculation is only for illustration purposes. We're not going to pass it to the LLM. Because, we're not going to give it any price related context. We'll pass only the price movement in percentage and expect it to provide the multiplication factor. We'll multiply the factor with the base price and determine the target price programmatically.</em></p>
+<p>To prepare the training dataset for fine-tuning, we need to convert the entire dataset into a conversational format and save it as a JSONL file. For each day in the dataset, we will calculate the multiplication factor (<code>target_percentage</code>) following the above method. The model will be trained to predict only the <code>target_percentage</code> given the market movement sequence. The <code>target_price</code> will be derived later using the <code>base_price</code> at the time of evaluation.
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span>
+<span class="normal">85</span>
+<span class="normal">86</span>
+<span class="normal">87</span>
+<span class="normal">88</span>
+<span class="normal">89</span>
+<span class="normal">90</span>
+<span class="normal">91</span>
+<span class="normal">92</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">training_conversations</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="c1"># traverse every item in the training_set_indexed</span>
+<span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">training_set_indexed</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+    <span class="n">date</span> <span class="o">=</span> <span class="n">index</span>  <span class="c1"># The date is the index, not row[&#39;date&#39;]</span>
+
+    <span class="c1"># Convert date string to datetime to get day name</span>
+    <span class="n">date_obj</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>
+    <span class="n">day_of_the_date</span> <span class="o">=</span> <span class="n">date_obj</span><span class="o">.</span><span class="n">day_name</span><span class="p">()</span>
+
+    <span class="c1"># Filter row to only include times from 9:15 AM to 2:30 PM</span>
+    <span class="c1"># Create time range from 09:15 to 14:30</span>
+    <span class="n">times_until_230</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">hour</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">15</span><span class="p">):</span>  <span class="c1"># 9 AM to 2 PM</span>
+        <span class="n">start_min</span> <span class="o">=</span> <span class="mi">15</span> <span class="k">if</span> <span class="n">hour</span> <span class="o">==</span> <span class="mi">9</span> <span class="k">else</span> <span class="mi">0</span>  <span class="c1"># Start from 15 min for 9 AM, 0 min for others</span>
+        <span class="n">end_min</span> <span class="o">=</span> <span class="mi">60</span>
+        <span class="k">for</span> <span class="n">minute</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start_min</span><span class="p">,</span> <span class="n">end_min</span><span class="p">):</span>
+            <span class="n">times_until_230</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">hour</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">minute</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Add 14:30 (2:30 PM)</span>
+    <span class="n">times_until_230</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;14:30&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Filter row data to only include times until 2:30 PM</span>
+    <span class="n">row_until_230</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="n">row</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">times_until_230</span><span class="p">)]</span>
+
+    <span class="c1"># Get the current day&#39;s data for post-2:30 PM calculations</span>
+    <span class="n">day_data</span> <span class="o">=</span> <span class="n">row</span>  <span class="c1"># This is the full day&#39;s data</span>
+
+    <span class="n">percent_diff_with_respect_to_230</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">time_labels</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">cur</span> <span class="o">=</span> <span class="mf">1.0</span>  <span class="c1"># Take the base as 1</span>
+
+    <span class="k">for</span> <span class="n">hour</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">14</span><span class="p">,</span> <span class="mi">15</span><span class="p">]:</span>
+        <span class="n">start_min</span> <span class="o">=</span> <span class="mi">31</span> <span class="k">if</span> <span class="n">hour</span> <span class="o">==</span> <span class="mi">14</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="n">end_min</span> <span class="o">=</span> <span class="mi">60</span> <span class="k">if</span> <span class="n">hour</span> <span class="o">==</span> <span class="mi">14</span> <span class="k">else</span> <span class="mi">26</span>  <span class="c1"># Fixed: changed &#39;or&#39; to &#39;else&#39;</span>
+
+        <span class="k">for</span> <span class="n">minute</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start_min</span><span class="p">,</span> <span class="n">end_min</span><span class="p">):</span>  <span class="c1"># Fixed: added colon</span>
+            <span class="n">time_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">hour</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">minute</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span>
+
+            <span class="k">if</span> <span class="n">time_str</span> <span class="ow">in</span> <span class="n">day_data</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+                <span class="n">percentage_change</span> <span class="o">=</span> <span class="n">day_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">time_str</span><span class="p">]</span>
+                <span class="n">cur</span> <span class="o">=</span> <span class="n">cur</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">percentage_change</span> <span class="o">/</span> <span class="mi">100</span><span class="p">)</span>
+                <span class="n">percent_diff_with_respect_to_230</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cur</span><span class="p">)</span>
+                <span class="n">time_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">time_str</span><span class="p">)</span>
+
+    <span class="n">result_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+        <span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="n">time_labels</span><span class="p">,</span>
+        <span class="s1">&#39;cumulative_price_factor&#39;</span><span class="p">:</span> <span class="n">percent_diff_with_respect_to_230</span>
+    <span class="p">})</span>
+
+    <span class="n">mean</span> <span class="o">=</span> <span class="n">result_df</span><span class="p">[</span><span class="s1">&#39;cumulative_price_factor&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="n">std</span> <span class="o">=</span> <span class="n">result_df</span><span class="p">[</span><span class="s1">&#39;cumulative_price_factor&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">mean</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">position</span> <span class="o">=</span> <span class="s2">&quot;Call&quot;</span>
+        <span class="n">target_percentage</span> <span class="o">=</span> <span class="nb">round</span><span class="p">((</span><span class="n">mean</span> <span class="o">+</span> <span class="n">std</span><span class="p">),</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">position</span> <span class="o">=</span> <span class="s2">&quot;Put&quot;</span>
+        <span class="n">target_percentage</span> <span class="o">=</span> <span class="nb">round</span><span class="p">((</span><span class="n">mean</span> <span class="o">-</span> <span class="n">std</span><span class="p">),</span> <span class="mi">4</span><span class="p">)</span>
+
+    <span class="n">base_price</span> <span class="o">=</span> <span class="n">training_prices</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">date</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;14:30&#39;</span><span class="p">]</span>
+    <span class="n">target_price</span> <span class="o">=</span> <span class="n">base_price</span> <span class="o">*</span> <span class="n">target_percentage</span>
+
+    <span class="c1"># Use row_until_230 instead of full row for the conversation</span>
+    <span class="n">conversation</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;messages&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;system&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;You are a stock market expert. You will predict the most profit making position and what is the expected percentage change in the next 1 hour given the percentage movement between 9.15 AM and 2.30 PM.&quot;</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;The price movements in percentage from 9:15 AM to 2:30 PM on &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">date</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; (&quot;</span> <span class="o">+</span> <span class="n">day_of_the_date</span> <span class="o">+</span> <span class="s2">&quot;) are as follows: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">row_until_230</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;assistant&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">target_percentage</span><span class="p">)</span>
+            <span class="p">}</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+
+    <span class="n">training_conversations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">conversation</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generated </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">training_conversations</span><span class="p">)</span><span class="si">}</span><span class="s2"> training conversations&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">training_conversations</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+<span class="c1"># Store `training_conversations` in a jsonl file.</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;dataset/training_conversations_gpt.jsonl&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">conversation</span> <span class="ow">in</span> <span class="n">training_conversations</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">conversation</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+<strong>Output</strong>
+<div class="highlight"><pre><span></span><code>Generated 1975 training conversations
+{&#39;messages&#39;: [{&#39;role&#39;: &#39;system&#39;, &#39;content&#39;: &#39;You are a stock market expert. You will predict the most profit making position and what is the expected percentage change in the next 1 hour given the percentage movement between 9.15 AM and 2.30 PM.&#39;}, {&#39;role&#39;: &#39;user&#39;, &#39;content&#39;: &#39;The price movements in percentage from 9:15 AM to 2:30 PM on 2015-01-09 (Friday) are as follows: [0.0, 0.09, -0.06, 0.08, 0.08, -0.0, 0.0, 0.02, -0.09, 0.0, 0.08, -0.08, -0.07, 0.03, -0.02, 0.04, -0.06, 0.0, -0.08, 0.01, 0.07, -0.05, 0.0, -0.07, 0.04, 0.01, 0.02, 0.01, -0.07, -0.03, 0.09, -0.05, 0.02, -0.04, -0.01, 0.06, -0.1, 0.04, 0.0, -0.0, -0.03, -0.01, 0.05, 0.04, -0.04, 0.03, 0.02, 0.01, 0.02, -0.02, 0.01, -0.02, 0.02, -0.03, 0.0, -0.04, -0.01, -0.04, 0.02, 0.02, 0.03, 0.01, -0.02, -0.0, 0.03, 0.01, 0.0, 0.03, 0.0, -0.01, 0.02, 0.01, -0.02, 0.02, 0.03, -0.0, -0.01, -0.04, 0.02, -0.01, 0.01, -0.02, -0.03, 0.02, -0.01, 0.02, -0.02, -0.02, 0.0, -0.01, -0.01, -0.02, 0.03, -0.02, 0.01, -0.0, -0.01, 0.02, 0.02, -0.01, 0.02, -0.02, 0.03, 0.01, 0.0, -0.01, 0.02, -0.01, -0.05, 0.03, 0.03, -0.02, -0.02, -0.02, -0.02, 0.01, 0.02, -0.01, -0.0, 0.04, -0.04, -0.0, -0.03, -0.02, -0.01, 0.02, -0.01, 0.02, 0.02, -0.13, -0.03, -0.03, 0.02, -0.0, -0.0, -0.02, -0.13, 0.06, -0.07, 0.0, 0.04, 0.05, -0.02, -0.05, -0.01, -0.01, 0.02, 0.03, 0.04, -0.04, 0.0, 0.04, 0.0, -0.01, 0.01, -0.06, 0.02, -0.01, 0.01, -0.01, 0.02, 0.02, -0.01, 0.01, 0.0, 0.0, -0.04, 0.02, -0.05, -0.06, -0.45, 0.05, 0.02, 0.01, 0.04, -0.11, -0.09, -0.02, 0.12, 0.04, 0.08, 0.02, -0.05, 0.01, 0.01, -0.0, -0.05, 0.03, 0.0, 0.07, -0.06, 0.04, -0.09, -0.08, 0.05, 0.01, -0.0, 0.03, 0.0, -0.06, -0.04, 0.0, 0.01, -0.02, -0.08, 0.03, 0.06, -0.02, -0.01, 0.06, 0.03, 0.07, -0.03, -0.1, 0.1, -0.01, -0.02, 0.15, 0.21, -0.02, 0.03, -0.17, 0.15, 0.07, 0.12, 0.08, -0.06, 0.07, -0.06, -0.05, 0.02, 0.07, -0.03, 0.07, 0.01, 0.02, 0.01, -0.06, -0.01, -0.07, -0.15, -0.07, -0.04, 0.01, -0.07, 0.16, -0.06, -0.07, -0.04, 0.02, 0.01, 0.0, 0.04, 0.02, 0.04, -0.0, 0.04, -0.08, 0.02, 0.07, -0.0, -0.07, 0.03, 0.03, 0.04, 0.02, -0.07, 0.01, -0.04, 0.01, 0.03, -0.0, 0.01, -0.02, 0.0, -0.1, 0.04, 0.02, -0.03, -0.04, -0.05, -0.02, -0.01, -0.17, -0.12, 0.14, -0.09, 0.02, 0.0, 0.1, 0.01, 0.04, 0.03, 0.05, -0.08, 0.08, -0.0, 0.04, 0.07, -0.02, -0.16, 0.09, 0.06, 0.04, 0.01, 0.01, 0.02, 0.04, 0.01, -0.05, -0.08, 0.04, -0.03, 0.0, 0.02, 0.01, 0.06, -0.04, -0.12, 0.01, 0.06, 0.04, 0.05, 0.01, 0.07, 0.01, -0.05, -0.01, 0.06, 0.02, -0.03, -0.0, -0.03, 0.14, -0.01, -0.03, 0.07, 0.05, 0.09, 0.02, -0.02, -0.07, -0.0, -0.02, -0.04].&#39;}, {&#39;role&#39;: &#39;assistant&#39;, &#39;content&#39;: &#39;1.0053&#39;}]}
+</code></pre></div></p>
+<h2 id="training-gpt-llm">Training GPT LLM</h2>
+<p>I refer to the <a href="https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/fine-tuning-overview">Azure Documentation</a> to fine-tune an OpenAI GPT model. To do so we need to use <em>Serverless Training Infrastructure</em>. This is cheaper and easier to handle compared to the alternative - <em>Managed Compute Infrastructure</em>. Azure offers three kinds of fine-tuning.</p>
+<ol>
+<li>SFT - Supervised Fine Tuning</li>
+<li>DPO - Direct Preference Optimization</li>
+<li>RFT - Reinforcement Fine-Tuning</li>
+</ol>
+<p>Though RFT is recommended for tasks like stock market prediction, we'll go with SFT this time for its simplicity. Our training file is prepared for SFT only. In the future articles, we'll explore other training methods and compare their performance.</p>
+<p><em>To follow this article and fine-tune a model, you need to be an </em><em>owner</em><em> or </em><em>contributor</em><em> of a </em><em>Paid Azure Account</em><em>. Free or trail Azure accounts may not work. We Microsoft employees get $150 Azure credit per month. I'm using that credit for this project.</em></p>
+<p>Now we're going to follow the step-by-step instructions provided at <a href="https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/fine-tuning?context=%2Fazure%2Fai-studio%2Fcontext%2Fcontext&amp;tabs=azure-openai&amp;pivots=programming-language-studio">Customize a model with fine-tuning</a>. It is a well written document with screenshots. So, I'm not going to elaborate each step here in this blog.</p>
+<p>Here is a short quote from the Azure documentation.</p>
+<blockquote>
+<p>If you train the model on a large amount of internal data, without first pruning the dataset for only the highest quality examples you could end up with a model that performs much worse than expected.</p>
+</blockquote>
+<p>This is the reason we have done all the pre-processing in the previous dataset prep blog.</p>
+<p>Below are the steps to be followed to fine-tune a GPT model. I've decided to use <code>gpt-4.1-mini</code> as the base model. It is faster and cheaper because of it's size.</p>
+<h3 id="1-create-an-azure-hub-project">1. Create an Azure Hub project</h3>
+<p>Create a new <strong>Azure Hub resource</strong> in <a href="https://ai.azure.com/">Azure AI Foundry</a>. Because <strong>Azure AI Foundry resource</strong> doesn't have an option to fune-tune models.</p>
+<h3 id="2-start-fine-tuning">2. Start Fine-Tuning</h3>
+<p>Once the project is opened in the <strong>Azure AI Foundry</strong>, select <strong>Fine-Tuning</strong> from <strong>...More</strong>. Refer to the screenshot below.</p>
+<p><img alt="Fine-Tuning Screenshot" src="../../../../images/fine_tuning_screenshot.png" title="Select Fine Tuning" /></p>
+<p>In the newly opened dialogue, click the <strong>Fine Tune a Model</strong> button and select your base model. In my case, I selected gpt-4.1-mini. This step will deploy a resource with the pre-trained model in a specified location. Detailed step-by-step instructions with screenshots can be found in the documentation mentioned above.</p>
+<p>Once the resource is created, you'll be asked to select the fine-tuning method and training data.</p>
+<p><img alt="Select Training Data" src="../../../../images/fine_tuning_select_training_data_screenshot.png" title="Select Training Data" /></p>
+<p>Keep the method to default as <strong>Supervised</strong> and then select the jsonl file we have created in the previous section using "Upload Files" method. We don't have any validation set. We could have split the training-set into training and validation. Just for simplicity we're not doing it now.</p>
+<p><em>The validation set prepared in the previous blog is intentionally excluded from this step. This ensures that the validation dataset remains untouched by the LLM during training, preserving its integrity for independent backtesting and evaluation purposes.</em></p>
+<p>Leave every other value to default and click <strong>Submit</strong>. Now fine-tuning will start. This will take some hours based on how quickly the descent of loss occurs. Here is the loss function drop graph after 45 minutes of training.</p>
+<p><img alt="Fine Tuning Metrics" src="../../../../images/fine_tuning_metrics_gpt-41mini.png" title="Fine Tuning Metrics" /></p>
+<p>The training got completed after 2 hours. Suppose if you're using bigger models like gpt-4.1, you can expect even longer.</p>
+<h2 id="backtesting">Backtesting</h2>
+<p>With the training complete and the final loss stabilizing around 0.6, the model shows potential for making accurate predictions. The next step is to test its real-world performance by evaluating if GPT-4.1-mini can generate profitable trades in NIFTY50 index trading on our validation set.</p>
+<p>Deploy the fine-tuned model and copy it's API key and Endpoints to the <code>.env</code> file as below.
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="o">(</span>.venv<span class="o">)</span><span class="w"> </span>bala@bala-swe-test-ubuntu-2404:~/0xba1a.github.com$<span class="w"> </span>cat<span class="w"> </span>.env
+<span class="nv">AZURE_API_KEY</span><span class="o">=</span><span class="s1">&#39;XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX&#39;</span>
+<span class="nv">AZURE_API_BASE</span><span class="o">=</span><span class="s1">&#39;https://ai-bkannan-per-XXXXXXXXXXXXXXXXX.cognitiveservices.azure.com/&#39;</span>
+<span class="nv">AZURE_API_VERSION</span><span class="o">=</span><span class="s1">&#39;2024-12-01-preview&#39;</span>
+<span class="nv">AZURE_DEPLOYMENT</span><span class="o">=</span><span class="s2">&quot;gpt-4-1-mini-2025-04-14-ft-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX&quot;</span>
+</code></pre></div></td></tr></table></div>
+Replace <code>XXX</code> with appropriate values.</p>
+<p>We use AzureOpenAI library to inference with the newly deployed model. Similar to the training conversation prep we need to prepare conversations using the validation dataset and send to the LLM.</p>
+<p>Let me give 1 million rupees initial value and see how much profit it makes in the 247 days of validation dataset.</p>
+<p>Make sure that you've installed <code>openai</code> in your <code>venv</code>.
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="o">(</span>.venv<span class="o">)</span><span class="w"> </span>$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>openai
+</code></pre></div></td></tr></table></div>
+<br />
+This is a big chunk of code. In the notebook you will find it in a single cell. For easier understanding let me give it in multiple chunks. Import all the necessary modules and setup variables to interact with Azure-Foundry. And create a AzureOpenAI client to start the inferencing.</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dotenv</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dotenv</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openai</span><span class="w"> </span><span class="kn">import</span> <span class="n">AzureOpenAI</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
+
+<span class="n">load_dotenv</span><span class="p">()</span>
+
+<span class="n">endpoint</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;AZURE_API_BASE&#39;</span><span class="p">)</span>
+<span class="n">model_name</span> <span class="o">=</span> <span class="s2">&quot;gpt-4.1-mini&quot;</span>
+<span class="n">deployment</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;AZURE_DEPLOYMENT&#39;</span><span class="p">)</span>
+
+<span class="n">subscription_key</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;AZURE_API_KEY&#39;</span><span class="p">)</span>
+<span class="n">api_version</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;AZURE_API_VERSION&#39;</span><span class="p">)</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">AzureOpenAI</span><span class="p">(</span>
+    <span class="n">api_version</span><span class="o">=</span><span class="n">api_version</span><span class="p">,</span>
+    <span class="n">azure_endpoint</span><span class="o">=</span><span class="n">endpoint</span><span class="p">,</span>
+    <span class="n">api_key</span><span class="o">=</span><span class="n">subscription_key</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+<p>Next setup some global variables to control the flow. We've <code>offset</code> and <code>count</code> to test the validation set partially. <code>cash_in_hand</code> represents how much cash is available at any day of the trade. Initially we set it to 1 million INR. Then we've metrics object which counts number profits, losses, time-outs, etc.,. Time out is nothing but time 3.26 PM is reached before making any trade for the day. The variable <code>message</code> is going to have the system and user prompt before sending them to the LLM.
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">count</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="n">offset</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">for_index</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">cash_in_hand</span> <span class="o">=</span> <span class="mi">1000000</span> <span class="c1"># 1 Million starting investment</span>
+<span class="n">metrics</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;total_trades&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="s2">&quot;profitable_trades&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="s2">&quot;unprofitable_trades&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="s2">&quot;total_profit&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="s2">&quot;total_loss&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="s2">&quot;time_up&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="s2">&quot;stop_loss&quot;</span><span class="p">:</span> <span class="mi">0</span>
+<span class="p">}</span>
+<span class="n">message</span> <span class="o">=</span> <span class="p">[]</span>
+</code></pre></div></td></tr></table></div></p>
+<p>Load the validation datasets - price movement and open prices itself.
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">validation_set</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;dataset/val_price_movements.csv&#39;</span><span class="p">)</span>
+<span class="n">validation_set</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;date&#39;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">validation_price</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;dataset/val_daily_opens.csv&#39;</span><span class="p">)</span>
+<span class="n">validation_price</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;date&#39;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div></p>
+<p>Create a list which has time string from 09:15 AM to 02:30 PM. This list will serve as an index filter for filtering the validation dataset.
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1"># Create time range from 09:15 to 14:30</span>
+<span class="n">times_until_230</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">hour</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">14</span><span class="p">):</span>  <span class="c1"># 9 AM to 2 PM</span>
+    <span class="n">start_min</span> <span class="o">=</span> <span class="mi">15</span> <span class="k">if</span> <span class="n">hour</span> <span class="o">==</span> <span class="mi">9</span> <span class="k">else</span> <span class="mi">0</span>  <span class="c1"># Start from 15 min for 9 AM, 0 min for others</span>
+    <span class="n">end_min</span> <span class="o">=</span> <span class="mi">30</span> <span class="k">if</span> <span class="n">hour</span> <span class="o">==</span> <span class="mi">14</span> <span class="k">else</span> <span class="mi">60</span>
+    <span class="k">for</span> <span class="n">minute</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start_min</span><span class="p">,</span> <span class="n">end_min</span><span class="p">):</span>
+        <span class="n">times_until_230</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">hour</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">minute</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Add 14:30 (2:30 PM)</span>
+<span class="n">times_until_230</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;14:30&quot;</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div></p>
+<p>Start iterating over every day in the validation set. Skip <code>offset</code> days without processing them.
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">validation_set</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+
+    <span class="n">for_index</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">if</span> <span class="n">for_index</span> <span class="o">&lt;=</span> <span class="n">offset</span><span class="p">:</span>
+        <span class="k">continue</span>
+</code></pre></div></td></tr></table></div></p>
+<p>When starting to process a day, first print the date and the cash-in-hand. Then there is a random delay between 3 and 5 seconds. This delay is to avoid hitting the LLM API ratelimiting. Then we get the date from the index and find out the day of the week of that trade day.
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span>
+<span class="normal">8</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">*** Processing date: </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">. Cash In Hand: </span><span class="si">{</span><span class="n">cash_in_hand</span><span class="si">}</span><span class="s2"> ***&quot;</span><span class="p">)</span>
+    <span class="c1"># random delay between 3 to 6 seconds for avoiding rate limiting</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+    <span class="n">date</span> <span class="o">=</span> <span class="n">index</span>  <span class="c1"># The date is the index, not row[&#39;date&#39;]</span>
+
+    <span class="c1"># Convert date string to datetime to get day name</span>
+    <span class="n">date_obj</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>
+    <span class="n">day_of_the_date</span> <span class="o">=</span> <span class="n">date_obj</span><span class="o">.</span><span class="n">day_name</span><span class="p">()</span>
+</code></pre></div></td></tr></table></div></p>
+<p>Filter only the values upto 2.30 PM from validation dataset and construct a chat message to be passed to the LLM.
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span></pre></div></td><td class="code"><div><pre><span></span><code>    <span class="c1"># Filter row data to only include times until 2:30 PM</span>
+    <span class="n">row_until_230</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="n">row</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">times_until_230</span><span class="p">)]</span>
+
+    <span class="c1"># Get the current day&#39;s data for post-2:30 PM calculations</span>
+    <span class="n">day_data</span> <span class="o">=</span> <span class="n">row</span>  <span class="c1"># This is the full day&#39;s data</span>
+
+    <span class="n">messages</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;system&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;You are a stock market expert. You will predict the most profit making position and what is the expected percentage change in the next 1 hour given the percentage movement between 9.15 AM and 2.30 PM.&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;The price movements in percentage from 9:15 AM to 2:30 PM on &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">date</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; (&quot;</span> <span class="o">+</span> <span class="n">day_of_the_date</span> <span class="o">+</span> <span class="s2">&quot;) are as follows: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">row_until_230</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
+</code></pre></div></td></tr></table></div></p>
+<p>Call the LLM and get its response.
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span></pre></div></td><td class="code"><div><pre><span></span><code>    <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+        <span class="n">messages</span><span class="o">=</span><span class="n">messages</span><span class="p">,</span>
+        <span class="n">temperature</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">top_p</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">frequency_penalty</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">presence_penalty</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">model</span><span class="o">=</span><span class="n">deployment</span>
+    <span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div></p>
+<p>Calculate the <strong>position</strong> and <strong>target price</strong> based on the response from the LLM. If the LLM provided output is more than 1, it is a <strong>"Call"</strong> otherwise it's a <strong>"Put"</strong>. We don't have corresponding options prices. So, we take it against the index price itself.
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span></pre></div></td><td class="code"><div><pre><span></span><code>    <span class="n">target_percentage</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+    <span class="n">base_price</span> <span class="o">=</span> <span class="n">validation_price</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">date</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;14:30&#39;</span><span class="p">]</span>
+    <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;total_trades&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">if</span> <span class="n">target_percentage</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">position</span> <span class="o">=</span> <span class="s2">&quot;Call&quot;</span>
+        <span class="n">target_price</span> <span class="o">=</span> <span class="n">base_price</span> <span class="o">*</span> <span class="n">target_percentage</span>
+        <span class="n">stop_loss</span> <span class="o">=</span> <span class="n">base_price</span> <span class="o">*</span> <span class="mf">0.99</span> <span class="c1"># 1% fall is stop loss</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Position: </span><span class="si">{</span><span class="n">position</span><span class="si">}</span><span class="s2">, Base Price: </span><span class="si">{</span><span class="n">base_price</span><span class="si">}</span><span class="s2"> Target Price: </span><span class="si">{</span><span class="n">target_price</span><span class="si">}</span><span class="s2">, Stop Loss: </span><span class="si">{</span><span class="n">stop_loss</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">position</span> <span class="o">=</span> <span class="s2">&quot;Put&quot;</span>
+        <span class="n">target_price</span> <span class="o">=</span> <span class="n">base_price</span> <span class="o">*</span> <span class="n">target_percentage</span>
+        <span class="n">stop_loss</span> <span class="o">=</span> <span class="n">base_price</span> <span class="o">*</span> <span class="mf">1.01</span> <span class="c1"># 1% raise is stop loss</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Position: </span><span class="si">{</span><span class="n">position</span><span class="si">}</span><span class="s2">, Base Price: </span><span class="si">{</span><span class="n">base_price</span><span class="si">}</span><span class="s2"> Target Price: </span><span class="si">{</span><span class="n">target_price</span><span class="si">}</span><span class="s2">, Stop Loss: </span><span class="si">{</span><span class="n">stop_loss</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div></p>
+<p>Now the actual validation happens. Iterate over the price from 2:31 PM to 3:26 PM. Book profit or loss based on below rules.</p>
+<ul>
+<li>If target price reached, book profit</li>
+<li>If stop-loss reached, book loss</li>
+<li>If neither of the above condition occurred by time reached 3.26 PM, close the position with whatever price at the moment</li>
+</ul>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span></pre></div></td><td class="code"><div><pre><span></span><code>    <span class="c1"># Price sequence from 2.31 to 3.30</span>
+    <span class="n">price_after_230</span> <span class="o">=</span> <span class="n">validation_price</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">date</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;14:30&#39;</span><span class="p">:]</span>
+    <span class="k">for</span> <span class="n">time_str</span><span class="p">,</span> <span class="n">price</span> <span class="ow">in</span> <span class="n">price_after_230</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="c1"># Calculate the expected price movement</span>
+        <span class="k">if</span> <span class="n">position</span> <span class="o">==</span> <span class="s2">&quot;Call&quot;</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="n">price</span> <span class="o">&gt;=</span> <span class="n">target_price</span><span class="p">:</span>
+                <span class="c1"># Book profit</span>
+                <span class="n">total_stocks</span> <span class="o">=</span> <span class="n">cash_in_hand</span> <span class="o">//</span> <span class="n">base_price</span>
+                <span class="n">profit</span> <span class="o">=</span> <span class="p">(</span><span class="n">price</span> <span class="o">-</span> <span class="n">base_price</span><span class="p">)</span> <span class="o">*</span> <span class="n">total_stocks</span>
+                <span class="n">cash_in_hand</span> <span class="o">+=</span> <span class="n">profit</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">time_str</span><span class="si">}</span><span class="s2">: Booking Profit Rs.</span><span class="si">{</span><span class="n">profit</span><span class="si">}</span><span class="s2"> at price </span><span class="si">{</span><span class="n">price</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="n">total_stocks</span><span class="si">}</span><span class="s2"> stocks&quot;</span><span class="p">)</span>
+                <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;profitable_trades&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">break</span>
+
+            <span class="k">elif</span> <span class="n">price</span> <span class="o">&lt;=</span> <span class="n">stop_loss</span><span class="p">:</span>
+                <span class="n">total_stocks</span> <span class="o">=</span> <span class="n">cash_in_hand</span> <span class="o">//</span> <span class="n">base_price</span>
+                <span class="n">loss</span> <span class="o">=</span> <span class="p">(</span><span class="n">base_price</span> <span class="o">-</span> <span class="n">price</span><span class="p">)</span> <span class="o">*</span> <span class="n">total_stocks</span>
+                <span class="n">cash_in_hand</span> <span class="o">-=</span> <span class="n">loss</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">time_str</span><span class="si">}</span><span class="s2">: Booking Loss Rs.</span><span class="si">{</span><span class="n">loss</span><span class="si">}</span><span class="s2"> at price </span><span class="si">{</span><span class="n">price</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="n">total_stocks</span><span class="si">}</span><span class="s2"> stocks&quot;</span><span class="p">)</span>
+                <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;unprofitable_trades&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;stop_loss&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">break</span>
+
+            <span class="k">if</span> <span class="n">time_str</span> <span class="o">==</span> <span class="s1">&#39;15:26&#39;</span><span class="p">:</span>
+                <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;time_up&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">total_stocks</span> <span class="o">=</span> <span class="n">cash_in_hand</span> <span class="o">//</span> <span class="n">base_price</span>
+                <span class="n">final_price</span> <span class="o">=</span> <span class="n">price</span>
+
+                <span class="k">if</span> <span class="n">final_price</span> <span class="o">&gt;</span> <span class="n">base_price</span><span class="p">:</span>
+                    <span class="n">profit</span> <span class="o">=</span> <span class="p">(</span><span class="n">final_price</span> <span class="o">-</span> <span class="n">base_price</span><span class="p">)</span> <span class="o">*</span> <span class="n">total_stocks</span>
+                    <span class="n">cash_in_hand</span> <span class="o">+=</span> <span class="n">profit</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">time_str</span><span class="si">}</span><span class="s2">: Booking Profit Rs.</span><span class="si">{</span><span class="n">profit</span><span class="si">}</span><span class="s2"> at price </span><span class="si">{</span><span class="n">final_price</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="n">total_stocks</span><span class="si">}</span><span class="s2"> stocks&quot;</span><span class="p">)</span>
+                    <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;profitable_trades&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">loss</span> <span class="o">=</span> <span class="p">(</span><span class="n">base_price</span> <span class="o">-</span> <span class="n">final_price</span><span class="p">)</span> <span class="o">*</span> <span class="n">total_stocks</span>
+                    <span class="n">cash_in_hand</span> <span class="o">-=</span> <span class="n">loss</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">time_str</span><span class="si">}</span><span class="s2">: Booking Loss Rs.</span><span class="si">{</span><span class="n">loss</span><span class="si">}</span><span class="s2"> at price </span><span class="si">{</span><span class="n">final_price</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="n">total_stocks</span><span class="si">}</span><span class="s2"> stocks&quot;</span><span class="p">)</span>
+                    <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;unprofitable_trades&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+                <span class="k">break</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="n">price</span> <span class="o">&lt;=</span> <span class="n">target_price</span><span class="p">:</span>
+                <span class="n">total_stocks</span> <span class="o">=</span> <span class="n">cash_in_hand</span> <span class="o">//</span> <span class="n">base_price</span>
+                <span class="n">profit</span> <span class="o">=</span> <span class="p">(</span><span class="n">base_price</span> <span class="o">-</span> <span class="n">price</span><span class="p">)</span> <span class="o">*</span> <span class="n">total_stocks</span>
+                <span class="n">cash_in_hand</span> <span class="o">+=</span> <span class="n">profit</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">time_str</span><span class="si">}</span><span class="s2">: Booking Profit Rs.</span><span class="si">{</span><span class="n">profit</span><span class="si">}</span><span class="s2"> at price </span><span class="si">{</span><span class="n">price</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="n">total_stocks</span><span class="si">}</span><span class="s2"> stocks&quot;</span><span class="p">)</span>
+                <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;profitable_trades&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">break</span>
+
+            <span class="k">elif</span> <span class="n">price</span> <span class="o">&gt;=</span> <span class="n">stop_loss</span><span class="p">:</span>
+                <span class="n">total_stocks</span> <span class="o">=</span> <span class="n">cash_in_hand</span> <span class="o">//</span> <span class="n">base_price</span>
+                <span class="n">loss</span> <span class="o">=</span> <span class="p">(</span><span class="n">price</span> <span class="o">-</span> <span class="n">base_price</span><span class="p">)</span> <span class="o">*</span> <span class="n">total_stocks</span>
+                <span class="n">cash_in_hand</span> <span class="o">-=</span> <span class="n">loss</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">time_str</span><span class="si">}</span><span class="s2">: Booking Loss Rs.</span><span class="si">{</span><span class="n">loss</span><span class="si">}</span><span class="s2"> at price </span><span class="si">{</span><span class="n">price</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="n">total_stocks</span><span class="si">}</span><span class="s2"> stocks&quot;</span><span class="p">)</span>
+                <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;unprofitable_trades&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">break</span>
+
+            <span class="k">if</span> <span class="n">time_str</span> <span class="o">==</span> <span class="s1">&#39;15:26&#39;</span><span class="p">:</span>
+                <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;time_up&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">total_stocks</span> <span class="o">=</span> <span class="n">cash_in_hand</span> <span class="o">//</span> <span class="n">base_price</span>
+                <span class="n">final_price</span> <span class="o">=</span> <span class="n">price</span>
+
+                <span class="k">if</span> <span class="n">final_price</span> <span class="o">&lt;</span> <span class="n">base_price</span><span class="p">:</span>
+                    <span class="n">profit</span> <span class="o">=</span> <span class="p">(</span><span class="n">base_price</span> <span class="o">-</span> <span class="n">final_price</span><span class="p">)</span> <span class="o">*</span> <span class="n">total_stocks</span>
+                    <span class="n">cash_in_hand</span> <span class="o">+=</span> <span class="n">profit</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">time_str</span><span class="si">}</span><span class="s2">: Booking Profit Rs.</span><span class="si">{</span><span class="n">profit</span><span class="si">}</span><span class="s2"> at price </span><span class="si">{</span><span class="n">final_price</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="n">total_stocks</span><span class="si">}</span><span class="s2"> stocks&quot;</span><span class="p">)</span>
+                    <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;profitable_trades&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">loss</span> <span class="o">=</span> <span class="p">(</span><span class="n">final_price</span> <span class="o">-</span> <span class="n">base_price</span><span class="p">)</span> <span class="o">*</span> <span class="n">total_stocks</span>
+                    <span class="n">cash_in_hand</span> <span class="o">-=</span> <span class="n">loss</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">time_str</span><span class="si">}</span><span class="s2">: Booking Loss Rs.</span><span class="si">{</span><span class="n">loss</span><span class="si">}</span><span class="s2"> at price </span><span class="si">{</span><span class="n">final_price</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="n">total_stocks</span><span class="si">}</span><span class="s2"> stocks&quot;</span><span class="p">)</span>
+                    <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;unprofitable_trades&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+                <span class="k">break</span>
+</code></pre></div></td></tr></table></div>
+<p>At the end of the <code>for</code> loop, break it if expected number of trades have happened. At the end print the final cash-in-hand and metrics.
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span></pre></div></td><td class="code"><div><pre><span></span><code>    <span class="k">if</span> <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;total_trades&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">count</span><span class="p">:</span>
+        <span class="k">break</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">*** Final Cash in Hand: Rs.</span><span class="si">{</span><span class="n">cash_in_hand</span><span class="si">}</span><span class="s2"> ***&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Metrics: </span><span class="si">{</span><span class="n">metrics</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div></p>
+<h2 id="verdict">Verdict</h2>
+<p>Overall <strong>gpt-4.1-fine-tuned</strong> made a <strong>loss</strong> for me! At end of <strong>246 trades</strong> final cash remaining in hand was <strong>Rs.97,4114</strong>. Approximately <strong>Rs.26,000 loss</strong>.
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span></pre></div></td><td class="code"><div><pre><span></span><code>...
+...
+...
+***<span class="w"> </span>Processing<span class="w"> </span>date:<span class="w"> </span><span class="m">2015</span>-03-18.<span class="w"> </span>Cash<span class="w"> </span>In<span class="w"> </span>Hand:<span class="w"> </span><span class="m">971755</span>.4500000001<span class="w"> </span>***
+<span class="m">0</span>.9978
+Position:<span class="w"> </span>Put,<span class="w"> </span>Base<span class="w"> </span>Price:<span class="w"> </span><span class="m">8693</span>.8<span class="w"> </span>Target<span class="w"> </span>Price:<span class="w"> </span><span class="m">8674</span>.673639999999,<span class="w"> </span>Stop<span class="w"> </span>Loss:<span class="w"> </span><span class="m">8780</span>.738
+<span class="m">14</span>:43:<span class="w"> </span>Booking<span class="w"> </span>Profit<span class="w"> </span>Rs.2358.75<span class="w"> </span>at<span class="w"> </span>price<span class="w"> </span><span class="m">8672</span>.55<span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="m">111</span>.0<span class="w"> </span>stocks
+
+***<span class="w"> </span>Final<span class="w"> </span>Cash<span class="w"> </span><span class="k">in</span><span class="w"> </span>Hand:<span class="w"> </span>Rs.974114.2000000001<span class="w"> </span>***
+Metrics:<span class="w"> </span><span class="o">{</span><span class="s1">&#39;total_trades&#39;</span>:<span class="w"> </span><span class="m">246</span>,<span class="w"> </span><span class="s1">&#39;profitable_trades&#39;</span>:<span class="w"> </span><span class="m">145</span>,<span class="w"> </span><span class="s1">&#39;unprofitable_trades&#39;</span>:<span class="w"> </span><span class="m">101</span>,<span class="w"> </span><span class="s1">&#39;total_profit&#39;</span>:<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="s1">&#39;total_loss&#39;</span>:<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="s1">&#39;time_up&#39;</span>:<span class="w"> </span><span class="m">136</span>,<span class="w"> </span><span class="s1">&#39;stop_loss&#39;</span>:<span class="w"> </span><span class="m">3</span><span class="o">}</span>
+</code></pre></div></td></tr></table></div>
+ But the important statistics here is <strong>Total number of profitable trades are higher than total number of unprofitable trades</strong>. Profitable trades account for 60% of the times. We hit stop-loss only 3 times.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>The concerning aspect is the high occurrence of time-outs, which happened 55% (136) of the time. This suggests that the 1-sigma target price might be overly ambitious. While theoretically, it should be achievable 66% of the time, the results indicate otherwise. This approach is quite rudimentary, relying on the LLM to deduce all patterns and features from the limited data provided. To improve, we should consider engineering additional features, such as the day of the week, and implementing a custom loss function that accounts for time-outs more effectively.</p>
+<p>Despite the lack of profitability, this experiment was a fascinating learning experience. The absence of profit doesn't necessarily mean there's no underlying pattern—it simply means we haven't uncovered it yet. If you have suggestions or ideas for a better approach, feel free to connect with me on <a href="https://linkedin.com/in/balakumaran-kannan/">LinkedIn</a>. Additionally, if you spot any issues in the code, please raise them on <a href="https://github.com/0xba1a/0xba1a.github.com/issues">GitHub</a>. Thank you for taking the time to read and engage with this content!</p>
+<p>The complete code can be found in this <a href="https://github.com/0xba1a/0xba1a.github.com/blob/master/ai_market_prediction/n50_dataset_prep_gpt.ipynb">Notebook</a></p>
+<div class="flex">
+        <script src="https://platform.linkedin.com/in.js" type="text/javascript">lang: en_US</script>
+        <script type="IN/Share" data-url="https://eastrivervillage.com/blog/2025/08/25/fine-tuning-gpt-model-to-predict-nifty50-prices/"></script>
+    </div>
+
+
+
+
+
+
+
+  
+  
+
+
+
+  
+
+
+  
+
+
+
+      
+    </article>
+  </div>
+
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://www.linkedin.com/in/balakumaran-kannan/" target="_blank" rel="noopener" title="LinkedIn" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3M135.4 416H69V202.2h66.5V416zM102.2 96a38.5 38.5 0 1 1 0 77 38.5 38.5 0 1 1 0-77m282.1 320h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="https://github.com/0xba1a" target="_blank" rel="noopener" title="GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../../../../..", "features": ["navigation.indexes", "content.code.copy", "content.code.select", "content.code.annotate"], "search": "../../../../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../../../assets/javascripts/bundle.92b07e13.min.js"></script>
+      
+    
+  </body>
+</html>
