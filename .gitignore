@@ -4,3 +4,18 @@ site
 __pycache__
 .venv
 .env
+
+# LLVM objects
+*.o
+*.bc
+*.ll
+*.obj
+*.lo
+*.la
+*.all
+*.libs
+*.so
+*.dylib
+*.dll
+*.exe
+*.out

@@ -16,7 +16,7 @@ tags:
 In the previous [post](2025-08-23-Fine-tune-LLM-to-predict-NIFTY50.md) we have prepared a dataset consisting of minute level Nifty50 index price for the last 10 years. We've done some data cleansing and split the dataset into training and validation set. Please skim through that if you haven't yet. In this blog we're going to use the training set to fine-tune a GPT model in Azure AI Foundry. Then we'll use the validation set to check whether the fine-tuned model can make a profit for us.
 
 ## Prepare Training Conversations
-The prepared dataset is stored under the [dataset](https://github.com/0xba1a/0xba1a.github.com/blob/master/ai_market_prediction/dataset/) directory. We'll use the *train_price_movements.csv* for fine-tuning the model. Here is the glimpse of the content of the file.
+The prepared dataset is stored under the [dataset](https://github.com/0xba1a/0xba1a.github.com/blob/master/code/ai_market_prediction/dataset/) directory. We'll use the *train_price_movements.csv* for fine-tuning the model. Here is the glimpse of the content of the file.
 ``` py linenums="1"
 import pandas as pd
 training_set = pd.read_csv('dataset/train_price_movements.csv')
@@ -718,4 +718,4 @@ The concerning aspect is the high occurrence of time-outs, which happened 55% (1
 
 Despite the lack of profitability, this experiment was a fascinating learning experience. The absence of profit doesn't necessarily mean there's no underlying pattern—it simply means we haven't uncovered it yet. If you have suggestions or ideas for a better approach, feel free to connect with me on [LinkedIn](https://linkedin.com/in/balakumaran-kannan/). Additionally, if you spot any issues in the code, please raise them on [GitHub](https://github.com/0xba1a/0xba1a.github.com/issues). Thank you for taking the time to read and engage with this content!
 
-The complete code can be found in this [Notebook](https://github.com/0xba1a/0xba1a.github.com/blob/master/ai_market_prediction/n50_dataset_prep_gpt.ipynb)
+The complete code can be found in this [Notebook](https://github.com/0xba1a/0xba1a.github.com/blob/master/code/ai_market_prediction/n50_dataset_prep_gpt.ipynb)
