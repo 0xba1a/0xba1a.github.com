@@ -7,6 +7,7 @@ import datetime
 import glob
 import signal
 from pathlib import Path
+from typing import Dict, Any
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -15,7 +16,6 @@ import requests
 
 OUTPUT_DIR = Path("/tmp/agent-001/")
 STATE_FILE = OUTPUT_DIR / "state.json"
-QUOTE_JSON_DIR = OUTPUT_DIR / "quotes_json"
 
 # Azure OpenAI settings - must be provided as environment variables
 AZURE_ENDPOINT = os.environ.get("AZURE_OPENAI_ENDPOINT")
@@ -25,7 +25,6 @@ API_VERSION = os.environ.get("AZURE_OPENAI_API_VERSION", "2024-12-01-preview")
 
 # Ensure directories exist
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-QUOTE_JSON_DIR.mkdir(parents=True, exist_ok=True)
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 logger = logging.getLogger("agent")
@@ -86,9 +85,9 @@ def chat_completion(messages, tools=None, temperature=0.0, max_tokens=800) -> Di
     return resp.json()
 
 
-def process_quote_file(path: Path, state: Dict[str, Any]) -> None:
-    logger.info("Processing quote file: %s", path)
-    quote = path.read_text(encoding="utf-8").strip()
+def process_joke_file(path: Path, state: Dict[str, Any]) -> None:
+    logger.info("Processing joke file: %s", path)
+    joke = path.read_text(encoding="utf-8").strip()
     file_id = path.name
 
     if file_id in state.get("processed", {}):
@@ -98,7 +97,7 @@ def process_quote_file(path: Path, state: Dict[str, Any]) -> None:
     try:
         message = {
             "role": "user",
-            "content": f"Explaine me the quote: {quote} in a short paragraph.",
+            "content": f"Explain me the joke: '{joke.replace('\n', ' ')}' in a short paragraph.",
         }
         explanation = chat_completion([message])["choices"][0]["message"]["content"]
     except Exception:
@@ -107,7 +106,7 @@ def process_quote_file(path: Path, state: Dict[str, Any]) -> None:
         # result = {"safe": False, "category": "Other", "explanation": "LLM error"}
 
     # Mark processed
-    state.setdefault("processed", {})[file_id] = {"agent": "001", "quote": quote, "processed_at": datetime.datetime.utcnow().isoformat(), "explanation": explanation}
+    state.setdefault("processed", {})[file_id] = {"agent": "001", "joke": joke, "processed_at": datetime.datetime.utcnow().isoformat(), "explanation": explanation}
     save_state(state)
 
 
@@ -120,7 +119,7 @@ def main_loop(poll_interval: int = 60):
         for f in txt_files:
             if shutdown_requested:
                 break
-            process_quote_file(Path(f), state)
+            process_joke_file(Path(f), state)
         # Sleep and be responsive to shutdown
         for _ in range(int(poll_interval)):
             if shutdown_requested:

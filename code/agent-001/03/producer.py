@@ -1,3 +1,4 @@
+import json
 import time
 import datetime
 import logging
@@ -7,7 +8,7 @@ import urllib.request
 import urllib.error
 from pathlib import Path
 
-DEFAULT_URL = "https://techy-api.vercel.app/api/text"
+DEFAULT_URL = "https://official-joke-api.appspot.com/jokes/programming/random"
 DEFAULT_OUTPUT_DIR = "/tmp/agent-001/"
 DEFAULT_INTERVAL_SECONDS = 1 * 60  # 1 minute
 
@@ -35,16 +36,6 @@ def fetch_text(url: str, timeout: int = 10) -> str:
         raise RuntimeError(f"Failed to fetch {url}: {e}")
 
 
-def write_timestamp_file(text: str, output_dir: Path) -> Path:
-    """Write text to a timestamped file in output_dir and return the file path."""
-    ts = datetime.datetime.utcnow().strftime("%Y%m%d_%H%M%S")
-    filename = f"{ts}.txt"
-    out_path = output_dir / filename
-    with out_path.open("w", encoding="utf-8") as fh:
-        fh.write(text)
-    return out_path
-
-
 def run_loop(url: str = DEFAULT_URL, output_dir: str = DEFAULT_OUTPUT_DIR, interval_seconds: int = DEFAULT_INTERVAL_SECONDS, stop_event: threading.Event = None) -> None:
     """Run the fetch->write loop until stop_event is set.
 
@@ -59,9 +50,11 @@ def run_loop(url: str = DEFAULT_URL, output_dir: str = DEFAULT_OUTPUT_DIR, inter
     while not stop_event.is_set():
         start = time.time()
         try:
-            text = fetch_text(url)
-            path = write_timestamp_file(text, out_dir)
-            logging.info("Wrote file %s", path)
+            json_text = json.loads(fetch_text(url))[0]
+            target_file = out_dir / f"{json_text['id']}.txt"
+            with target_file.open("w", encoding="utf-8") as fh:
+                fh.write(json_text["setup"] + "\n" + json_text["punchline"] + "\n")
+            logging.info("Wrote file %s", target_file)
         except Exception as exc:
             logging.exception("Error during fetch/write: %s", exc)
 

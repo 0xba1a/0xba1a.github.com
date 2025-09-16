@@ -17,7 +17,6 @@ import requests
 
 OUTPUT_DIR = Path("/tmp/agent-001/")
 STATE_FILE = OUTPUT_DIR / "state.json"
-QUOTE_JSON_DIR = OUTPUT_DIR / "quotes_json"
 
 # Azure OpenAI settings - must be provided as environment variables
 AZURE_ENDPOINT = os.environ.get("AZURE_OPENAI_ENDPOINT")
@@ -27,7 +26,6 @@ API_VERSION = os.environ.get("AZURE_OPENAI_API_VERSION", "2024-12-01-preview")
 
 # Ensure directories exist
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-QUOTE_JSON_DIR.mkdir(parents=True, exist_ok=True)
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 logger = logging.getLogger("agent")
@@ -44,7 +42,6 @@ def _signal_handler(signum, frame):
 signal.signal(signal.SIGINT, _signal_handler)
 signal.signal(signal.SIGTERM, _signal_handler)
 
-### State Management ###
 
 def load_state() -> Dict[str, Any]:
     if STATE_FILE.exists():
@@ -59,7 +56,15 @@ def load_state() -> Dict[str, Any]:
 def save_state(state: Dict[str, Any]) -> None:
     STATE_FILE.write_text(json.dumps(state, indent=2), encoding="utf-8")
 
-### State Management ###
+
+SYSTEM_PROMPT = (
+    "You are an helpful assistant that explains a programmer joke and identify whether it is culturally appropriate to be shared in a professional office environment.\n"
+    "Goals:\n"
+    "(1) Decide whether the joke is funny or not (funny: true/false).\n"
+    "(2) Categorize the joke into one of these categories: 'Safe for work', 'Offensive', 'Dark humor'.\n"
+    "(3) And briefly explain the joke in 1 paragraph.\n"
+    "Your response must be a single JSON object with keys: funny (bool), category (string), explanation (string).\n"
+)
 
 
 def _extract_json(text: str) -> Optional[dict]:
@@ -102,26 +107,19 @@ def chat_completion(messages, tools=None, temperature=0.0, max_tokens=800) -> Di
     return resp.json()
 
 
-def _assistant_message(data: Dict[str, Any]) -> Dict[str, Any]:
-    try:
-        return data["choices"][0]["message"]
-    except Exception:
-        raise RuntimeError(f"Unexpected response format: {data}")
-
-
 def _parse_final_json(content: str) -> Optional[Dict[str, Any]]:
     obj = _extract_json(content)
     if not obj:
         return None
     # Minimal validation
-    if {"safe", "category", "explanation"}.issubset(obj.keys()) and obj.get("category") in ALLOWED_CATEGORIES:
+    if {"safe", "category", "explanation"}.issubset(obj.keys()):
         return obj
     return obj  # return anyway; caller can decide
 
 
-def process_quote_file(path: Path, state: Dict[str, Any]) -> None:
-    logger.info("Processing quote file: %s", path)
-    quote = path.read_text(encoding="utf-8").strip()
+def process_joke_file(path: Path, state: Dict[str, Any]) -> None:
+    logger.info("Processing joke file: %s", path)
+    joke = path.read_text(encoding="utf-8").strip()
     file_id = path.name
 
     if file_id in state.get("processed", {}):
@@ -129,24 +127,18 @@ def process_quote_file(path: Path, state: Dict[str, Any]) -> None:
         return
 
     try:
-        message = {
-            "role": "user",
-            "content": f"""
-                    Explain me the quote: {quote} in a short paragraph.
-                    Your response should be strictly in JSON format with the following fields:
-                    - funny: boolean, true if you find it funny. False otherwise.
-                    - explanation: string, a short paragraph explaining the quote.
-                    """,
-        }
-        response = chat_completion([message])["choices"][0]["message"]["content"]
+        messages = [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": f"joke: `{joke}`"},
+        ]
+        response = chat_completion(messages)["choices"][0]["message"]["content"]
         result = _parse_final_json(response)
     except Exception:
         logger.exception("LLM tool-driven processing failed for %s", file_id)
         sys.exit(1)
-        # result = {"safe": False, "category": "Other", "explanation": "LLM error"}
 
     # Mark processed
-    state.setdefault("processed", {})[file_id] = {"agent": "002", "quote": quote, "processed_at": datetime.datetime.utcnow().isoformat(), "funny": result["funny"], "explanation": result["explanation"]}
+    state.setdefault("processed", {})[file_id] = {"agent": "002", "joke": joke, "processed_at": datetime.datetime.utcnow().isoformat(), "funny": result["funny"], "explanation": result["explanation"], "category": result["category"]}
     save_state(state)
 
 
@@ -159,7 +151,7 @@ def main_loop(poll_interval: int = 60):
         for f in txt_files:
             if shutdown_requested:
                 break
-            process_quote_file(Path(f), state)
+            process_joke_file(Path(f), state)
         # Sleep and be responsive to shutdown
         for _ in range(int(poll_interval)):
             if shutdown_requested:
