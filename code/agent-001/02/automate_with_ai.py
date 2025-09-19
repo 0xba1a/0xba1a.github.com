@@ -133,8 +133,8 @@ def process_joke_file(path: Path, state: Dict[str, Any]) -> None:
         ]
         response = chat_completion(messages)["choices"][0]["message"]["content"]
         result = _parse_final_json(response)
-    except Exception:
-        logger.exception("LLM tool-driven processing failed for %s", file_id)
+    except Exception as e:
+        logger.exception("LLM tool-driven processing failed for %s\nException: %s", file_id, e)
         sys.exit(1)
 
     # Mark processed

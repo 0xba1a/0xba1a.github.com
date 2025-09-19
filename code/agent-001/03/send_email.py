@@ -3,6 +3,7 @@ import sys
 import json
 import logging
 from pathlib import Path
+from datetime import datetime, timezone
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 logger = logging.getLogger("send_email")
@@ -20,7 +21,7 @@ def main():
     explanation = sys.argv[3]
 
     # Append to outbox file as a record
-    record = {"to": to_group, "quote": quote, "explanation": explanation, "ts": __import__("datetime").datetime.utcnow().isoformat()}
+    record = {"to": to_group, "quote": quote, "explanation": explanation, "ts": datetime.now(timezone.utc).isoformat()}
     if OUTBOX.exists():
         arr = json.loads(OUTBOX.read_text(encoding="utf-8"))
     else:
