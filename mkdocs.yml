@@ -36,7 +36,7 @@ plugins:
   - meta
   - blog:
       authors: true
-      authors_profiles: true
+      # authors_profiles: true
       blog_toc: true
       archive_date_format: MMMM yyyy
       categories_allowed:
