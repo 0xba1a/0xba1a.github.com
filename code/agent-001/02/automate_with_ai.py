@@ -117,6 +117,23 @@ def _parse_final_json(content: str) -> Optional[Dict[str, Any]]:
     return obj  # return anyway; caller can decide
 
 
+def send_email(joke:str, explanation: str) -> bool:
+    group_email = "all@example.com"
+    cmd = [sys.executable, "send_email.py", group_email, joke, explanation]
+    logger.info("Sending email to %s with joke", group_email)
+    try:
+        import subprocess
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        if result.returncode != 0:
+            logger.error("Failed to send email: %s", result.stderr)
+            return False
+        logger.info("Email sent successfully")
+        return True
+    except Exception as e:
+        logger.exception("Exception while sending email: %s", e)
+        return False
+
+
 def process_joke_file(path: Path, state: Dict[str, Any]) -> None:
     logger.info("Processing joke file: %s", path)
     joke = path.read_text(encoding="utf-8").strip()
@@ -133,6 +150,14 @@ def process_joke_file(path: Path, state: Dict[str, Any]) -> None:
         ]
         response = chat_completion(messages)["choices"][0]["message"]["content"]
         result = _parse_final_json(response)
+
+        if result['funny'] and result['category'] == 'Safe for work':
+            # Send email
+            if send_email(joke, result['explanation']):
+                logger.info("Email sent for joke %s", file_id)
+            else:
+                logger.error("Failed to send email for joke %s", file_id)
+
     except Exception as e:
         logger.exception("LLM tool-driven processing failed for %s\nException: %s", file_id, e)
         sys.exit(1)
