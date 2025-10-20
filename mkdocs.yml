@@ -67,11 +67,17 @@ extra:
       name: GitHub
       link: https://github.com/0xba1a
 
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
+
 
 hooks:
   - hooks/socialmedia.py
 
 markdown_extensions:
+  - pymdownx.arithmatex:
+      generic: true
   - attr_list
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
