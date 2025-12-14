@@ -1,0 +1,5 @@
+# Requirements for Module 2 - Alter-Ego Chatbot
+
+chromadb>=0.4.22
+pypdf>=3.17.4
+requests>=2.31.0
