@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM Fundamentals: Tokens, Vectors, and RAG</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --text-color: #1f2937;
+            --bg-color: #FDFFF5;
+            --code-bg: #f3f4f6;
+            --accent-color: #dbeafe;
+        }
+
+        * {
+            box-sizing: border_box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            color: var(--text-color);
+            background-color: #e5e7eb; /* Grey background for screen view */
+        }
+
+        .slide {
+            background-color: var(--bg-color);
+            width: 297mm; /* A4 Landscape width */
+            height: 210mm; /* A4 Landscape height */
+            margin: 20px auto;
+            padding: 60px 60px 40px 60px; /* Increased top padding for header */
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .header {
+            position: absolute;
+            top: 20px;
+            left: 60px;
+            right: 60px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: #9ca3af;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: var(--secondary-color);
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid var(--accent-color);
+            padding-bottom: 0.5rem;
+        }
+
+        h3 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            color: #374151;
+        }
+
+        p {
+            font-size: 1.4rem;
+            line-height: 1.6;
+            margin-bottom: 1.2rem;
+            color: #4b5563;
+        }
+
+        ul, ol {
+            margin-left: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        li {
+            font-size: 1.4rem;
+            line-height: 1.6;
+            margin-bottom: 0.8rem;
+            color: #4b5563;
+        }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: var(--code-bg);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.9em;
+            color: #dc2626;
+        }
+
+        pre {
+            background-color: #1f2937;
+            color: #f9fafb;
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+        }
+
+        .highlight-box {
+            background-color: var(--accent-color);
+            border-left: 6px solid var(--primary-color);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 20px;
+            left: 60px;
+            right: 60px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: #9ca3af;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 10px;
+        }
+
+        .center-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            height: 100%;
+        }
+
+        .two-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        .diagram {
+            text-align: center;
+            margin: 20px 0;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: pre;
+            line-height: 1.2;
+            font-size: 1rem;
+            color: #4b5563;
+        }
+
+        /* Print Styles */
+        @media print {
+            body {
+                background-color: white;
+            }
+            .slide {
+                margin: 0;
+                box-shadow: none;
+                page-break-after: always;
+                width: 100%;
+                height: 100vh;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Slide 1: Title -->
+    <div class="slide">
+        <div class="header">
+            <span>Building Effective AI Agents - Basic</span>
+            <span>Module-2: RAG</span>
+        </div>
+        <div class="center-content">
+            <h1>Moudle-2: LLM Fundamentals & RAG</h1>
+            <p style="font-size: 2rem; color: var(--secondary-color);">Tokens, Vectors, and RAG</p>
+            <div style="margin-top: 3rem;">
+                <p><strong>Instructor:</strong> Bala</p>
+                <p><strong>Duration:</strong> 3 Hours (1h Lecture + 2h Hands-on)</p>
+            </div>
+        </div>
+        <div class="footer">
+            <span>Balakumaran Kannan</span>
+            <span>Slide 1</span>
+        </div>
+    </div>
+
+    <!-- Slide 2: Agenda -->
+    <div class="slide">
+        <div class="header">
+            <span>Building Effective AI Agents - Basic</span>
+            <span>Module-2: RAG</span>
+        </div>
+        <h2>Agenda</h2>
+        <ul>
+            <li><strong>Part 1: Tokens & Tokenization</strong>
+                <ul>
+                    <li>What is a token?</li>
+                    <li>Tokenization algorithms (BPE, WordPiece)</li>
+                    <li>Special tokens</li>
+                </ul>
+            </li>
+            <li><strong>Part 2: Embeddings & Vector Space</strong>
+                <ul>
+                    <li>From tokens to numbers</li>
+                    <li>Semantic meaning in math</li>
+                </ul>
+            </li>
+            <li><strong>Part 3: Vector Databases & Search</strong>
+                <ul>
+                    <li>How vector search works</li>
+                    <li>Indexing (HNSW)</li>
+                </ul>
+            </li>
+            <li><strong>Part 4: RAG (Retrieval-Augmented Generation)</strong>
+                <ul>
+                    <li>The problem with LLMs</li>
+                    <li>The RAG workflow</li>
+                </ul>
+            </li>
+            <li><strong>Part 5: Hands-on Session Overview</strong></li>
+        </ul>
+        <div class="footer">
+            <span>Balakumaran Kannan</span>
+            <span>Slide 2</span>
+        </div>
+    </div>
+
+    <!-- Slide 3: Introduction to Tokens -->
+    <div class="slide">
+        <div class="header">
+            <span>Building Effective AI Agents - Basic</span>
+            <span>Module-2: RAG</span>
+        </div>
+        <h2>What is a Token?</h2>
+        <div class="two-columns">
+            <div>
+                <p>The fundamental unit of text for an LLM is not a "word" but a <strong>token</strong>.</p>
+                <p>A token can be:</p>
+                <ul>
+                    <li>A whole word (e.g., "apple")</li>
+                    <li>A part of a word (e.g., "ing" in "playing")</li>
+                    <li>A single character (e.g., "a")</li>
+                </ul>
+                <div class="highlight-box">
+                    <p><strong>Rule of Thumb:</strong><br>1000 tokens ≈ 750 words</p>
+                </div>
+            </div>
+            <div>
+                <h3>Example</h3>
+                <p>Text: <code>"Tokenization is fun!"</code></p>
+                <br>
+                <p><strong>Tokens:</strong></p>
+                <pre>
+[
+  "Token",
+  "ization",
+  " is",
+  " fun",
+  "!"
+]
+                </pre>
+                <p><em>Note: Spaces are often included in the token.</em></p>
+            </div>
+        </div>
+        <div class="footer">
+            <span>Balakumaran Kannan</span>
+            <span>Slide 3</span>
+        </div>
+    </div>
+
+    <!-- Slide 4: Tokenization Algorithms -->
+    <div class="slide">
+        <div class="header">
+            <span>Building Effective AI Agents - Basic</span>
+            <span>Module-2: RAG</span>
+        </div>
+        <h2>How Words Become Tokens</h2>
+        <p>LLMs use sub-word tokenization to balance vocabulary size and flexibility.</p>
+
+        <h3>Common Algorithms</h3>
+        <ul>
+            <li><strong>BPE (Byte-Pair Encoding)</strong>:
+                <br>Used by GPT-2, GPT-3, Llama.
+                <br><em>Method:</em> Iteratively merges the most frequent pair of adjacent characters.
+            </li>
+            <li><strong>WordPiece</strong>:
+                <br>Used by BERT.
+                <br><em>Method:</em> Similar to BPE but chooses merges that maximize the likelihood of the training data.
+            </li>
+        </ul>
+        <div class="footer">
+            <span>Balakumaran Kannan</span>
+            <span>Slide 4</span>
+        </div>
+    </div>
+
+    <!-- Slide 5: Importance of Tokenization -->
+    <div class="slide">
+        <div class="header">
+            <span>Building Effective AI Agents - Basic</span>
+            <span>Module-2: RAG</span>
+        </div>
+        <h2>Importance of Tokenization</h2>
+        <div class="highlight-box">
+            <p><strong>Why Sub-word?</strong></p>
+            <p>It allows the model to handle rare words or misspellings by breaking them down into known sub-parts.</p>
+            <p><code>"unfriendly"</code> &rarr; <code>"un"</code> + <code>"friend"</code> + <code>"ly"</code></p>
+            <br>
+            <p><strong>Importance of Good Tokenization:</strong></p>
+            <p>If <code>"friend"</code> was split into <code>"fri"</code> + <code>"end"</code>, the model might focus on "end" and lose the context of friendship.</p>
+        </div>
+        <div class="footer">
+            <span>Balakumaran Kannan</span>
+            <span>Slide 5</span>
+        </div>
+    </div>
+
+    <!-- Slide 6: Special Tokens -->
+    <div class="slide">
+        <div class="header">
+            <span>Building Effective AI Agents - Basic</span>
+            <span>Module-2: RAG</span>
+        </div>
+        <h2>Special Tokens</h2>
+        <p>Tokens that provide structural instructions to the model.</p>
+
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 1.3rem;">
+            <tr style="background-color: var(--accent-color); text-align: left;">
+                <th style="padding: 15px; border: 1px solid #ccc;">Token</th>
+                <th style="padding: 15px; border: 1px solid #ccc;">Name</th>
+                <th style="padding: 15px; border: 1px solid #ccc;">Function</th>
+            </tr>
+            <tr>
+                <td style="padding: 15px; border: 1px solid #ccc;"><code>[BOS]</code> / <code>&lt;s&gt;</code></td>
+                <td style="padding: 15px; border: 1px solid #ccc;">Beginning of Sequence</td>
+                <td style="padding: 15px; border: 1px solid #ccc;">Signals the start of input.</td>
+            </tr>
+            <tr>
+                <td style="padding: 15px; border: 1px solid #ccc;"><code>[EOS]</code> / <code>&lt;/s&gt;</code></td>
+                <td style="padding: 15px; border: 1px solid #ccc;">End of Sequence</td>
+                <td style="padding: 15px; border: 1px solid #ccc;">Tells the model to stop generating.</td>
+            </tr>
+            <tr>
+                <td style="padding: 15px; border: 1px solid #ccc;"><code>[PAD]</code></td>
+                <td style="padding: 15px; border: 1px solid #ccc;">Padding</td>
+                <td style="padding: 15px; border: 1px solid #ccc;">Makes batches same length (ignored).</td>
+            </tr>
+            <tr>
+                <td style="padding: 15px; border: 1px solid #ccc;"><code>[SEP]</code></td>
+                <td style="padding: 15px; border: 1px solid #ccc;">Separator</td>
+                <td style="padding: 15px; border: 1px solid #ccc;">Separates sentences (e.g., in Q&A).</td>
+            </tr>
+        </table>
+        <div class="footer">
+            <span>Balakumaran Kannan</span>
+            <span>Slide 6</span>
+        </div>
+    </div>
+
+    <!-- Slide 7: Embeddings -->
+    <div class="slide">
+        <div class="header">
+            <span>Building Effective AI Agents - Basic</span>
+            <span>Module-2: RAG</span>
+        </div>
+        <h2>Embeddings: From Tokens to Vectors</h2>
+        <div class="two-columns">
+            <div>
+                <p>Computers don't understand text; they understand numbers.</p>
+                <p><strong>Embedding:</strong> A process of converting a token into a dense vector (a list of floating-point numbers).</p>
+                <p>These vectors are learned during the model's training.</p>
+            </div>
+            <div>
+                <pre>
+"King"  -> [ 0.12, -0.45,  0.88, ...]
+"Queen" -> [ 0.14, -0.42,  0.91, ...]
+"Apple" -> [-0.85,  0.22, -0.11, ...]
+                </pre>
+                <p><em>(Real vectors have 768, 1536, or 4096 dimensions)</em></p>
+            </div>
+        </div>
+        <div class="highlight-box">
+            <p><strong>Key Concept:</strong> The position of the vector in space represents its <em>meaning</em>.</p>
+        </div>
+        <div class="footer">
+            <span>Balakumaran Kannan</span>
+            <span>Slide 7</span>
+        </div>
+    </div>
+
+    <!-- Slide 8: The Vector Space -->
+    <div class="slide">
+        <div class="header">
+            <span>Building Effective AI Agents - Basic</span>
+            <span>Module-2: RAG</span>
+        </div>
+        <h2>The Vector Space & Meaning</h2>
+        <p><strong>Semantic Similarity:</strong> Concepts with similar meanings are located close to each other in the vector space.</p>
+
+        <div class="diagram">
+       ^
+       |    (King)      (Queen)
+       |       *           *
+       |
+       |
+       |    (Man)       (Woman)
+       |       *           *
+       |
+       +-------------------------->
+        </div>
+
+        <p><strong>Vector Arithmetic:</strong></p>
+        <p style="font-size: 2rem; text-align: center; margin: 20px 0;">
+            $\vec{King} - \vec{Man} + \vec{Woman} \approx \vec{Queen}$
+        </p>
+        <p>The relationship (direction/distance) between "Man" and "King" is similar to "Woman" and "Queen".</p>
+        <div class="footer">
+            <span>Balakumaran Kannan</span>
+            <span>Slide 8</span>
+        </div>
+    </div>
+
+    <!-- Slide 9: Vector Databases -->
+    <div class="slide">
+        <div class="header">
+            <span>Building Effective AI Agents - Basic</span>
+            <span>Module-2: RAG</span>
+        </div>
+        <h2>Vector Databases</h2>
+        <p>Traditional databases (SQL) search for exact matches (e.g., <code>WHERE id = 5</code>).</p>
+        <p><strong>Vector Databases</strong> are optimized to store and query high-dimensional vectors.</p>
+
+        <h3>Why do we need them?</h3>
+        <ul>
+            <li>To store the "knowledge" (embeddings) of millions of documents.</li>
+            <li>To perform <strong>Semantic Search</strong>: Finding data based on <em>meaning</em>, not just keywords.</li>
+        </ul>
+
+        <div class="highlight-box">
+            <p><strong>Examples:</strong> ChromaDB, Pinecone, Milvus, Weaviate, pgvector.</p>
+        </div>
+        <div class="footer">
+            <span>Balakumaran Kannan</span>
+            <span>Slide 9</span>
+        </div>
+    </div>
+
+    <!-- Slide 10: Vector Search -->
+    <div class="slide">
+        <div class="header">
+            <span>Building Effective AI Agents - Basic</span>
+            <span>Module-2: RAG</span>
+        </div>
+        <h2>How Vector Search Works</h2>
+        <p>We want to find the "Nearest Neighbors" to a query vector.</p>
+
+        <div class="two-columns">
+            <div>
+                <h3>Similarity Metrics</h3>
+                <ul>
+                    <li><strong>Cosine Similarity:</strong> Measures the angle between vectors. (Most common for text).</li>
+                    <li><strong>Euclidean Distance (L2):</strong> Measures the straight-line distance.</li>
+                </ul>
+            </div>
+            <div>
+                <h3>Indexing (HNSW)</h3>
+                <p>Comparing a query to <em>every</em> vector is too slow.</p>
+                <p><strong>HNSW (Hierarchical Navigable Small World):</strong> A graph-based index that creates "highways" between points for fast Approximate Nearest Neighbor (ANN) search.</p>
+            </div>
+        </div>
+        <div class="footer">
+            <span>Balakumaran Kannan</span>
+            <span>Slide 10</span>
+        </div>
+    </div>
+
+    <!-- Slide 11: The Problem with LLMs -->
+    <div class="slide">
+        <div class="header">
+            <span>Building Effective AI Agents - Basic</span>
+            <span>Module-2: RAG</span>
+        </div>
+        <h2>The Problem with LLMs</h2>
+        <p>LLMs are powerful, but they have limitations:</p>
+
+        <ol>
+            <li><strong>Knowledge Cutoff:</strong> They only know what they were trained on. They don't know about events that happened yesterday.</li>
+            <li><strong>Hallucination:</strong> When they don't know the answer, they might confidently make one up.</li>
+            <li><strong>Private Data:</strong> They don't know your company's private emails or documents.</li>
+        </ol>
+
+        <div class="highlight-box" style="text-align: center;">
+            <p><strong>Solution:</strong> Give the LLM the right context <em>before</em> it answers.</p>
+        </div>
+        <div class="footer">
+            <span>Balakumaran Kannan</span>
+            <span>Slide 11</span>
+        </div>
+    </div>
+
+    <!-- Slide 12: RAG -->
+    <div class="slide">
+        <div class="header">
+            <span>Building Effective AI Agents - Basic</span>
+            <span>Module-2: RAG</span>
+        </div>
+        <h2>RAG (Retrieval-Augmented Generation)</h2>
+        <p><strong>Concept:</strong> Augmenting the LLM prompt with relevant context retrieved from a Vector DB.</p>
+
+        <div class="diagram">
+    [User Query]
+         |
+         v
+    [Vector Search] <---> [Vector DB (Your Data)]
+         |
+    (Relevant Context)
+         |
+         v
+    [Prompt Augmentation]
+    "Use this context: ... to answer: ..."
+         |
+         v
+       [LLM]
+         |
+         v
+     [Answer]
+        </div>
+        <div class="footer">
+            <span>Balakumaran Kannan</span>
+            <span>Slide 12</span>
+        </div>
+    </div>
+
+    <!-- Slide 13: RAG Workflow -->
+    <div class="slide">
+        <div class="header">
+            <span>Building Effective AI Agents - Basic</span>
+            <span>Module-2: RAG</span>
+        </div>
+        <h2>The RAG Workflow</h2>
+        <ol>
+            <li><strong>Ingest:</strong>
+                <ul>
+                    <li>Load documents (PDF, CSV, etc.).</li>
+                    <li>Split into <strong>Chunks</strong>.</li>
+                    <li>Generate <strong>Embeddings</strong> for chunks.</li>
+                    <li>Store in <strong>Vector DB</strong>.</li>
+                </ul>
+            </li>
+            <li><strong>Retrieve:</strong>
+                <ul>
+                    <li>User asks a question.</li>
+                    <li>Convert question to vector.</li>
+                    <li>Search Vector DB for top $k$ similar chunks.</li>
+                </ul>
+            </li>
+            <li><strong>Generate:</strong>
+                <ul>
+                    <li>Feed Context + Question to LLM.</li>
+                    <li>LLM generates accurate answer.</li>
+                </ul>
+            </li>
+        </ol>
+        <div class="footer">
+            <span>Balakumaran Kannan</span>
+            <span>Slide 13</span>
+        </div>
+    </div>
+
+    <!-- Slide 14: Hands-on Session -->
+    <div class="slide">
+        <div class="header">
+            <span>Building Effective AI Agents - Basic</span>
+            <span>Module-2: RAG</span>
+        </div>
+        <div class="center-content">
+            <h2>Hands-on Session (2 Hours)</h2>
+            <p>We will build an <strong>"Alter-Ego Chatbot"</strong></p>
+            <div style="text-align: left; margin-top: 2rem; font-size: 1.4rem;">
+                <p><strong>Tasks:</strong></p>
+                <ol>
+                    <li>Set up a local environment (Python, ChromaDB).</li>
+                    <li>Ingest your Resume, LinkedIn, and GitHub data.</li>
+                    <li>Build a RAG pipeline.</li>
+                    <li>Chat with your "Digital Twin" to answer questions about your experience.</li>
+                </ol>
+            </div>
+        </div>
+        <div class="footer">
+            <span>Balakumaran Kannan</span>
+            <span>Slide 14</span>
+        </div>
+    </div>
+
+    <!-- Slide 15: References -->
+    <div class="slide">
+        <div class="header">
+            <span>Building Effective AI Agents - Basic</span>
+            <span>Module-2: RAG</span>
+        </div>
+        <h2>References & Further Reading</h2>
+        <ul style="font-size: 1.2rem;">
+            <li><strong>Hugging Face NLP Course (Tokenization):</strong><br>
+                <a href="https://huggingface.co/learn/nlp-course/chapter2/4">https://huggingface.co/learn/nlp-course/chapter2/4</a>
+            </li>
+            <li><strong>The Illustrated Word2Vec (Jay Alammar):</strong><br>
+                <a href="https://jalammar.github.io/illustrated-word2vec/">https://jalammar.github.io/illustrated-word2vec/</a>
+            </li>
+            <li><strong>Pinecone - What is a Vector Database?:</strong><br>
+                <a href="https://www.pinecone.io/learn/vector-database/">https://www.pinecone.io/learn/vector-database/</a>
+            </li>
+            <li><strong>Meta AI - Retrieval Augmented Generation:</strong><br>
+                <a href="https://ai.meta.com/blog/retrieval-augmented-generation-streamlining-the-creation-of-intelligent-natural-language-processing-models/">https://ai.meta.com/blog/retrieval-augmented-generation-streamlining-the-creation-of-intelligent-natural-language-processing-models/</a>
+            </li>
+            <li><strong>OpenAI Tokenizer Tool:</strong><br>
+                <a href="https://platform.openai.com/tokenizer">https://platform.openai.com/tokenizer</a>
+            </li>
+            <li><strong>LangChain RAG Tutorial:</strong><br>
+                <a href="https://python.langchain.com/docs/tutorials/rag/">https://python.langchain.com/docs/tutorials/rag/</a>
+            </li>
+        </ul>
+        <div class="footer">
+            <span>Balakumaran Kannan</span>
+            <span>Slide 14</span>
+        </div>
+    </div>
+
+</body>
+</html>
