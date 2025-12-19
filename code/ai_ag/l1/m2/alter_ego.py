@@ -10,7 +10,8 @@ import os
 import sys
 import logging
 from indexer import build_vector_database, check_database_exists
-from chatbot import AlterEgoChatbot
+# from chatbot import AlterEgoChatbot
+from chatbot_cot import AlterEgoChatbot
 
 
 # Get logger for this module

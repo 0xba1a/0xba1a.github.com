@@ -66,6 +66,7 @@ def setup_logging(program_name: str, log_dir: Optional[str] = None) -> logging.L
     logger.addHandler(console_handler)
 
     # Log the initialization
+    logger.info(f"\n\n{'='*60}\nStarting {program_name}\n{'='*60}")
     logger.info(f"Logging initialized for {program_name}")
     logger.debug(f"Trace log: {trace_log}")
     logger.debug(f"Info log: {info_log}")
