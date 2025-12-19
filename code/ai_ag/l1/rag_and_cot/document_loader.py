@@ -291,6 +291,7 @@ def load_all_documents(linkedin_path: str, github_path: str, resume_path: str) -
         })
         print(f"    ✓ Loaded ({len(linkedin_text)} characters)")
         logger.info(f"LinkedIn profile loaded: {len(linkedin_text)} characters")
+        logger.debug(f"LinkedIn: {json.dumps(linkedin_text, indent=4)[:500]}...")
     else:
         print("    ⚠ File not found or empty")
         logger.warning("LinkedIn profile not loaded")
@@ -307,6 +308,7 @@ def load_all_documents(linkedin_path: str, github_path: str, resume_path: str) -
         })
         print(f"    ✓ Loaded ({len(github_text)} characters)")
         logger.info(f"GitHub profile loaded: {len(github_text)} characters")
+        logger.debug(f"GitHub: {json.dumps(github_text, indent=4)[:500]}...")
     else:
         print("    ⚠ File not found or empty")
         logger.warning("GitHub profile not loaded")
