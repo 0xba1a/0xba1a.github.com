@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>AI Agents - Section 5</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reset.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/black.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/highlight/monokai.min.css">
+    
+    <!-- Google Fonts: Nunito -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        .reveal {
+            font-family: 'Nunito', sans-serif;
+        }
+        .reveal h1, .reveal h2, .reveal h3, .reveal h4, .reveal h5, .reveal h6 {
+            font-family: 'Nunito', sans-serif;
+            text-transform: none;
+        }
+        .reveal ul {
+            font-size: 0.8em;
+        }
+        
+        /* Header and Footer */
+        .reveal-header {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            z-index: 10;
+            font-size: 0.5em;
+            color: #888;
+            pointer-events: none;
+        }
+        .reveal-footer-left {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            z-index: 10;
+            font-size: 0.5em;
+            color: #888;
+            pointer-events: none;
+        }
+        .reveal .slide-number {
+            font-size: 0.5em !important;
+            background: transparent !important;
+            color: #888 !important;
+            bottom: 20px !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            right: auto !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <!-- Header -->
+        <div class="reveal-header">
+            <span>Build Effective AI Agents</span>
+            <span>module-8</span>
+        </div>
+        
+        <!-- Footer Left -->
+        <div class="reveal-footer-left">Balakumaran Kannan</div>
+
+        <div class="slides">
+            
+            <!-- Title Slide -->
+            <section>
+                <h1>Tools & Patterns</h1>
+                <h3>Advanced Integration</h3>
+            </section>
+
+            <section>
+                <h2>Agenda</h2>
+                <ul>
+                    <li>Tool Calling Design Pattern</li>
+                    <li>Defining Tools</li>
+                    <li><strong>Hands-On:</strong> Advanced Tool Integration</li>
+                </ul>
+            </section>
+
+            <section>
+                <h3>Tool Calling Pattern</h3>
+                <p>Instead of raw text, the LLM outputs structured calls.</p>
+                <pre><code class="json">
+{
+  "tool": "search_code",
+  "args": { "query": "calculate_sum" }
+}
+                </code></pre>
+            </section>
+
+            <section>
+                <h3>Hands-On: Advanced Tools</h3>
+                <p>Updating our bug-fixing agent with:</p>
+                <ul>
+                    <li><strong>edit-anthropic:</strong> Smart search-and-replace.</li>
+                    <li><strong>apply-patch:</strong> OpenAI's diff application tool.</li>
+                    <li><strong>Ctags & CScope:</strong> Code navigation and symbol lookup.</li>
+                    <li><strong>LLVM Tools:</strong> AST-based code parsing for precise analysis.</li>
+                </ul>
+            </section>
+
+            <!-- End Slide -->
+            <section>
+                <h2>Thank You</h2>
+                <p>Q&A</p>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/highlight/highlight.min.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            slideNumber: 'c',
+            plugins: [ RevealHighlight ]
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>AI Agents - Section 1</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reset.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/black.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/highlight/monokai.min.css">
+    
+    <!-- Google Fonts: Nunito -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        .reveal {
+            font-family: 'Nunito', sans-serif;
+        }
+        .reveal h1, .reveal h2, .reveal h3, .reveal h4, .reveal h5, .reveal h6 {
+            font-family: 'Nunito', sans-serif;
+            text-transform: none;
+        }
+        .reveal ul {
+            font-size: 0.8em;
+        }
+        
+        /* Header and Footer */
+        .reveal-header {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            z-index: 10;
+            font-size: 0.5em;
+            color: #888;
+            pointer-events: none;
+        }
+        .reveal-footer-left {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            z-index: 10;
+            font-size: 0.5em;
+            color: #888;
+            pointer-events: none;
+        }
+        /* Reveal.js default slide number is bottom-right, which matches requirement */
+        .reveal .slide-number {
+            font-size: 0.5em !important;
+            background: transparent !important;
+            color: #888 !important;
+            bottom: 20px !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            right: auto !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <!-- Header -->
+        <div class="reveal-header">
+            <span>Build Effective AI Agents</span>
+            <span>module-4</span>
+        </div>
+        
+        <!-- Footer Left -->
+        <div class="reveal-footer-left">Balakumaran Kannan</div>
+
+        <div class="slides">
+            
+            <!-- Title Slide -->
+            <section>
+                <h1>Foundations</h1>
+                <h3>& Basic Agent</h3>
+            </section>
+
+            <section>
+                <h2>Agenda</h2>
+                <ul>
+                    <li>Introduction to Agents</li>
+                    <li>Automation vs. AI Agents</li>
+                    <li>Components of an Agent</li>
+                    <li><strong>Hands-On:</strong> Simple Bash Bug Fixing Agent</li>
+                </ul>
+            </section>
+
+            <!-- Level 1: Automation -->
+            <section>
+                <h3>Level 1: Traditional Automation</h3>
+                <p>Simple, rule-based systems. The current standard.</p>
+                <div style="background: #222; padding: 20px; border-radius: 10px; text-align: left;">
+                    <p><strong>Example:</strong> A script to restart a server if memory > 90%.</p>
+                    <pre><code class="python">
+def check_server():
+    memory = get_memory_usage()
+    if memory > 90:
+        restart_server()  # Hard-coded rule
+    else:
+        log("All good")
+                    </code></pre>
+                </div>
+                <p style="font-size: 0.7em; color: #aaa;">Characteristics: Deterministic, Rigid, Predictable.</p>
+            </section>
+
+            <!-- Level 2: LLM for Extraction -->
+            <section>
+                <h3>Level 2: LLM-Enhanced Automation</h3>
+                <p style="font-size: 0.8em;">Using LLMs to convert Unstructured Data &rarr; Structured Data.</p>
+                <p style="font-size: 0.7em;">Example (Module 1): Checking if a joke is "Safe for Work".</p>
+                
+                <div class="mermaid" style="background: white; padding: 10px; border-radius: 5px;">
+                    graph LR
+                    A[Unstructured Joke] -->|LLM Extraction| B{Is Safe?}
+                    B -->|Yes| C[Email to Team]
+                    B -->|No| D[Discard]
+                    style A fill:#f9f,stroke:#333,stroke-width:2px
+                    style B fill:#bbf,stroke:#333,stroke-width:2px
+                    style C fill:#bfb,stroke:#333,stroke-width:2px
+                </div>
+                
+                <div style="margin-top: 20px; font-size: 0.7em; text-align: left;">
+                    <ul>
+                        <li><strong>LLM Role:</strong> Information Extractor / Classifier.</li>
+                        <li><strong>Logic:</strong> Still hard-coded (If Safe &rarr; Email).</li>
+                        <li><strong>Nature:</strong> Deterministic decision making.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Level 3: Agentic -->
+            <section>
+                <h3>Level 3: AI Agents</h3>
+                <p style="font-size: 0.8em;">Dynamic decision making with Tools & Heuristics.</p>
+                
+                <div style="display: flex; gap: 20px; font-size: 0.6em;">
+                    <div style="flex: 1; background: #222; padding: 15px; border-radius: 10px;">
+                        <h4>How it works</h4>
+                        <ul>
+                            <li>LLM given <strong>Goal</strong> + <strong>Tools</strong>.</li>
+                            <li>No pre-defined flow.</li>
+                            <li>LLM decides the "Trajectory".</li>
+                            <li>Fully Autonomous.</li>
+                        </ul>
+                    </div>
+                    <div style="flex: 1; background: #331111; padding: 15px; border-radius: 10px;">
+                        <h4>Risks & Rewards</h4>
+                        <ul>
+                            <li><strong>Reward:</strong> Can find novel, optimized solutions.</li>
+                            <li><strong>Risk:</strong> Undeterministic. Can cause damage if guardrails fail.</li>
+                            <li><strong>Our Job:</strong> Provide Data, Tools, and <strong>Guardrails</strong>.</li>
+                        </ul>
+                    </div>
+                </div>
+                <pre><code class="plaintext" style="font-size: 0.6em; margin-top: 10px;">
+Goal: "Fix the bug."
+Trajectory 1: Read File -> Think -> Edit -> Test (Pass)
+Trajectory 2: Read File -> Think -> Search StackOverflow -> Edit -> Test (Pass)
+                </code></pre>
+            </section>
+
+            <!-- Simple Bug Fixing Agent Architecture -->
+            <section>
+                <h3>Architecture: Simple Bug Fixing Agent</h3>
+                <div style="display: flex; gap: 20px; align-items: center;">
+                    <div style="flex: 1; font-size: 0.6em; text-align: left;">
+                        <p><strong>The Setup:</strong></p>
+                        <ul>
+                            <li><strong>Data:</strong> A file containing buggy code.</li>
+                            <li><strong>Prompt:</strong> "You are an engineer. Fix the bug."</li>
+                            <li><strong>Tools:</strong> Bash Terminal (cat, python, grep, sed).</li>
+                        </ul>
+                        <br>
+                        <p><strong>The Loop:</strong></p>
+                        <ol>
+                            <li><strong>Observation:</strong> Read file / Run code.</li>
+                            <li><strong>Thought:</strong> Analyze error / Plan fix.</li>
+                            <li><strong>Action:</strong> Execute bash command.</li>
+                        </ol>
+                    </div>
+                    <div style="flex: 1;">
+                        <div class="mermaid" style="background: white; padding: 10px; border-radius: 5px;">
+                            graph TD
+                                A[Start: Buggy Code] --> B(Observation)
+                                B --> C{Thought}
+                                C -->|Need Info/Fix| D[Action: Bash Command]
+                                D -->|Output/Error| B
+                                C -->|Fixed| E((Finish))
+                                
+                                style B fill:#ff9,stroke:#333
+                                style C fill:#9f9,stroke:#333
+                                style D fill:#99f,stroke:#333
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h3>Components of an Agent</h3>
+                <ul>
+                    <li><strong>Prompt (Persona):</strong> "You are a bug fixer..."</li>
+                    <li><strong>LLM (Brain):</strong> Reasoning engine.</li>
+                    <li><strong>Environment:</strong> Where it lives (Terminal, File System).</li>
+                    <li><strong>Action Loop:</strong> Observe &rarr; Think &rarr; Act.</li>
+                </ul>
+            </section>
+
+            <section>
+                <h3>Hands-On: Basic Agent</h3>
+                <p>Building a naive agent using only Bash.</p>
+                <pre><code class="python">
+while not task_done:
+    history = read_history()
+    response = llm(history)
+    command = parse_command(response)
+    output = execute_bash(command)
+    update_history(output)
+                </code></pre>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/highlight/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({ startOnLoad: true });
+        Reveal.initialize({
+            hash: true,
+            slideNumber: 'c', // Just current slide number
+            plugins: [ RevealHighlight ]
+        });
+    </script>
+</body>
+</html>
