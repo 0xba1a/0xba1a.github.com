@@ -66,7 +66,7 @@
         <!-- Header -->
         <div class="reveal-header">
             <span>Build Effective AI Agents</span>
-            <span>module-5</span>
+            <span>Section 2</span>
         </div>
         
         <!-- Footer Left -->
@@ -97,17 +97,79 @@
             </section>
 
             <section>
-                <h3>The Feedback Loop</h3>
-                <div class="mermaid">
-                    graph LR
-                    A[Agent Generates Code] --> B[Validator/Linter]
-                    B -->|Error| C[Feedback to Agent]
-                    C --> A
-                    B -->|Success| D[LLM Grader]
-                    D -->|Low Score| C
-                    D -->|High Score| E[Submit]
+                <h3>Agent Implementation Flow</h3>
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 10px; font-size: 0.5em;">
+                    <!-- Phase 1: Problem Solving -->
+                    <div style="color: #9cf; font-size: 0.9em; margin-bottom: 2px;">Phase 1: Problem Solving</div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="background: #555; padding: 5px 10px; border-radius: 15px;">Start</div>
+                        <span>→</span>
+                        <div style="background: #444; padding: 5px 10px; border-radius: 4px;">Load Problem</div>
+                        <span>→</span>
+                        <div style="background: #9cf; color: #000; padding: 5px 10px; border-radius: 4px;">Azure OpenAI</div>
+                        <span>→</span>
+                        <div style="background: #444; padding: 5px 10px; border-radius: 4px;">Execute Bash</div>
+                        <span>→</span>
+                        <div style="background: #444; padding: 5px 10px; border-radius: 4px;">Observe</div>
+                    </div>
+                    
+                    <!-- Loop indicator -->
+                    <div style="display: flex; align-items: center; gap: 8px; color: #888;">
+                        <span>↑ repeat</span>
+                        <div style="background: #555; padding: 4px 10px; border-radius: 10px; border: 1px dashed #888;">Solved?</div>
+                    </div>
+                    
+                    <!-- Transition down -->
+                    <div style="color: #888;">↓ yes</div>
+                    
+                    <!-- Phase 2: Self-Reflection -->
+                    <div style="color: #9fc; font-size: 0.9em; margin-top: 4px;">Phase 2: Self-Reflection</div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="background: #fc9; color: #000; padding: 5px 10px; border-radius: 4px;">Generate Patch</div>
+                        <span>→</span>
+                        <div style="background: #fc9; color: #000; padding: 5px 10px; border-radius: 4px;">Reset Code</div>
+                        <span>→</span>
+                        <div style="background: #9fc; color: #000; padding: 5px 10px; border-radius: 4px;">Local LLM</div>
+                        <span>→</span>
+                        <div style="background: #444; padding: 5px 10px; border-radius: 4px;">Review Patch</div>
+                    </div>
+                    
+                    <!-- Validation -->
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="color: #f66;">← reject</span>
+                        <div style="background: #555; padding: 4px 10px; border-radius: 10px; border: 1px dashed #888;">Valid?</div>
+                    </div>
+                    
+                    <!-- Approve down -->
+                    <div style="color: #6f6;">↓ approve</div>
+                    
+                    <!-- Final Output -->
+                    <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
+                        <div style="background: #6f6; color: #000; padding: 5px 12px; border-radius: 4px;">Output Patch</div>
+                        <span>→</span>
+                        <div style="background: #555; padding: 5px 10px; border-radius: 15px;">End</div>
+                    </div>
                 </div>
-                <p style="font-size: 0.6em; margin-top: 20px;">(Visualization of the loop)</p>
+            </section>
+
+            <section>
+                <h3>Two-Level Feedback Loop</h3>
+                <div class="mermaid" style="display: flex; justify-content: center;">
+                    %%{init: {'theme': 'dark', 'themeVariables': {'fontSize': '12px'}, 'flowchart': {'nodeSpacing': 30, 'rankSpacing': 40}}}%%
+                    graph LR
+                    A[Agent] --> B[Validator]
+                    B -->|Error| C[Feedback]
+                    C --> A
+                    B -->|Success| D[Grader]
+                    D -->|Low| C
+                    D -->|High| E[Submit]
+                    
+                    style A fill:#9cf,stroke:#333,color:#000
+                    style B fill:#f9c,stroke:#333,color:#000
+                    style C fill:#fc9,stroke:#333,color:#000
+                    style D fill:#f9c,stroke:#333,color:#000
+                    style E fill:#6f6,stroke:#333,color:#000
+                </div>
             </section>
 
             <section>
@@ -120,6 +182,17 @@
                 </ul>
             </section>
 
+            <!-- Thank You Slide -->
+            <section>
+                <h2>Thank You!</h2>
+                <p style="font-size: 0.8em;">Questions?</p>
+                <p style="margin-top: 40px;">
+                    <a href="agentic_design_patterns.html" style="color: #9cf; font-size: 0.7em;">
+                        Next: Agentic Design Patterns →
+                    </a>
+                </p>
+            </section>
+
         </div>
     </div>
 
@@ -127,11 +200,27 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/highlight/highlight.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
     <script>
-        mermaid.initialize({ startOnLoad: true });
+        mermaid.initialize({ 
+            startOnLoad: false,
+            theme: 'default',
+            themeVariables: {
+                fontSize: '14px'
+            },
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+        
         Reveal.initialize({
             hash: true,
             slideNumber: 'c',
             plugins: [ RevealHighlight ]
+        }).then(() => {
+            mermaid.run({
+                querySelector: '.mermaid'
+            });
         });
     </script>
 </body>

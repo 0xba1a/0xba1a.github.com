@@ -8,7 +8,7 @@ import logging
 # Add the lib directory to the path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from lib import ask_llm, setup_logging
+from lib import ask_llm, ask_llm_azure_openai, setup_logging
 
 # Get logger for this module
 logger = logging.getLogger(__name__)
@@ -107,7 +107,10 @@ def main():
         
         # Ask LLM
         logger.debug("Sending request to LLM")
-        response_str = ask_llm(history)
+        if in_reflection_mode:
+            response_str = ask_llm(history, model="qwen3-coder")
+        else:
+            response_str = ask_llm_azure_openai(history)
         logger.debug(f"LLM Response: {response_str}")
         
         # Parse JSON
