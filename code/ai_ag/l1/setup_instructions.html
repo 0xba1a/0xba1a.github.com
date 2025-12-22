@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Building Effective Agents - Level 1 - Setup Instructions</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --accent-color: #3b82f6;
+            --background-color: #f8fafc;
+            --card-background: #ffffff;
+            --text-color: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --success-color: #22c55e;
+            --warning-color: #f59e0b;
+            --code-bg: #1e293b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 16px;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .section {
+            background: var(--card-background);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .section-number {
+            background: var(--primary-color);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-right: 1rem;
+        }
+
+        .section h2 {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        .subsection {
+            margin: 1.5rem 0;
+            padding: 1.5rem;
+            background: var(--background-color);
+            border-radius: 8px;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .subsection h3 {
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .subsection h4 {
+            color: var(--text-color);
+            margin: 1rem 0 0.5rem 0;
+            font-size: 1rem;
+        }
+
+        ol, ul {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        .code-block {
+            background: var(--code-bg);
+            color: #e2e8f0;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+            white-space: pre-wrap;
+        }
+
+        .code-block code {
+            color: #e2e8f0;
+        }
+
+        .inline-code {
+            background: #e2e8f0;
+            color: var(--code-bg);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9rem;
+        }
+
+        .note {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .note::before {
+            content: "💡 Note: ";
+            font-weight: bold;
+        }
+
+        .warning {
+            background: #fef2f2;
+            border: 1px solid #ef4444;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .warning::before {
+            content: "⚠️ Important: ";
+            font-weight: bold;
+        }
+
+        .tip {
+            background: #ecfdf5;
+            border: 1px solid #22c55e;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .tip::before {
+            content: "✅ Tip: ";
+            font-weight: bold;
+        }
+
+        .spec-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        .spec-table th, .spec-table td {
+            border: 1px solid var(--border-color);
+            padding: 0.75rem 1rem;
+            text-align: left;
+        }
+
+        .spec-table th {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .spec-table tr:nth-child(even) {
+            background: var(--background-color);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-right: 0.5rem;
+        }
+
+        .badge-minimum {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        .badge-recommended {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 0;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 1rem;
+            color: var(--text-muted);
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            color: var(--primary-color);
+        }
+
+        .tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 1.5rem;
+            background: var(--background-color);
+            border-radius: 0 0 8px 8px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .references {
+            background: var(--background-color);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 2rem;
+        }
+
+        .references h3 {
+            margin-bottom: 1rem;
+            color: var(--secondary-color);
+        }
+
+        .references ul {
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .references li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .references li:last-child {
+            border-bottom: none;
+        }
+
+        .credit-box {
+            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+            border: 2px solid #22c55e;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        .credit-box h4 {
+            color: #166534;
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .credit-box p {
+            color: #15803d;
+        }
+
+        .platform-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .platform-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .platform-card h4 {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            color: var(--secondary-color);
+        }
+
+        .platform-card h4 span {
+            margin-right: 0.5rem;
+            font-size: 1.5rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🤖 Building Effective Agents - Level 1</h1>
+            <p>Environment Setup Instructions</p>
+            <p style="font-size: 1rem; margin-top: 0.5rem; opacity: 0.9;">Instructor: Balakumaran Kannan</p>
+        </header>
+
+        <!-- Section 1: VS Code Installation -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-number">1</div>
+                <h2>Install Visual Studio Code</h2>
+            </div>
+
+            <div class="subsection">
+                <h3>Install VS Code Client</h3>
+                
+                <div class="tabs">
+                    <button class="tab active" onclick="showTab(event, 'vscode-debian')">Debian/Ubuntu</button>
+                    <button class="tab" onclick="showTab(event, 'vscode-fedora')">Fedora/RHEL</button>
+                    <button class="tab" onclick="showTab(event, 'vscode-snap')">Snap</button>
+                    <button class="tab" onclick="showTab(event, 'vscode-windows')">Windows</button>
+                </div>
+
+                <div id="vscode-debian" class="tab-content active">
+                    <h4>Option A: Using .deb package (Recommended)</h4>
+                    <ol>
+                        <li>Download the <a href="https://go.microsoft.com/fwlink/?LinkID=760868" target="_blank">.deb package (64-bit)</a></li>
+                        <li>Install using:
+                            <div class="code-block"><code>sudo apt install ./&lt;file&gt;.deb</code></div>
+                        </li>
+                    </ol>
+
+                    <h4>Option B: Manual repository setup</h4>
+                    <div class="code-block"><code># Install signing key
+sudo apt-get install wget gpg
+wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
+sudo install -D -o root -g root -m 644 microsoft.gpg /usr/share/keyrings/microsoft.gpg
+rm -f microsoft.gpg
+
+# Add repository and install
+sudo apt install apt-transport-https
+echo "deb [signed-by=/usr/share/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/code stable main" | sudo tee /etc/apt/sources.list.d/vscode.list
+sudo apt update
+sudo apt install code</code></div>
+                </div>
+
+                <div id="vscode-fedora" class="tab-content">
+                    <div class="code-block"><code># Import key and add repository
+sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
+echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\nautorefresh=1\ntype=rpm-md\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" | sudo tee /etc/yum.repos.d/vscode.repo > /dev/null
+
+# Install VS Code
+dnf check-update
+sudo dnf install code</code></div>
+                </div>
+
+                <div id="vscode-snap" class="tab-content">
+                    <div class="code-block"><code>sudo snap install --classic code</code></div>
+                    <p>Snap automatically handles updates in the background.</p>
+                </div>
+
+                <div id="vscode-windows" class="tab-content">
+                    <ol>
+                        <li>Download VS Code installer from <a href="https://code.visualstudio.com/Download" target="_blank">https://code.visualstudio.com/Download</a></li>
+                        <li>Run the installer and follow the setup wizard</li>
+                        <li>Add VS Code to PATH during installation (recommended)</li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Linux Virtual Machine -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-number">2</div>
+                <h2>Create a Linux Virtual Machine</h2>
+            </div>
+
+            <div class="subsection">
+                <h3>VM Specifications</h3>
+                
+                <table class="spec-table">
+                    <thead>
+                        <tr>
+                            <th>Resource</th>
+                            <th><span class="badge badge-minimum">Minimum</span></th>
+                            <th><span class="badge badge-recommended">Recommended</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>CPU Cores</strong></td>
+                            <td>4 vCPUs</td>
+                            <td>16 vCPUs</td>
+                        </tr>
+                        <tr>
+                            <td><strong>RAM</strong></td>
+                            <td>20 GB</td>
+                            <td>64 GB</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Storage</strong></td>
+                            <td>50 GB SSD</td>
+                            <td>100+ GB SSD</td>
+                        </tr>
+                        <tr>
+                            <td><strong>OS</strong></td>
+                            <td colspan="2">Ubuntu 22.04 LTS or Ubuntu 24.04 LTS</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="warning">
+                    Running large language models locally requires significant RAM. The qwen3-coder:30b model alone requires ~19GB of storage and benefits from having ample memory for inference.
+                </div>
+            </div>
+
+            <div class="subsection">
+                <h3>Choose Your Platform</h3>
+                <div class="tabs">
+                    <button class="tab active" onclick="showTab(event, 'vm-hyperv')">Windows (Hyper-V)</button>
+                    <button class="tab" onclick="showTab(event, 'vm-virtualbox')">VirtualBox (Win/Mac)</button>
+                    <button class="tab" onclick="showTab(event, 'vm-linux')">Linux (KVM)</button>
+                    <button class="tab" onclick="showTab(event, 'vm-aws')">AWS Cloud</button>
+                    <button class="tab" onclick="showTab(event, 'vm-azure')">Azure Cloud</button>
+                </div>
+
+                <!-- Hyper-V Tab -->
+                <div id="vm-hyperv" class="tab-content active">
+                    <h4>Step 1: Enable Hyper-V</h4>
+                    <ol>
+                        <li>Click the <strong>Start</strong> button and type "Turn Windows features on or off".</li>
+                        <li>Select the result to open the Windows Features window.</li>
+                        <li>Find <strong>Hyper-V</strong> in the list and check the box (ensure both "Hyper-V Management Tools" and "Hyper-V Platform" are selected).</li>
+                        <img src="https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/get-started/media/enable-hyper-v.png" alt="Enable Hyper-V in Windows Features" style="max-width: 100%; margin: 1rem 0; border: 1px solid #e2e8f0; border-radius: 8px;">
+                        <li>Click OK and restart your computer if prompted.</li>
+                    </ol>
+
+                    <h4>Step 2: Create the Virtual Machine</h4>
+                    <ol>
+                        <li>Open <strong>Hyper-V Manager</strong> from the Start menu.</li>
+                        <li>In the Actions pane (right side), click <strong>New</strong> > <strong>Virtual Machine...</strong></li>
+                        <li><strong>Specify Name and Location:</strong> Name it "AI-Agent-VM".</li>
+                        <img src="https://learn.microsoft.com/en-us/azure/azure-local/manage/media/virtual-machine-image-linux-sysprep/ubuntu-virtual-machine-name.png?view=azloc-2512" alt="Hyper-V Name and Location" style="max-width: 100%; margin: 1rem 0; border: 1px solid #e2e8f0; border-radius: 8px;">
+                        
+                        <li><strong>Specify Generation:</strong> Select <strong>Generation 2</strong> (Recommended for modern OS).</li>
+                        <img src="https://learn.microsoft.com/en-us/azure/azure-local/manage/media/virtual-machine-image-linux-sysprep/ubuntu-virtual-machine-generation.png?view=azloc-2512" alt="Hyper-V Generation Selection" style="max-width: 100%; margin: 1rem 0; border: 1px solid #e2e8f0; border-radius: 8px;">
+
+                        <li><strong>Assign Memory:</strong> Enter <strong>20480 MB</strong> (20 GB) or more. Uncheck "Use Dynamic Memory" for better performance with LLMs.</li>
+                        <li><strong>Configure Networking:</strong> Select "Default Switch".</li>
+                        <li><strong>Connect Virtual Hard Disk:</strong> Create a virtual hard disk with size <strong>50 GB</strong> or more.</li>
+                        <li><strong>Installation Options:</strong> Select "Install an operating system from a bootable image file" and browse to your downloaded Ubuntu ISO.</li>
+                        <li>Finish the wizard and start the VM.</li>
+                    </ol>
+                    <p><em>Reference: <a href="https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/get-started/create-a-virtual-machine-in-hyper-v" target="_blank">Microsoft Learn - Create a VM in Hyper-V</a></em></p>
+                </div>
+
+                <!-- VirtualBox Tab -->
+                <div id="vm-virtualbox" class="tab-content">
+                    <h4>Step 1: Preparation</h4>
+                    <ol>
+                        <li>Download and install <a href="https://www.virtualbox.org/wiki/Downloads" target="_blank">VirtualBox</a>.</li>
+                        <li>Download the <a href="https://ubuntu.com/download/desktop" target="_blank">Ubuntu 22.04 LTS ISO</a>.</li>
+                    </ol>
+
+                    <h4>Step 2: Create Virtual Machine</h4>
+                    <ol>
+                        <li>Open VirtualBox and click <strong>New</strong>.</li>
+                        <li><strong>Name and Operating System:</strong>
+                            <ul>
+                                <li>Name: AI-Agent-VM</li>
+                                <li>Type: Linux</li>
+                                <li>Version: Ubuntu (64-bit)</li>
+                            </ul>
+                        </li>
+                        <img src="https://ubuntucommunity.s3.us-east-2.amazonaws.com/original/3X/8/7/874a54ccaa6eedea7ba90d1c4f366caf82a947a9.png" alt="VirtualBox Manager" style="max-width: 100%; margin: 1rem 0; border: 1px solid #e2e8f0; border-radius: 8px;">
+                        
+                        <li><strong>Hardware:</strong>
+                            <ul>
+                                <li>Base Memory: <strong>20480 MB</strong> (20 GB)</li>
+                                <li>Processors: <strong>4</strong> or more</li>
+                            </ul>
+                        </li>
+                        <li><strong>Hard Disk:</strong> Create a Virtual Hard Disk with at least <strong>50 GB</strong>.</li>
+                    </ol>
+                    <p><em>Reference: <a href="https://ubuntu.com/tutorials/how-to-run-ubuntu-desktop-on-a-virtual-machine-using-virtualbox" target="_blank">Ubuntu Tutorials - VirtualBox</a></em></p>
+                </div>
+
+                <!-- Linux KVM Tab -->
+                <div id="vm-linux" class="tab-content">
+                    <h4>Using KVM/QEMU (Recommended for Linux)</h4>
+                    <p>Since you are on Linux, KVM provides the best performance as a native hypervisor.</p>
+                    
+                    <div class="code-block"><code># 1. Install KVM and tools
+sudo apt update
+sudo apt install qemu-kvm libvirt-daemon-system virt-manager
+
+# 2. Add your user to the libvirt group (requires logout/login)
+sudo usermod -aG libvirt $USER
+
+# 3. Start the Virtual Machine Manager GUI
+virt-manager</code></div>
+
+                    <ol>
+                        <li>In <strong>Virtual Machine Manager</strong>, click "Create a new virtual machine".</li>
+                        <li>Select "Local install media" and browse to your Ubuntu ISO.</li>
+                        <li><strong>Memory & CPU:</strong> Set Memory to 20480 MiB and CPUs to 4.</li>
+                        <li><strong>Storage:</strong> Create a disk image of 50 GB.</li>
+                        <li>Follow the prompts to finish installation.</li>
+                    </ol>
+                </div>
+
+                <!-- AWS Tab -->
+                <div id="vm-aws" class="tab-content">
+                    <div class="note">
+                        <strong>Authentication Note:</strong> We use password authentication in this guide for simplicity. If you are comfortable managing SSH keys and prefer the enhanced security, you may choose "SSH key pair" instead and skip the User Data script step.
+                    </div>
+
+                    <div class="credit-box">
+                        <h4>💰 AWS Free Tier</h4>
+                        <p>New customers get up to 750 hours of t2.micro/t3.micro, but <strong>this is NOT enough</strong> for this course. You will incur costs for the r5.xlarge instance (approx $0.25/hour). Remember to STOP the instance when not in use.</p>
+                    </div>
+
+                    <h4>Step 1: Launch Instance</h4>
+                    <ol>
+                        <li>Log in to the <a href="https://console.aws.amazon.com/ec2/" target="_blank">AWS EC2 Console</a>.</li>
+                        <li>Click the orange <strong>Launch Instance</strong> button.</li>
+                        <li><strong>Name:</strong> Enter "AI-Agent-VM".</li>
+                        <li><strong>Application and OS Images:</strong> Select <strong>Ubuntu</strong> (Server 22.04 LTS).</li>
+                        <li><strong>Instance Type:</strong> Select <strong>r5.xlarge</strong> (4 vCPU, 32 GiB Memory).
+                            <br><em>Note: You may need to request a quota increase if this type is not available to you.</em>
+                        </li>
+                        <li><strong>Key pair (login):</strong> Select "Proceed without a key pair" (We will use password auth).</li>
+                    </ol>
+
+                    <h4>Step 2: Configure Authentication (Crucial)</h4>
+                    <p>AWS disables password authentication by default. We will enable it using a startup script.</p>
+                    <ol>
+                        <li>Scroll down to <strong>Advanced details</strong> and expand it.</li>
+                        <li>Scroll to the bottom to the <strong>User data</strong> field.</li>
+                        <li>Copy and paste the following script exactly:</li>
+                    </ol>
+                    <div class="code-block"><code>#!/bin/bash
+# Set password for 'ubuntu' user
+echo "ubuntu:YourStrongPassword123!" | chpasswd
+# Enable Password Authentication in SSH
+sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
+sed -i 's/Include \/etc\/ssh\/sshd_config.d\/\*.conf/#Include \/etc\/ssh\/sshd_config.d\/\*.conf/' /etc/ssh/sshd_config
+# Restart SSH service
+service ssh restart</code></div>
+                    <div class="warning">
+                        Replace <code>YourStrongPassword123!</code> with your own secure password.
+                    </div>
+
+                    <h4>Step 3: Network Settings</h4>
+                    <ol>
+                        <li>Ensure "Allow SSH traffic from" is checked.</li>
+                        <li>Click <strong>Launch instance</strong>.</li>
+                    </ol>
+                    <p><em>Reference: <a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EC2_GetStarted.html" target="_blank">AWS EC2 Get Started Guide</a></em></p>
+                </div>
+
+                <!-- Azure Tab -->
+                <div id="vm-azure" class="tab-content">
+                    <div class="note">
+                        <strong>Authentication Note:</strong> We use password authentication in this guide for simplicity. If you are comfortable managing SSH keys and prefer the enhanced security, you may choose "SSH public key" as the authentication type.
+                    </div>
+
+                    <div class="credit-box">
+                        <h4>💰 Azure Free Account</h4>
+                        <p>Azure offers $200 credit for the first 30 days, which covers the VM costs for this course.</p>
+                    </div>
+
+                    <h4>Step 1: Create Virtual Machine</h4>
+                    <ol>
+                        <li>Log in to the <a href="https://portal.azure.com/" target="_blank">Azure Portal</a>.</li>
+                        <li>Search for "Virtual machines" and click <strong>Create</strong> > <strong>Azure virtual machine</strong>.</li>
+                    </ol>
+
+                    <h4>Step 2: Project & Instance Details</h4>
+                    <img src="https://learn.microsoft.com/en-us/azure/reusable-content/ce-skilling/azure/media/virtual-machines/project-details.png" alt="Azure Project Details" style="max-width: 100%; margin: 1rem 0; border: 1px solid #e2e8f0; border-radius: 8px;">
+                    <ol>
+                        <li><strong>Resource Group:</strong> Create new (e.g., "AI-Course-RG").</li>
+                        <li><strong>Virtual machine name:</strong> "AI-Agent-VM".</li>
+                        <li><strong>Image:</strong> Select <strong>Ubuntu Server 22.04 LTS - x64 Gen2</strong>.</li>
+                        <li><strong>Size:</strong> Click "See all sizes" and select <strong>Standard_E4s_v3</strong> (4 vcpus, 32 GiB memory) or similar.</li>
+                    </ol>
+
+                    <h4>Step 3: Administrator Account</h4>
+                    <img src="https://learn.microsoft.com/en-us/azure/reusable-content/ce-skilling/azure/media/virtual-machines/administrator-account.png" alt="Azure Admin Account" style="max-width: 100%; margin: 1rem 0; border: 1px solid #e2e8f0; border-radius: 8px;">
+                    <ol>
+                        <li><strong>Authentication type:</strong> Select <strong>Password</strong>.</li>
+                        <li><strong>Username:</strong> Enter a username (e.g., "azureuser").</li>
+                        <li><strong>Password:</strong> Enter a strong password.</li>
+                    </ol>
+
+                    <h4>Step 4: Review + Create</h4>
+                    <ol>
+                        <li>Click "Review + create".</li>
+                        <li>Wait for validation to pass, then click <strong>Create</strong>.</li>
+                    </ol>
+                    <p><em>Reference: <a href="https://learn.microsoft.com/en-us/azure/virtual-machines/linux/quick-create-portal" target="_blank">Azure Quickstart Guide</a></em></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Connect VS Code to VM -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-number">3</div>
+                <h2>Connect VS Code to the VM</h2>
+            </div>
+
+            <div class="subsection">
+                <h3>Step 3.1: Install Remote - SSH Extension</h3>
+                <p>To develop on the remote VM, you need the <strong>Remote - SSH</strong> extension by Microsoft.</p>
+                
+                <ol>
+                    <li>Open the <strong>Extensions</strong> view in VS Code (Click the square icon on the left sidebar or press <span class="inline-code">Ctrl+Shift+X</span>).</li>
+                    <li>Search for <strong>Remote - SSH</strong>.</li>
+                    <li>Click the <strong>Install</strong> button.</li>
+                </ol>
+                <img src="https://assets.digitalocean.com/articles/vscode_remote_ssh/qeXwQwX.png" alt="Install Remote SSH Extension" style="max-width: 100%; margin: 1rem 0; border: 1px solid #e2e8f0; border-radius: 8px;">
+            </div>
+
+            <div class="subsection">
+                <h3>Step 3.2: Connect to Host</h3>
+                <ol>
+                    <li>Open the Command Palette (<span class="inline-code">Ctrl+Shift+P</span> or <span class="inline-code">F1</span>).</li>
+                    <li>Type and select: <strong>Remote-SSH: Connect to Host...</strong></li>
+                    <img src="https://assets.digitalocean.com/articles/vscode_remote_ssh/urOLU4z.png" alt="Connect to Host Command" style="max-width: 100%; margin: 1rem 0; border: 1px solid #e2e8f0; border-radius: 8px;">
+                    
+                    <li>Enter your connection string in the format <span class="inline-code">username@ip-address</span> (e.g., <span class="inline-code">ubuntu@34.201.10.55</span>) and press Enter.</li>
+                    <img src="https://code.visualstudio.com/assets/docs/remote/ssh/ssh-user@box.png" alt="Enter Connection String" style="max-width: 100%; margin: 1rem 0; border: 1px solid #e2e8f0; border-radius: 8px;">
+
+                    <li>Select <strong>Linux</strong> as the platform if prompted.</li>
+                    <li>Enter your <strong>password</strong> in the prompt at the top of the window.</li>
+                </ol>
+                
+                <div class="tip">
+                    Once connected, a green indicator will appear in the bottom-left corner of VS Code showing the remote hostname (e.g., <span class="inline-code">SSH: 34.201.10.55</span>).
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Install Extensions on Remote Server -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-number">4</div>
+                <h2>Install Extensions on Remote Server</h2>
+            </div>
+
+            <div class="subsection">
+                <p>Now that you are connected to the remote VM, you need to install extensions <strong>on the remote server</strong> to enable development features. VS Code manages extensions separately for your local machine and the remote host.</p>
+
+                <h3>Step 4.1: Verify Remote Connection in Extensions View</h3>
+                <p>Open the Extensions view (<span class="inline-code">Ctrl+Shift+X</span>). You will see a new section titled <strong>SSH: [Your IP] - Installed</strong>.</p>
+
+                <h3>Step 4.2: Install Python Extension</h3>
+                <ol>
+                    <li>Search for <strong>Python</strong> (Microsoft).</li>
+                    <li>Click <strong>Install in SSH: [Your IP]</strong>.</li>
+                </ol>
+                <img src="https://code.visualstudio.com/assets/docs/remote/ssh/ssh-installed-remote-indicator.png" alt="Python Extension Installed on Remote" style="max-width: 100%; margin: 1rem 0; border: 1px solid #e2e8f0; border-radius: 8px;">
+                <p>This enables IntelliSense, debugging, and Jupyter support directly on the VM.</p>
+
+                <h3>Step 4.3: Install Live Preview Extension</h3>
+                <ol>
+                    <li>Search for <strong>Live Preview</strong> (Microsoft).</li>
+                    <li>Click <strong>Install in SSH: [Your IP]</strong>.</li>
+                </ol>
+                <img src="https://code.visualstudio.com/assets/docs/remote/ssh/ssh-disabled-extensions.png" alt="Install Extension on Remote Button" style="max-width: 100%; margin: 1rem 0; border: 1px solid #e2e8f0; border-radius: 8px;">
+                <p>This allows you to host and preview web files from the remote VM in your local VS Code.</p>
+            </div>
+        </section>
+
+        <!-- Section 5: Ollama Installation -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-number">5</div>
+                <h2>Install Ollama and Download Models</h2>
+            </div>
+
+            <div class="subsection">
+                <p>Perform these steps in the <strong>VS Code Integrated Terminal</strong> connected to your remote VM.</p>
+
+                <h3>Step 5.1: Install Ollama</h3>
+                <div class="code-block"><code>curl -fsSL https://ollama.com/install.sh | sh</code></div>
+                
+                <p>Verify installation:</p>
+                <div class="code-block"><code>ollama --version</code></div>
+            </div>
+
+            <div class="subsection">
+                <h3>Step 5.2: Download Required Models</h3>
+
+                <h4>1. Nomic Embed Text (Embedding Model)</h4>
+                <div class="code-block"><code>ollama pull nomic-embed-text:latest</code></div>
+
+                <h4>2. Qwen3-Coder (Code Generation Model)</h4>
+                <div class="code-block"><code>ollama pull qwen3-coder:latest</code></div>
+
+                <div class="warning">
+                    Ensure your VM has sufficient disk space (approx 20GB for models) and RAM.
+                </div>
+            </div>
+
+            <div class="subsection">
+                <h3>Step 5.3: Verify Installation</h3>
+                <div class="code-block"><code>ollama list</code></div>
+                <p>Expected output:</p>
+                <div class="code-block"><code>NAME                        SIZE      
+nomic-embed-text:latest     274 MB    
+qwen3-coder:latest          19 GB</code></div>
+            </div>
+        </section>
+
+        <!-- References Section -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-number">📚</div>
+                <h2>References & Resources</h2>
+            </div>
+
+            <div class="references">
+                <h3>VS Code & Remote Development</h3>
+                <ul>
+                    <li><a href="https://code.visualstudio.com/docs/setup/linux" target="_blank">VS Code Installation</a></li>
+                    <li><a href="https://code.visualstudio.com/docs/remote/ssh" target="_blank">Remote - SSH Documentation</a></li>
+                    <li><a href="https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-ssh" target="_blank">Remote - SSH Extension</a></li>
+                </ul>
+
+                <h3>Virtual Machines</h3>
+                <ul>
+                    <li><a href="https://learn.microsoft.com/en-us/virtualization/hyper-v-on-windows/quick-start/create-virtual-machine" target="_blank">Create VM in Hyper-V</a></li>
+                    <li><a href="https://www.virtualbox.org/wiki/Downloads" target="_blank">VirtualBox Downloads</a></li>
+                    <li><a href="https://aws.amazon.com/ec2/" target="_blank">Amazon EC2</a></li>
+                    <li><a href="https://azure.microsoft.com/en-us/services/virtual-machines/" target="_blank">Azure Virtual Machines</a></li>
+                </ul>
+
+                <h3>Ollama</h3>
+                <ul>
+                    <li><a href="https://ollama.com/" target="_blank">Ollama Official Site</a></li>
+                    <li><a href="https://github.com/ollama/ollama" target="_blank">Ollama GitHub</a></li>
+                </ul>
+            </div>
+        </section>
+
+        <footer>
+            <p>Building Effective Agents - Level 1</p>
+            <p>Instructor: Balakumaran Kannan</p>
+        </footer>
+    </div>
+
+    <script>
+        function showTab(event, tabId) {
+            // Get parent subsection
+            const subsection = event.target.closest('.subsection');
+            
+            // Hide all tab contents in this subsection
+            subsection.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs in this subsection
+            subsection.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabId).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>
