@@ -126,13 +126,14 @@ class Sandbox:
         ssh_cmd = [
             "ssh", "-o", "StrictHostKeyChecking=no",
             "-o", "UserKnownHostsFile=/dev/null",
+            "-o", "LogLevel=ERROR",
             "-i", self.key_file,
             "-p", str(self.ssh_port),
             "root@localhost",
             command
         ]
         result = subprocess.run(ssh_cmd, capture_output=True, text=True)
-        logger.debug(f"Command output: {result.stdout}, Error: {result.stderr}")
+        logger.debug(f"Command output:\n{result.stdout}\n\nError:\n{result.stderr}")
         return result.stdout + result.stderr
 
     def cleanup(self):
@@ -158,7 +159,7 @@ It communicates through JSON over stdin/stdout.
 Usage:
 echo '{"input": <JSON_INPUT>}' | anthropic-text-editor
 
-Input Format:
+<JSON_INPUT> format:
 {
   "command": "view|create|str_replace|insert|delete",
   "path": "/absolute/path/to/file",
@@ -174,12 +175,12 @@ IMPORTANT: Use this tool for making any code changes.
 """
         self._install_tool()
         # Test the tool
-        test_cmd = 'echo \'{"command": "view", "path": "/workspace/buggy_code.py", "view_range": [1, 5]}\' | anthropic-text-editor'
+        test_cmd = 'echo \'{"input": {"command": "view", "path": "/workspace/data/buggy_code.py", "view_range": [1, 5]}}\' | anthropic-text-editor'
         output = self.sandbox.run_command(test_cmd)
         if "error" in output.lower():
             logger.error("Failed to verify anthropic-text-editor installation.")
             print("Failed to verify anthropic-text-editor installation. Exiting.")
-        sys.exit(0)
+            sys.exit(-1)
         self._update_prompt()
 
     def _install_tool(self):
@@ -195,6 +196,9 @@ IMPORTANT: Use this tool for making any code changes.
         # Install anthropic-text-editor
         cmd = "export PATH=$HOME/.cargo/bin:$PATH && cargo install --locked anthropic-text-editor"
         self.sandbox.run_command(cmd)
+
+        # Create a symlink to make it accessible globally
+        self.sandbox.run_command("ln -s /root/.cargo/bin/anthropic-text-editor /usr/local/bin/anthropic-text-editor")
         
     def _update_prompt(self):
         self.prompt_manager.system_prompt += "\n\n" + self.tool_description
@@ -260,11 +264,22 @@ class AgentLoop:
 
             if task_done:
                 print("Task marked as done.")
+                # Print the final code state
+                final_code = self.sandbox.run_command("cat /workspace/data/buggy_code.py")
+                print(f"\n--- Final Code ---\n{final_code}\n")
                 break
 
             if command:
                 if self.llm_interaction.is_safe_command(command):
                     output = self.run_command(command)
+                    try:
+                        output_json = json.loads(output)
+                        if isinstance(output_json, dict) and "content" in output_json:
+                            print(f"Command Output:\n{output_json['content']}")
+                        else:
+                            print(f"Command Output:\n{output}")
+                    except json.JSONDecodeError:
+                        print(f"Command Output:\n{output}")
                     self.prompt_manager.add_user_message(f"Command Output:\n{output}")
                 else:
                     print(f"[Security Alert]: Dangerous command blocked: {command}")
@@ -309,7 +324,7 @@ def main():
     prompt_manager = PromptManager(system_prompt)
 
     # Initial user message to start the conversation
-    prompt_manager.add_user_message(f"Please fix the bug in {file_path}")
+    prompt_manager.add_user_message(f"Please fix the bug in /workspace/{file_path}")
 
     workspace_dir = os.path.dirname(os.path.abspath(__file__))
     
