@@ -90,6 +90,34 @@
             </section>
 
             <section>
+                <h3>Tool Architecture</h3>
+                <div class="mermaid">
+                    classDiagram
+                    class Agent {
+                        +register_tool(Tool)
+                    }
+                    
+                    class Tool {
+                        &lt;&lt;Abstract&gt;&gt;
+                        +install(Sandbox)
+                        +uninstall(Sandbox)
+                        +augment_prompt(SystemPrompt)
+                    }
+                    
+                    class AnthropicEditor {
+                        +install()
+                        +uninstall()
+                        +augment_prompt()
+                    }
+                    
+                    Agent o-- Tool
+                    Tool &lt;|-- AnthropicEditor
+                    Tool ..&gt; Sandbox : installs dependencies
+                    Tool ..&gt; SystemPrompt : adds usage info
+                </div>
+            </section>
+
+            <section>
                 <h3>Tool Calling Pattern</h3>
                 <p>Instead of raw text, the LLM outputs structured calls.</p>
                 <pre><code class="json">
@@ -111,6 +139,14 @@
                 </ul>
             </section>
 
+            <section>
+                <h3>References</h3>
+                <ul>
+                    <li><a href="https://platform.openai.com/docs/guides/tools" target="_blank">OpenAI Tool Calling Guide</a></li>
+                    <li><a href="https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview" target="_blank">Claude Tool Use Overview</a></li>
+                </ul>
+            </section>
+
             <!-- End Slide -->
             <section>
                 <h2>Thank You</h2>
@@ -122,7 +158,16 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/highlight/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
     <script>
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'dark',
+            themeVariables: {
+                fontSize: '16px',
+                fontFamily: 'Nunito'
+            }
+        });
         Reveal.initialize({
             hash: true,
             slideNumber: 'c',
