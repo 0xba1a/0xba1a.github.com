@@ -3,17 +3,17 @@ class Solution:
         if not k:
             return 0
 
-        left = 0
-        right = k-1
-
         sum = 0
         for n in nums[:k]:
             sum += n
 
+        left = 1
+        right = k
+
         max_sum = sum
-        while right < len(nums)-1:
+        while right < len(nums):
             sum -= nums[left]
-            sum += nums[right+1]
+            sum += nums[right]
 
             if sum > max_sum:
                 max_sum = sum
