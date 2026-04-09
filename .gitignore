@@ -5,6 +5,10 @@ __pycache__
 .venv
 .env
 
+# YouTube uploader OAuth tokens and secrets
+token.json
+client_secrets.json
+
 # LLVM objects
 *.o
 *.bc

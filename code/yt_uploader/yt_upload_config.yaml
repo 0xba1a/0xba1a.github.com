@@ -1,0 +1,55 @@
+# YouTube Shorts Upload Configuration
+# ------------------------------------
+
+# Path to your OAuth 2.0 client secrets file (from Google Cloud Console)
+client_secrets_file: "client_secrets.json"
+
+# Playlist ID to append uploaded videos to and read schedule from
+playlist_id: "PLgh1fhTpjG9rxA_FRb5SFFJfRkOz9DPe4"
+
+# YouTube video category ID (27 = Education)
+# See: https://developers.google.com/youtube/v3/docs/videoCategories/list
+category_id: "27"
+
+# Default language for video metadata
+default_language: "en"
+
+# Whether the video is made for kids (COPPA compliance)
+made_for_kids: false
+
+# Whether the video is embeddable on other sites
+embeddable: true
+
+# Video license: "youtube" (standard) or "creativeCommon"
+license: "youtube"
+
+# Tags (keywords) attached to every uploaded video
+tags:
+  - "shorts"
+  - "youtubeshorts"
+  - "dsa"
+  - "algorithm"
+  - "algorithms"
+  - "leetcode"
+  - "leetcode75"
+  - "leetcode 75"
+  - "75"
+  - "faang"
+  - "faangm"
+  - "interview"
+  - "interviewprep"
+  - "programming"
+  - "coding"
+  - "Interview preperation for faang"
+  - "Interview preperation for maang"
+  - "Datastructures and algorithme"
+  - "learn data structures"
+  - "how to learn algorithms and data structures"
+  - "leetcode problem solving"
+
+# Hashtags appended to the video description
+# These are added as a newline-separated block at the end of the description
+hashtags:
+  - "#Shorts"
+  - "#YouTubeShorts"
+  - "#Leetcode"
