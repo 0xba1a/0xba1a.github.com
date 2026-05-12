@@ -15,10 +15,6 @@ def multiply(a, b, result_dict=None, key=None):
         result_dict[key] = result
     print(f"Multiplication of {a} and {b} is: {result}")
 
-def add(a, b):
-    result = a + b
-    print(f"Addition of {a} and {b} is: {result}")
-
 result = {
     "a_square": 0,
     "b_square": 0,
