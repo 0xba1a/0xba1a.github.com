@@ -16,9 +16,10 @@ As a Stable Maintainer of Azure Linux (Microsoft's in-house Linux distribution),
 ## My Experience
 <div class="grid cards" markdown>
 ??? tip ":fontawesome-brands-microsoft: Microsoft"
-    * Building a multi-agent CVE patching system using [SWE-agent](https://github.com/SWE-agent/SWE-agent)
+    * Building the simplest and most secure Agent development framework - [Microbots](https://github.com/microsoft/microbots)
+    * Building a CVE patch backporting system using [SWE-agent](https://github.com/SWE-agent/SWE-agent) and [Microbots](https://github.com/microsoft/microbots)
     * Stable-Maintainer of [Azure Linux](https://github.com/microsoft/azurelinux)
-    * Build & Release systems design-to-development for [Azure Linux](https://github.com/microsoft/azurelinux) and customer support
+    * Build & Release systems - design-to-development for [Azure Linux](https://github.com/microsoft/azurelinux) and customer support
     * [LISA](https://github.com/microsoft/lisa)
 
 ??? success ":fontawesome-solid-cart-shopping: Flipkart"
@@ -43,7 +44,5 @@ As a Stable Maintainer of Azure Linux (Microsoft's in-house Linux distribution),
 :fontawesome-solid-graduation-cap: Ind. patent application - 202141004517: Common IP based network communication between virtual machine and host
 
 ## :fontawesome-brands-github: [0xba1a](https://github.com/0xba1a)
-<iframe  width=800px height=200px frameborder=0 src="https://greptile-stats.vercel.app/api/widget/0xba1a/stats">
-</iframe>
-<iframe width=800px height=260px frameborder=0 src="https://greptile-stats.vercel.app/api/widget/0xba1a/contributions">
-</iframe>
+
+--8<-- "docs/includes/github_stats.md"
