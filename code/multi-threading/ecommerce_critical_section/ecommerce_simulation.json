@@ -1,0 +1,61 @@
+{
+  "users": {
+    "Alice": [
+      {"action": "read_spec", "args": ["iPhone 17 Pro"], "time": 3},
+      {"action": "buy", "args": ["iPhone 17 Pro"], "time": 10},
+      {"action": "read_spec", "args": ["Samsung S25 Ultra"], "time": 4}
+    ],
+    "Bob": [
+      {"action": "read_spec", "args": ["iPhone 17 Pro"], "time": 2},
+      {"action": "read_spec", "args": ["Samsung S25 Ultra"], "time": 3},
+      {"action": "buy", "args": ["iPhone 17 Pro"], "time": 6},
+      {"action": "compare", "args": ["Pixel 10 Pro", "Samsung S25 Ultra"], "time": 3}
+    ],
+    "Charlie": [
+      {"action": "compare", "args": ["Pixel 10 Pro", "Samsung S25 Ultra"], "time": 4},
+      {"action": "read_spec", "args": ["Samsung S25 Ultra"], "time": 3},
+      {"action": "buy", "args": ["Samsung S25 Ultra"], "time": 8}
+    ],
+    "Diana": [
+      {"action": "read_spec", "args": ["Samsung S25 Ultra"], "time": 2},
+      {"action": "read_spec", "args": ["Pixel 10 Pro"], "time": 3},
+      {"action": "compare", "args": ["Samsung S25 Ultra", "Pixel 10 Pro"], "time": 4},
+      {"action": "buy", "args": ["Samsung S25 Ultra"], "time": 5}
+    ],
+    "Eve": [
+      {"action": "read_spec", "args": ["Samsung S25 Ultra"], "time": 3},
+      {"action": "compare", "args": ["Samsung S25 Ultra", "iPhone 17 Pro"], "time": 5},
+      {"action": "buy", "args": ["Samsung S25 Ultra"], "time": 6},
+      {"action": "read_spec", "args": ["Pixel 10 Pro"], "time": 2}
+    ],
+    "Frank": [
+      {"action": "read_spec", "args": ["Pixel 10 Pro"], "time": 2},
+      {"action": "compare", "args": ["Pixel 10 Pro", "iPhone 17 Pro"], "time": 4},
+      {"action": "buy", "args": ["Pixel 10 Pro"], "time": 7}
+    ],
+    "Grace": [
+      {"action": "read_spec", "args": ["iPhone 17 Pro"], "time": 3},
+      {"action": "read_spec", "args": ["Pixel 10 Pro"], "time": 2},
+      {"action": "compare", "args": ["Pixel 10 Pro", "iPhone 17 Pro"], "time": 3},
+      {"action": "buy", "args": ["Pixel 10 Pro"], "time": 5}
+    ],
+    "Henry": [
+      {"action": "read_spec", "args": ["Pixel 10 Pro"], "time": 4},
+      {"action": "read_spec", "args": ["Samsung S25 Ultra"], "time": 3},
+      {"action": "compare", "args": ["Pixel 10 Pro", "Samsung S25 Ultra"], "time": 5},
+      {"action": "buy", "args": ["Samsung S25 Ultra"], "time": 4}
+    ],
+    "Ivy": [
+      {"action": "compare", "args": ["iPhone 17 Pro", "Samsung S25 Ultra"], "time": 6},
+      {"action": "read_spec", "args": ["iPhone 17 Pro"], "time": 3},
+      {"action": "buy", "args": ["iPhone 17 Pro"], "time": 5}
+    ],
+    "Jack": [
+      {"action": "read_spec", "args": ["Pixel 10 Pro"], "time": 3},
+      {"action": "read_spec", "args": ["iPhone 17 Pro"], "time": 4},
+      {"action": "read_spec", "args": ["Samsung S25 Ultra"], "time": 3},
+      {"action": "compare", "args": ["Pixel 10 Pro", "Samsung S25 Ultra"], "time": 5},
+      {"action": "buy", "args": ["Pixel 10 Pro"], "time": 4}
+    ]
+  }
+}
