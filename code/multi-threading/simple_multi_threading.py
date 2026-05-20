@@ -4,8 +4,6 @@ import random
 
 # (a + b)^2 = a^2 + b^2 + 2ab
 
-result = {}
-
 def multiply(multiplicand, multiplier, key=None):
     # Simulate a CPU load wait time between 0.1 and 0.5 seconds
     wait_time = random.uniform(0.1, 0.5)
@@ -15,6 +13,10 @@ def multiply(multiplicand, multiplier, key=None):
     product = multiplicand * multiplier
     result[key] = product
     print(f"Multiplication of {multiplicand} and {multiplier} is: {product}")
+
+
+result = {}
+
 
 def main():
     if len(sys.argv) < 3:

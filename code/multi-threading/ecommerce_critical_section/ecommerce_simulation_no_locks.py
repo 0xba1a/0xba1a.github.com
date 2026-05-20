@@ -1,6 +1,7 @@
 import json
 import threading
 import time
+from pathlib import Path
 
 inventory = {
     "Pixel 10 Pro": 2,
@@ -68,7 +69,7 @@ def process_user_activity(user, activities):
 
 def main():
     # Load user activity log
-    with open("code/multi-threading/ecommerce_critical_section/ecommerce_simulation.json") as f:
+    with open(f"{Path(__file__).parent}/ecommerce_simulation.json") as f:
         data = json.load(f)
 
     initial_inventory = dict(inventory)  # snapshot before threads start

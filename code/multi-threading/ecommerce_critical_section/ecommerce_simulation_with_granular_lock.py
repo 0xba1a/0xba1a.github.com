@@ -1,6 +1,7 @@
 import json
 import threading
 import time
+from pathlib import Path
 
 inventory = {
     "Pixel 10 Pro": 2,
@@ -30,7 +31,9 @@ start_time = time.time()
 purchase_log = []
 
 # ── One lock per product (granular locking) ──────────────────────────
-inventory_locks = {phone: threading.Lock() for phone in inventory}
+inventory_locks = {}
+for phone in inventory:
+    inventory_locks[phone] = threading.Lock()
 
 # ── Per-product wait time (each protected by its own inventory lock) ─
 wait_times = {phone: 0.0 for phone in inventory}
@@ -62,12 +65,14 @@ def process_user_activity(user, activities):
 
         elif action == "buy":
             phone = args[0]
-            lock = inventory_locks[phone]
 
             # ── ACQUIRE per-product lock before reading inventory ──
             wait_start = time.time()
             print(f"[{timestamp()}] {user}: Waiting for {phone} lock...")
+
+            lock = inventory_locks[phone]
             lock.acquire()
+
             wait_duration = time.time() - wait_start
 
             wait_times[phone] += wait_duration
@@ -100,7 +105,7 @@ def process_user_activity(user, activities):
 
 def main():
     # Load user activity log
-    with open("code/multi-threading/ecommerce_critical_section/ecommerce_simulation.json") as f:
+    with open(f"{Path(__file__).parent}/ecommerce_simulation.json") as f:
         data = json.load(f)
 
     initial_inventory = dict(inventory)  # snapshot before threads start
