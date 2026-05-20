@@ -13,9 +13,10 @@ Usage:
 import argparse
 import os
 import random
+import re
 import sys
 import time
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, time as dt_time, timedelta, timezone
 
 import yaml
 from google.auth.transport.requests import Request
@@ -74,13 +75,41 @@ def authenticate(config, config_dir):
     return build(API_SERVICE_NAME, API_VERSION, credentials=creds)
 
 
-def get_last_video_publish_time(youtube, playlist_id):
-    """Get the publish/schedule time of the last video in a playlist.
+def parse_iso8601_duration_seconds(duration):
+    """Convert ISO 8601 duration (e.g. PT59S, PT1M5S) into seconds."""
+    match = re.fullmatch(r"PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?", duration or "")
+    if not match:
+        return None
 
-    Returns a timezone-aware datetime or None if the playlist is empty.
+    hours = int(match.group(1) or 0)
+    minutes = int(match.group(2) or 0)
+    seconds = int(match.group(3) or 0)
+    return hours * 3600 + minutes * 60 + seconds
+
+
+def is_short_video(video):
+    """Return True when a video looks like a Short.
+
+    Uses duration as the primary signal (<= 60 seconds).
     """
-    # Paginate to the last page of the playlist
-    last_item = None
+    duration = video.get("contentDetails", {}).get("duration")
+    duration_seconds = parse_iso8601_duration_seconds(duration)
+    return duration_seconds is not None and duration_seconds <= 180
+
+
+def parse_youtube_datetime(value):
+    """Parse YouTube RFC3339 datetime strings into aware datetimes."""
+    if not value:
+        return None
+    return datetime.fromisoformat(value.replace("Z", "+00:00"))
+
+
+def get_last_short_publish_time(youtube, playlist_id):
+    """Get the latest publish/schedule time among Shorts in a playlist.
+
+    Returns a timezone-aware datetime or None if no Shorts are found.
+    """
+    video_ids = []
     page_token = None
 
     while True:
@@ -92,48 +121,49 @@ def get_last_video_publish_time(youtube, playlist_id):
         )
         response = request.execute()
 
-        items = response.get("items", [])
-        if items:
-            last_item = items[-1]
+        for item in response.get("items", []):
+            video_id = item.get("contentDetails", {}).get("videoId")
+            if video_id:
+                video_ids.append(video_id)
 
         page_token = response.get("nextPageToken")
         if not page_token:
             break
 
-    if not last_item:
+    if not video_ids:
         return None
 
-    video_id = last_item["contentDetails"]["videoId"]
+    latest_short_time = None
+    for i in range(0, len(video_ids), 50):
+        batch_ids = video_ids[i:i + 50]
+        video_response = youtube.videos().list(
+            id=",".join(batch_ids),
+            part="status,snippet,contentDetails",
+            maxResults=50,
+        ).execute()
 
-    # Get the video's status to check for scheduled publishAt
-    video_response = youtube.videos().list(
-        id=video_id,
-        part="status,snippet",
-    ).execute()
+        for video in video_response.get("items", []):
+            if not is_short_video(video):
+                continue
 
-    if not video_response.get("items"):
-        return None
+            publish_at = parse_youtube_datetime(video.get("status", {}).get("publishAt"))
+            published_at = parse_youtube_datetime(video.get("snippet", {}).get("publishedAt"))
+            candidate_time = publish_at or published_at
 
-    video = video_response["items"][0]
+            if candidate_time and (
+                latest_short_time is None or candidate_time > latest_short_time
+            ):
+                latest_short_time = candidate_time
 
-    # Prefer publishAt (scheduled time) over publishedAt (actual publish time)
-    publish_at = video.get("status", {}).get("publishAt")
-    if publish_at:
-        return datetime.fromisoformat(publish_at.replace("Z", "+00:00"))
-
-    published_at = video.get("snippet", {}).get("publishedAt")
-    if published_at:
-        return datetime.fromisoformat(published_at.replace("Z", "+00:00"))
-
-    return None
+    return latest_short_time
 
 
 def prompt_schedule_time():
-    """Prompt the user for a schedule datetime when playlist is empty."""
-    print("\nNo videos found in the playlist. Cannot auto-determine schedule time.")
+    """Prompt the user for a schedule datetime when no Shorts are found."""
+    print("\nNo Shorts found in the playlist. Cannot auto-determine schedule time.")
     print("Enter the publish date and time for this video.")
     print("Format: YYYY-MM-DD HH:MM (in your local timezone)")
-    print("Example: 2026-04-01 09:00\n")
+    print("Example: 2026-04-01 19:30\n")
 
     while True:
         user_input = input("Schedule time: ").strip()
@@ -152,33 +182,61 @@ def prompt_schedule_time():
 def compute_schedule_time(youtube, playlist_id):
     """Determine when to schedule the video.
 
-    Looks at the last video in the playlist and schedules for the next day
-    at the same time. If the playlist is empty, prompts the user.
+    Finds the latest Short in the playlist and schedules for the next day
+    at 7:30 PM local time. If no Shorts are found, prompts the user.
     """
-    last_time = get_last_video_publish_time(youtube, playlist_id)
+    last_time = get_last_short_publish_time(youtube, playlist_id)
 
     if last_time is None:
         return prompt_schedule_time()
 
-    next_time = last_time + timedelta(days=1)
-    print(f"Last video in playlist scheduled/published at: {last_time.isoformat()}")
-    print(f"New video will be scheduled for: {next_time.isoformat()}")
+    local_tz = datetime.now().astimezone().tzinfo
+    last_local = last_time.astimezone(local_tz)
+    next_day = last_local.date() + timedelta(days=1)
+    next_time = datetime.combine(next_day, dt_time(hour=19, minute=30), tzinfo=local_tz)
+    print(f"Latest Short in playlist scheduled/published at: {last_time.isoformat()}")
+    print(f"New Short target schedule time (local): {next_time.isoformat()}")
 
-    # If computed time is in the past, keep adding days until it's in the future
-    now = datetime.now(timezone.utc)
-    while next_time <= now:
+    # If computed time is in the past, keep adding days until it's in the future.
+    now_local = datetime.now(local_tz)
+    while next_time <= now_local:
         next_time += timedelta(days=1)
-        print(f"Adjusted to future time: {next_time.isoformat()}")
+        print(f"Adjusted to next future 7:30 PM slot: {next_time.isoformat()}")
 
     return next_time
 
 
-def build_description(user_description, hashtags):
-    """Append predefined hashtags to the user's description."""
-    if not hashtags:
-        return user_description
-    hashtag_block = "\n".join(hashtags)
-    return f"{user_description}\n\n{hashtag_block}"
+def normalize_related_video(related_video):
+    """Normalize a related video config value into a usable URL."""
+    if not related_video:
+        return ""
+
+    related_video = str(related_video).strip()
+    if not related_video:
+        return ""
+
+    if related_video.startswith(("http://", "https://")):
+        return related_video
+
+    return f"https://youtu.be/{related_video}"
+
+
+def build_description(user_description, hashtags, related_video=None):
+    """Append optional related video and predefined hashtags to the description."""
+    parts = []
+
+    description_text = (user_description or "").strip()
+    if description_text:
+        parts.append(description_text)
+
+    related_video_url = normalize_related_video(related_video)
+    if related_video_url:
+        parts.append(f"Related video: {related_video_url}")
+
+    if hashtags:
+        parts.append("\n".join(hashtags))
+
+    return "\n\n".join(parts)
 
 
 def upload_video(youtube, file_path, body):
@@ -245,7 +303,7 @@ def main():
     )
     parser.add_argument("--file", required=True, help="Path to the video file")
     parser.add_argument("--title", required=True, help="Video title")
-    parser.add_argument("--description", required=True, help="Video description")
+    parser.add_argument("--description", default="", help="Video description")
     parser.add_argument(
         "--config",
         default=os.path.join(os.path.dirname(__file__), "yt_upload_config.yaml"),
@@ -270,11 +328,16 @@ def main():
 
     # Compute schedule time
     schedule_time = compute_schedule_time(youtube, playlist_id)
-    publish_at = schedule_time.strftime("%Y-%m-%dT%H:%M:%S.000Z") if schedule_time.tzinfo == timezone.utc else schedule_time.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000Z")
+    publish_at = schedule_time.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000Z")
 
     # Build description with hashtags
     hashtags = config.get("hashtags", [])
-    description = build_description(args.description, hashtags)
+    related_video = (
+        config.get("related_video")
+        or config.get("related_video_id")
+        or config.get("related_video_url")
+    )
+    description = build_description(args.description, hashtags, related_video)
 
     # Build video metadata
     body = {
@@ -296,7 +359,9 @@ def main():
 
     print(f"\n{'='*50}")
     print(f"Title:       {args.title}")
-    print(f"Description: {args.description}")
+    print(f"Description: {args.description or ''}")
+    if related_video:
+        print(f"Related:     {normalize_related_video(related_video)}")
     print(f"Hashtags:    {' '.join(hashtags)}")
     print(f"Tags:        {', '.join(body['snippet']['tags'])}")
     print(f"Scheduled:   {publish_at}")

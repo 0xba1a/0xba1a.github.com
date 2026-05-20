@@ -1,0 +1,56 @@
+# YouTube Shorts Upload Configuration
+# ------------------------------------
+
+# Path to your OAuth 2.0 client secrets file (from Google Cloud Console)
+client_secrets_file: "client_secrets.json"
+
+# Playlist ID to append uploaded videos to and read schedule from
+playlist_id: "PLgh1fhTpjG9pQJa39WZadPZg8rQSTYjh0"
+
+# YouTube video category ID (27 = Education)
+# See: https://developers.google.com/youtube/v3/docs/videoCategories/list
+category_id: "27"
+
+# Default language for video metadata
+default_language: "en"
+
+# Whether the video is made for kids (COPPA compliance)
+made_for_kids: false
+
+# Whether the video is embeddable on other sites
+embeddable: true
+
+# Video license: "youtube" (standard) or "creativeCommon"
+license: "youtube"
+
+# Tags (keywords) attached to every uploaded video
+tags:
+  - "shorts"
+  - "youtubeshorts"
+  - "faang"
+  - "faangm"
+  - "interview"
+  - "interviewprep"
+  - "programming"
+  - "coding"
+  - "Interview preparation for faang"
+  - "Interview preparation for maang"
+  - "problem solving"
+  - "system design"
+  - "distributed systems"
+  - "multithreading"
+  - "concurrency"
+  - "threading"
+  - "operating systems"
+  - "python"
+
+# Hashtags appended to the video description
+# These are added as a newline-separated block at the end of the description
+hashtags:
+  - "#Shorts"
+  - "#YouTubeShorts"
+  - "#multithreading"
+
+# Optional related video to include in the description.
+# This can be a YouTube video ID or a full URL.
+related_video: ""
