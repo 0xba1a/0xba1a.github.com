@@ -206,32 +206,13 @@ def compute_schedule_time(youtube, playlist_id):
     return next_time
 
 
-def normalize_related_video(related_video):
-    """Normalize a related video config value into a usable URL."""
-    if not related_video:
-        return ""
-
-    related_video = str(related_video).strip()
-    if not related_video:
-        return ""
-
-    if related_video.startswith(("http://", "https://")):
-        return related_video
-
-    return f"https://youtu.be/{related_video}"
-
-
-def build_description(user_description, hashtags, related_video=None):
-    """Append optional related video and predefined hashtags to the description."""
+def build_description(user_description, hashtags):
+    """Append predefined hashtags to the user's description."""
     parts = []
 
     description_text = (user_description or "").strip()
     if description_text:
         parts.append(description_text)
-
-    related_video_url = normalize_related_video(related_video)
-    if related_video_url:
-        parts.append(f"Related video: {related_video_url}")
 
     if hashtags:
         parts.append("\n".join(hashtags))
@@ -332,12 +313,7 @@ def main():
 
     # Build description with hashtags
     hashtags = config.get("hashtags", [])
-    related_video = (
-        config.get("related_video")
-        or config.get("related_video_id")
-        or config.get("related_video_url")
-    )
-    description = build_description(args.description, hashtags, related_video)
+    description = build_description(args.description, hashtags)
 
     # Build video metadata
     body = {
@@ -360,8 +336,6 @@ def main():
     print(f"\n{'='*50}")
     print(f"Title:       {args.title}")
     print(f"Description: {args.description or ''}")
-    if related_video:
-        print(f"Related:     {normalize_related_video(related_video)}")
     print(f"Hashtags:    {' '.join(hashtags)}")
     print(f"Tags:        {', '.join(body['snippet']['tags'])}")
     print(f"Scheduled:   {publish_at}")

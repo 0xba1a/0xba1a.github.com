@@ -6,7 +6,6 @@ A CLI tool to upload YouTube Shorts, auto-schedule them, and add them to a playl
 
 - Uploads a video to YouTube as a Short
 - Appends predefined hashtags and tags from config
-- Optionally appends a related video link from config
 - Auto-schedules the video based on the latest Short in a playlist (next day, 7:30 PM local time)
 - Adds the uploaded video to the configured playlist
 - Caches OAuth token for subsequent runs
@@ -94,16 +93,6 @@ Subsequent runs will reuse the cached token automatically.
 - If no Shorts are found in the playlist, it will prompt you to enter a schedule time
 - If the computed slot is in the past, it auto-adjusts forward to the next future **7:30 PM** slot
 - Videos are uploaded as **private** with a `publishAt` time — YouTube auto-publishes them at the scheduled time
-
-### Optional related video
-
-You can set `related_video` in the YAML config to add a related video link into the uploaded video's description.
-
-```yaml
-related_video: "dQw4w9WgXcQ"
-```
-
-If the field is empty or omitted, no related video line is added.
 
 ## Files
 
