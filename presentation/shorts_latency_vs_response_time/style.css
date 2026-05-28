@@ -1,0 +1,432 @@
+/* ── Reset & Base ── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  overflow: hidden;
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  color: #e6edf3;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* ── Stage: 3:4 aspect ratio ── */
+#stage {
+  position: relative;
+  width: min(75vh, 100vw);
+  aspect-ratio: 3 / 4;
+  max-height: 100vh;
+  background: #0d1117;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 0 60px rgba(88,166,255,.15);
+}
+
+/* ── Scenes ── */
+.scene {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .5s ease;
+}
+.scene.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ══════════════════════════════
+   Scene 1: Hook
+   ══════════════════════════════ */
+.scene-hook { gap: 28px; padding: 12% 14%; }
+
+.hook-title {
+  font-size: clamp(32px, 7vw, 56px);
+  font-weight: 800;
+  letter-spacing: -1px;
+  text-align: center;
+  line-height: 1.2;
+  opacity: 0;
+  transform: scale(1.3);
+  transition: opacity .4s, transform .4s;
+}
+.scene-hook.active .hook-title {
+  opacity: 1;
+  transform: scale(1);
+  animation: glitch .6s ease .2s;
+}
+
+.neq {
+  color: #f85149;
+  font-size: 1.2em;
+}
+
+.hook-subtitle {
+  font-size: clamp(16px, 3.5vw, 24px);
+  color: #8b949e;
+  text-align: center;
+  line-height: 1.5;
+  opacity: 0;
+  transition: opacity .6s ease .6s;
+}
+.scene-hook.active .hook-subtitle { opacity: 1; }
+
+@keyframes glitch {
+  0%   { transform: translate(0); }
+  20%  { transform: translate(-4px, 2px); }
+  40%  { transform: translate(4px, -2px); }
+  60%  { transform: translate(-2px, 4px); }
+  80%  { transform: translate(2px, -4px); }
+  100% { transform: translate(0); }
+}
+
+/* ══════════════════════════════
+   Scene 2–7: Sequence Diagram
+   ══════════════════════════════ */
+.scene-seq {
+  /* Extra horizontal padding for YouTube button safe area */
+  padding: 4% 14% 3% 14%;
+  justify-content: flex-start;
+}
+
+/* Column headers */
+.seq-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  opacity: 0;
+  transition: opacity .5s;
+}
+.seq-header.visible { opacity: 1; }
+
+.seq-col-label {
+  font-size: clamp(18px, 4vw, 28px);
+  font-weight: 700;
+  text-align: center;
+  width: 40%;
+}
+.col-you { color: #58a6ff; }
+.col-openai { color: #3fb950; }
+
+/* Sequence body — contains lifelines, arrows, bars */
+.seq-body {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Lifelines */
+.lifeline {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: #21262d;
+  border-radius: 2px;
+  opacity: 0;
+  transition: opacity .5s;
+}
+.lifeline.visible { opacity: 1; }
+.ll-you    { left: 20%; }
+.ll-openai { right: 20%; }
+
+/* ── Horizontal arrows ── */
+.seq-arrow {
+  position: absolute;
+  left: calc(20% + 3px);
+  right: calc(20% + 3px);
+  height: 32px;
+  opacity: 0;
+  transition: opacity .5s;
+}
+.seq-arrow.visible { opacity: 1; }
+
+.arrow-req { top: 6%; }
+.arrow-res { bottom: 10%; }
+
+.arrow-line-h {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 3px;
+  transform-origin: left;
+  transform: scaleX(0);
+  transition: transform .7s ease;
+}
+.seq-arrow.visible .arrow-line-h { transform: scaleX(1); }
+
+.arrow-req .arrow-line-h { background: #58a6ff; }
+.arrow-res .arrow-line-h { background: #3fb950; transform-origin: right; }
+
+/* Arrow heads */
+.arrow-head-r,
+.arrow-head-l {
+  position: absolute;
+  top: 50%;
+  width: 0; height: 0;
+  border-style: solid;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: opacity .3s .5s;
+}
+.seq-arrow.visible .arrow-head-r,
+.seq-arrow.visible .arrow-head-l { opacity: 1; }
+
+.arrow-head-r {
+  right: 0;
+  border-width: 8px 0 8px 14px;
+  border-color: transparent transparent transparent #58a6ff;
+}
+.arrow-head-l {
+  left: 0;
+  border-width: 8px 14px 8px 0;
+  border-color: transparent #3fb950 transparent transparent;
+}
+
+/* Arrow text label */
+.arrow-text {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: clamp(13px, 2.5vw, 18px);
+  font-weight: 600;
+  color: #8b949e;
+  white-space: nowrap;
+}
+
+/* ── Server-side vertical bars ── */
+.server-bars {
+  position: absolute;
+  /* Centred on the OpenAI lifeline */
+  right: calc(20% - 24px);
+  width: 50px;
+  top: calc(6% + 36px);     /* just below request arrow */
+  bottom: calc(10% + 36px); /* just above response arrow */
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.bar {
+  position: relative;
+  border-radius: 4px;
+  overflow: visible;
+  opacity: 0;
+  max-height: 0;
+  transition: max-height .8s ease, opacity .4s;
+}
+.bar.visible {
+  opacity: 1;
+}
+
+/* Each bar gets a flex share; max-height animated to reveal */
+.bar-net1   { flex: 1.2; }
+.bar-queue   { flex: 1; }
+.bar-process { flex: 1.8; }
+.bar-net2    { flex: 1.2; }
+
+.bar-net1.visible   { max-height: 200px; background: #f0883e; }
+.bar-queue.visible   { max-height: 200px; background: #d2a8ff; }
+.bar-process.visible { max-height: 200px; background: #3fb950; }
+.bar-net2.visible    { max-height: 200px; background: #f0883e; }
+
+/* Dimmed state for reveal step */
+.bar.dimmed { opacity: .3; }
+
+/* Bar labels — positioned to the left of the bar */
+.bar-label {
+  position: absolute;
+  right: calc(100% + 12px);
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: clamp(13px, 2.5vw, 18px);
+  font-weight: 700;
+  white-space: nowrap;
+  line-height: 1.3;
+  text-align: right;
+  opacity: 0;
+  transition: opacity .3s;
+}
+.bar.visible .bar-label { opacity: 1; }
+
+.bar-net1 .bar-label,
+.bar-net2 .bar-label    { color: #f0883e; }
+.bar-queue .bar-label    { color: #d2a8ff; }
+.bar-process .bar-label  { color: #3fb950; }
+
+/* ── Braces (right-side brackets) ── */
+.brace {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  opacity: 0;
+  transform: translateX(6px);
+  transition: opacity .5s, transform .5s;
+}
+.brace.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Response Time brace — spans full height */
+.brace-response {
+  left: 4%;
+  top: 6%;
+  bottom: 10%;
+  flex-direction: column;
+  justify-content: center;
+}
+.brace-response .brace-line {
+  width: 3px;
+  height: 100%;
+  background: #58a6ff;
+  border-radius: 2px;
+}
+.brace-response .brace-label {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #58a6ff;
+  font-size: clamp(13px, 2.5vw, 18px);
+  font-weight: 800;
+  line-height: 1.3;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  letter-spacing: 1px;
+}
+
+/* Latency brace — spans net + queue portions only */
+.brace-latency {
+  right: 4%;
+  flex-direction: column;
+  justify-content: center;
+  /* top/bottom set via JS to match bar positions */
+}
+.brace-latency .brace-line {
+  width: 3px;
+  height: 100%;
+  background: #f0883e;
+  border-radius: 2px;
+}
+.brace-latency .brace-label {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #f0883e;
+  font-size: clamp(13px, 2.5vw, 18px);
+  font-weight: 700;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
+/* ── Voiceover text ── */
+.vo-text {
+  position: absolute;
+  bottom: 1%;
+  left: 4%;
+  right: 4%;
+  text-align: center;
+  font-size: clamp(13px, 2.5vw, 18px);
+  color: #8b949e;
+  line-height: 1.45;
+  min-height: 2.5em;
+  opacity: 0;
+  transition: opacity .4s;
+}
+.vo-text.visible { opacity: 1; }
+
+/* ══════════════════════════════
+   Scene 8: Takeaway
+   ══════════════════════════════ */
+.scene-takeaway {
+  gap: 32px;
+  padding: 10% 14%;
+}
+
+.formula {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity .6s, transform .6s;
+}
+.scene-takeaway.active .formula {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.formula-line {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: clamp(16px, 3.5vw, 24px);
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.5;
+}
+.formula-line-2 {
+  font-size: clamp(14px, 3vw, 20px);
+}
+.f-blue   { color: #58a6ff; }
+.f-orange { color: #f0883e; }
+.f-green  { color: #3fb950; }
+
+.takeaway-msg {
+  font-size: clamp(16px, 3.2vw, 22px);
+  color: #e6edf3;
+  text-align: center;
+  line-height: 1.6;
+  font-weight: 600;
+  opacity: 0;
+  transition: opacity .6s .3s;
+}
+.scene-takeaway.active .takeaway-msg { opacity: 1; }
+
+.source {
+  font-size: clamp(11px, 2vw, 15px);
+  color: #484f58;
+  text-align: center;
+  opacity: 0;
+  transition: opacity .6s .6s;
+}
+.scene-takeaway.active .source { opacity: 1; }
+
+/* ── Click hint ── */
+.click-hint {
+  position: absolute;
+  bottom: 10px;
+  right: 14px;
+  font-size: 11px;
+  color: #30363d;
+  letter-spacing: .5px;
+  animation: pulse-hint 2s ease-in-out infinite;
+}
+@keyframes pulse-hint {
+  0%, 100% { opacity: .4; }
+  50% { opacity: 1; }
+}
+
+/* ── Step counter ── */
+.step-counter {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  font-size: 12px;
+  color: #30363d;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
