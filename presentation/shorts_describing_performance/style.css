@@ -1,0 +1,321 @@
+/* ── Reset & Base ── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  overflow: hidden;
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  color: #e6edf3;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* ── Stage: 3:4 aspect ratio ── */
+#stage {
+  position: relative;
+  width: min(75vh, 100vw);
+  aspect-ratio: 3 / 4;
+  max-height: 100vh;
+  background: #0d1117;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 0 60px rgba(88,166,255,.15);
+  /* Container queries: font sizes scale with stage width (not viewport) */
+  container-type: inline-size;
+}
+
+/* ── Scenes ── */
+.scene {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .5s ease;
+}
+.scene.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ══════════════════════════════
+   HUD
+   ══════════════════════════════ */
+.hud {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  padding: 8px 14% 8px 8px;
+  text-align: right;
+  z-index: 100;
+  pointer-events: none;
+}
+#stepCounter {
+  font-size: 3cqw;
+  color: #484f58;
+  font-variant-numeric: tabular-nums;
+}
+#clickHint {
+  font-size: 2.4cqw;
+  color: #30363d;
+  margin-top: 2px;
+}
+
+/* ══════════════════════════════
+   Scene 1: Hook
+   ══════════════════════════════ */
+.scene-hook {
+  gap: 24px;
+  padding: 12% 14%;
+}
+.hook-title {
+  font-size: 11cqw;
+  font-weight: 800;
+  letter-spacing: -1px;
+  text-align: center;
+  line-height: 1.1;
+  opacity: 0;
+  transform: scale(1.25);
+  transition: opacity .4s, transform .4s;
+}
+.scene-hook.active .hook-title {
+  opacity: 1;
+  transform: scale(1);
+}
+.hook-subtitle {
+  font-size: 7cqw;
+  color: #58a6ff;
+  font-weight: 700;
+  text-align: center;
+  opacity: 0;
+  transition: opacity .6s ease .9s;
+}
+.scene-hook.active .hook-subtitle { opacity: 1; }
+
+/* ══════════════════════════════
+   Scene 2: Two metrics
+   ══════════════════════════════ */
+.scene-metrics {
+  padding: 14% 12% 22% 12%;
+  gap: 16px;
+  flex-direction: column;
+}
+.metric-card {
+  width: 100%;
+  background: #161b22;
+  border-radius: 12px;
+  padding: 18px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  opacity: 0;
+  transform: translateX(-40px);
+  transition: opacity .5s, transform .5s;
+}
+.metric-card.metric-tp { transform: translateX(40px); }
+.scene-metrics.active .metric-card { opacity: 1; transform: translateX(0); }
+.scene-metrics.active .metric-tp { transition-delay: .25s; }
+
+.metric-rt { border-left: 4px solid #f85149; }
+.metric-tp { border-left: 4px solid #3fb950; }
+
+.metric-label {
+  font-size: 6.5cqw;
+  font-weight: 800;
+  color: #e6edf3;
+}
+.metric-rt .metric-label { color: #f85149; }
+.metric-tp .metric-label { color: #3fb950; }
+
+.metric-desc {
+  font-size: 4cqw;
+  color: #8b949e;
+  font-weight: 500;
+}
+.metric-unit {
+  font-size: 3.4cqw;
+  color: #484f58;
+  font-family: 'Fira Code', 'Cascadia Code', monospace;
+  margin-top: 4px;
+}
+
+.metric-divider {
+  font-size: 6cqw;
+  color: #d2a8ff;
+  font-weight: 800;
+  font-style: italic;
+  opacity: 0;
+  transition: opacity .4s ease .5s;
+}
+.scene-metrics.active .metric-divider { opacity: 1; }
+
+/* ══════════════════════════════
+   Scene 3–7: Chart
+   ══════════════════════════════ */
+.scene-chart {
+  padding: 10% 8% 20% 8%;
+  justify-content: flex-start;
+  align-items: stretch;
+}
+.chart-title {
+  font-size: 4.5cqw;
+  font-weight: 600;
+  color: #8b949e;
+  text-align: center;
+  margin-bottom: 10px;
+  opacity: 0;
+  transition: opacity .5s;
+}
+.chart-title.visible { opacity: 1; }
+
+.chart-container {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+.chart-container svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* ── D3 styles ── */
+.axis path, .axis line { stroke: #30363d; }
+.axis text { fill: #8b949e; font-size: 18px; font-family: inherit; }
+
+.axis-title {
+  fill: #c9d1d9;
+  font-size: 20px;
+  font-weight: 700;
+  font-family: inherit;
+}
+
+.curve {
+  stroke: #58a6ff;
+  stroke-width: 3;
+  fill: none;
+}
+
+.marker {
+  stroke: #0d1117;
+  stroke-width: 2;
+}
+.marker-danger { fill: #f85149; }
+.marker-waste  { fill: #f0883e; }
+.marker-sweet  { fill: #3fb950; }
+
+.zone-label {
+  font-size: 20px;
+  font-weight: 700;
+  font-family: inherit;
+}
+.zone-danger { fill: #f85149; }
+.zone-waste  { fill: #f0883e; }
+.zone-sweet  { fill: #3fb950; }
+
+.callout {
+  fill: #ffd700;
+  font-size: 17px;
+  font-weight: 600;
+  font-family: inherit;
+}
+
+.crosshair {
+  stroke: #3fb950;
+  stroke-width: 1.5;
+  stroke-dasharray: 5 3;
+}
+.crosshair-label {
+  fill: #3fb950;
+  font-size: 18px;
+  font-weight: 700;
+  font-family: 'Fira Code', 'Cascadia Code', monospace;
+}
+
+/* ══════════════════════════════
+   Scene 8: Statement
+   ══════════════════════════════ */
+.scene-statement {
+  padding: 14% 10% 22% 10%;
+  gap: 24px;
+}
+.statement-intro {
+  font-size: 5.5cqw;
+  color: #8b949e;
+  text-align: center;
+  text-decoration: line-through;
+  text-decoration-color: #f85149;
+  text-decoration-thickness: 2px;
+  opacity: 0;
+  transition: opacity .5s;
+}
+.scene-statement.active .statement-intro { opacity: 1; }
+
+.statement-card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px 10px;
+  padding: 20px 22px;
+  border: 2px solid #d2a8ff;
+  border-radius: 12px;
+  background: #161b22;
+  font-family: 'Fira Code', 'Cascadia Code', monospace;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity .5s ease .25s, transform .5s ease .25s;
+  box-shadow: 0 0 40px rgba(210, 168, 255, .2);
+}
+.scene-statement.active .statement-card {
+  opacity: 1;
+  transform: translateY(0);
+}
+.stmt-num, .stmt-rt {
+  font-size: 10cqw;
+  font-weight: 800;
+  color: #58a6ff;
+}
+.stmt-rt { color: #3fb950; }
+.stmt-unit {
+  font-size: 4.5cqw;
+  color: #8b949e;
+  font-weight: 600;
+}
+.stmt-at, .stmt-eq {
+  font-size: 7cqw;
+  color: #d2a8ff;
+  font-weight: 700;
+}
+.stmt-pct {
+  font-size: 6cqw;
+  color: #d2a8ff;
+  font-weight: 700;
+}
+
+.statement-takeaway {
+  font-size: 6.5cqw;
+  font-weight: 800;
+  text-align: center;
+  color: #e6edf3;
+  line-height: 1.3;
+  opacity: 0;
+  transition: opacity .5s ease .65s;
+}
+.scene-statement.active .statement-takeaway { opacity: 1; }
+
+.statement-cta {
+  font-size: 3.2cqw;
+  color: #484f58;
+  text-align: center;
+  opacity: 0;
+  transition: opacity .5s ease 1s;
+}
+.scene-statement.active .statement-cta { opacity: 1; }
