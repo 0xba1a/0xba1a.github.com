@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hardware Bugs vs Software Bugs</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://unpkg.com/topojson-client@3"></script>
+</head>
+<body>
+  <div id="stage">
+
+    <!-- Scene 1: Hook -->
+    <div class="scene scene-hook">
+      <div class="hook-line-1">Hardware bugs are bad.</div>
+      <div class="hook-line-2">Software bugs are <span class="hook-cat" data-text="CATASTROPHIC">CATASTROPHIC</span><span class="hook-period">.</span></div>
+      <div class="hook-subtitle">Why correlated failures kill systems.</div>
+    </div>
+
+    <!-- Scene 2 + 3: Hardware grid (random vs simultaneous) -->
+    <div class="scene scene-grid">
+      <div class="grid-title" id="gridTitle">Disk fleet · 80 drives</div>
+      <div class="grid-container" id="gridContainer"></div>
+      <div class="grid-counter" id="gridCounter">Failed: 0</div>
+      <div class="grid-banner" id="gridBanner">
+        <div class="grid-banner-main">Software failure ≠ random</div>
+        <div class="grid-banner-sub">It's a coordinated attack.</div>
+      </div>
+    </div>
+
+    <!-- Scene 4: Leap second + world map -->
+    <div class="scene scene-leap">
+      <div class="leap-date">June 30, 2012</div>
+      <div class="leap-clock" id="leapClock">23:59:59</div>
+      <div class="leap-clock-label">UTC</div>
+      <div class="leap-map" id="leapMap"></div>
+      <div class="leap-caption" id="leapCaption">Linux kernel · futex deadlock</div>
+    </div>
+
+    <!-- Scene 5 + 6: SSD overflow -->
+    <div class="scene scene-ssd">
+      <div class="ssd-title" id="ssdTitle">SSD firmware uptime counter</div>
+      <div class="ssd-stage" id="ssdStage"></div>
+      <div class="ssd-counter" id="ssdCounter">0 hrs</div>
+      <div class="ssd-bits" id="ssdBits"></div>
+      <div class="ssd-caption" id="ssdCaption">int16 — max value 32,767</div>
+    </div>
+
+    <!-- Scene 7: Comparison -->
+    <div class="scene scene-compare">
+      <div class="compare-grid">
+        <div class="compare-card hw">
+          <div class="compare-head">HARDWARE BUG</div>
+          <div class="compare-row">1 disk dies</div>
+          <div class="compare-row">random time</div>
+          <div class="compare-row good">RAID saves you</div>
+        </div>
+        <div class="compare-card sw">
+          <div class="compare-head">SOFTWARE BUG</div>
+          <div class="compare-row">Every disk dies</div>
+          <div class="compare-row">same second</div>
+          <div class="compare-row bad">Nothing saves you</div>
+        </div>
+      </div>
+      <div class="compare-tag">correlation = blast radius</div>
+    </div>
+
+    <!-- Scene 8: Takeaway -->
+    <div class="scene scene-takeaway">
+      <div class="takeaway-card">
+        <div class="takeaway-line-1">Design for correlated failure.</div>
+        <div class="takeaway-line-2">Inject faults. Test the impossible.</div>
+        <ul class="takeaway-list">
+          <li>Chaos engineering</li>
+          <li>Fault injection</li>
+          <li>Diversify firmware &amp; kernels</li>
+        </ul>
+      </div>
+      <div class="takeaway-cta">Follow for more system design fundamentals</div>
+    </div>
+
+    <!-- Bottom HUD -->
+    <div class="hud">
+      <div id="stepCounter">0 / 8</div>
+      <div id="clickHint">Tap or press → to advance</div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

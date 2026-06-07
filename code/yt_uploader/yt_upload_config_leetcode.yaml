@@ -7,6 +7,9 @@ client_secrets_file: "client_secrets.json"
 # Playlist ID to append uploaded videos to and read schedule from
 playlist_id: "PLgh1fhTpjG9rxA_FRb5SFFJfRkOz9DPe4"
 
+# Base title for uploaded videos (video number is appended automatically)
+title: "Leetcode 75"
+
 # YouTube video category ID (27 = Education)
 # See: https://developers.google.com/youtube/v3/docs/videoCategories/list
 category_id: "27"

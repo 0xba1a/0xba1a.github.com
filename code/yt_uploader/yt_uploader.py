@@ -1,22 +1,22 @@
 #!/usr/bin/env python3
 """
-YouTube Shorts Uploader CLI
+YouTube Batch Uploader CLI
 
-Uploads a YouTube Short, appends predefined hashtags to the description,
-schedules it based on the last video in a configured playlist, and adds
-the new video to that playlist.
+Recursively uploads all videos from a folder to YouTube, appends predefined
+hashtags to the description, schedules them based on the last video in a
+configured playlist, and adds each video to that playlist. Uploaded files
+are moved to an ARCHIVE sub-folder.
 
 Usage:
-    python yt_uploader.py --file video.mp4 --title "My Short" --description "Check this out"
+    python yt_uploader.py --folder /path/to/videos --config yt_upload_config.yaml
 """
 
 import argparse
 import os
 import random
-import re
+import shutil
 import sys
 import time
-from datetime import datetime, time as dt_time, timedelta, timezone
 
 import yaml
 from google.auth.transport.requests import Request
@@ -32,6 +32,8 @@ API_VERSION = "v3"
 
 MAX_RETRIES = 10
 RETRIABLE_STATUS_CODES = [500, 502, 503, 504]
+
+VIDEO_EXTENSIONS = {".mp4", ".mov", ".avi", ".mkv", ".webm", ".flv", ".wmv", ".m4v"}
 
 
 def load_config(config_path):
@@ -75,41 +77,9 @@ def authenticate(config, config_dir):
     return build(API_SERVICE_NAME, API_VERSION, credentials=creds)
 
 
-def parse_iso8601_duration_seconds(duration):
-    """Convert ISO 8601 duration (e.g. PT59S, PT1M5S) into seconds."""
-    match = re.fullmatch(r"PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?", duration or "")
-    if not match:
-        return None
-
-    hours = int(match.group(1) or 0)
-    minutes = int(match.group(2) or 0)
-    seconds = int(match.group(3) or 0)
-    return hours * 3600 + minutes * 60 + seconds
-
-
-def is_short_video(video):
-    """Return True when a video looks like a Short.
-
-    Uses duration as the primary signal (<= 60 seconds).
-    """
-    duration = video.get("contentDetails", {}).get("duration")
-    duration_seconds = parse_iso8601_duration_seconds(duration)
-    return duration_seconds is not None and duration_seconds <= 180
-
-
-def parse_youtube_datetime(value):
-    """Parse YouTube RFC3339 datetime strings into aware datetimes."""
-    if not value:
-        return None
-    return datetime.fromisoformat(value.replace("Z", "+00:00"))
-
-
-def get_last_short_publish_time(youtube, playlist_id):
-    """Get the latest publish/schedule time among Shorts in a playlist.
-
-    Returns a timezone-aware datetime or None if no Shorts are found.
-    """
-    video_ids = []
+def get_playlist_count(youtube, playlist_id):
+    """Get the number of items in a playlist."""
+    count = 0
     page_token = None
 
     while True:
@@ -120,90 +90,13 @@ def get_last_short_publish_time(youtube, playlist_id):
             pageToken=page_token,
         )
         response = request.execute()
-
-        for item in response.get("items", []):
-            video_id = item.get("contentDetails", {}).get("videoId")
-            if video_id:
-                video_ids.append(video_id)
+        count += len(response.get("items", []))
 
         page_token = response.get("nextPageToken")
         if not page_token:
             break
 
-    if not video_ids:
-        return None
-
-    latest_short_time = None
-    for i in range(0, len(video_ids), 50):
-        batch_ids = video_ids[i:i + 50]
-        video_response = youtube.videos().list(
-            id=",".join(batch_ids),
-            part="status,snippet,contentDetails",
-            maxResults=50,
-        ).execute()
-
-        for video in video_response.get("items", []):
-            if not is_short_video(video):
-                continue
-
-            publish_at = parse_youtube_datetime(video.get("status", {}).get("publishAt"))
-            published_at = parse_youtube_datetime(video.get("snippet", {}).get("publishedAt"))
-            candidate_time = publish_at or published_at
-
-            if candidate_time and (
-                latest_short_time is None or candidate_time > latest_short_time
-            ):
-                latest_short_time = candidate_time
-
-    return latest_short_time
-
-
-def prompt_schedule_time():
-    """Prompt the user for a schedule datetime when no Shorts are found."""
-    print("\nNo Shorts found in the playlist. Cannot auto-determine schedule time.")
-    print("Enter the publish date and time for this video.")
-    print("Format: YYYY-MM-DD HH:MM (in your local timezone)")
-    print("Example: 2026-04-01 19:30\n")
-
-    while True:
-        user_input = input("Schedule time: ").strip()
-        try:
-            local_dt = datetime.strptime(user_input, "%Y-%m-%d %H:%M")
-            # Attach local timezone
-            local_dt = local_dt.astimezone()
-            if local_dt <= datetime.now(timezone.utc):
-                print("That time is in the past. Please enter a future time.")
-                continue
-            return local_dt
-        except ValueError:
-            print("Invalid format. Please use: YYYY-MM-DD HH:MM")
-
-
-def compute_schedule_time(youtube, playlist_id):
-    """Determine when to schedule the video.
-
-    Finds the latest Short in the playlist and schedules for the next day
-    at 7:30 PM local time. If no Shorts are found, prompts the user.
-    """
-    last_time = get_last_short_publish_time(youtube, playlist_id)
-
-    if last_time is None:
-        return prompt_schedule_time()
-
-    local_tz = datetime.now().astimezone().tzinfo
-    last_local = last_time.astimezone(local_tz)
-    next_day = last_local.date() + timedelta(days=1)
-    next_time = datetime.combine(next_day, dt_time(hour=19, minute=30), tzinfo=local_tz)
-    print(f"Latest Short in playlist scheduled/published at: {last_time.isoformat()}")
-    print(f"New Short target schedule time (local): {next_time.isoformat()}")
-
-    # If computed time is in the past, keep adding days until it's in the future.
-    now_local = datetime.now(local_tz)
-    while next_time <= now_local:
-        next_time += timedelta(days=1)
-        print(f"Adjusted to next future 7:30 PM slot: {next_time.isoformat()}")
-
-    return next_time
+    return count
 
 
 def build_description(user_description, hashtags):
@@ -278,12 +171,35 @@ def add_to_playlist(youtube, playlist_id, video_id):
     print(f"Video added to playlist {playlist_id}")
 
 
+def collect_video_files(folder):
+    """Recursively collect all video files in *folder*, sorted by name.
+
+    Skips files inside any ARCHIVE directory.
+    """
+    videos = []
+    for root, dirs, files in os.walk(folder):
+        # Skip ARCHIVE directories
+        dirs[:] = [d for d in dirs if d != "ARCHIVE"]
+        for fname in sorted(files):
+            if os.path.splitext(fname)[1].lower() in VIDEO_EXTENSIONS:
+                videos.append(os.path.join(root, fname))
+    return videos
+
+
+def archive_video(file_path, folder):
+    """Move *file_path* into an ARCHIVE sub-folder under *folder*."""
+    archive_dir = os.path.join(folder, "ARCHIVE")
+    os.makedirs(archive_dir, exist_ok=True)
+    dest = os.path.join(archive_dir, os.path.basename(file_path))
+    shutil.move(file_path, dest)
+    print(f"Moved {file_path} -> {dest}")
+
+
 def main():
     parser = argparse.ArgumentParser(
-        description="Upload a YouTube Short and schedule it automatically."
+        description="Batch-upload videos from a folder to YouTube."
     )
-    parser.add_argument("--file", required=True, help="Path to the video file")
-    parser.add_argument("--title", required=True, help="Video title")
+    parser.add_argument("--folder", required=True, help="Folder containing videos to upload")
     parser.add_argument("--description", default="", help="Video description")
     parser.add_argument(
         "--config",
@@ -292,9 +208,18 @@ def main():
     )
     args = parser.parse_args()
 
-    # Validate video file
-    if not os.path.exists(args.file):
-        sys.exit(f"Video file not found: {args.file}")
+    folder = os.path.abspath(args.folder)
+    if not os.path.isdir(folder):
+        sys.exit(f"Folder not found: {folder}")
+
+    # Collect video files
+    video_files = collect_video_files(folder)
+    if not video_files:
+        sys.exit(f"No video files found in {folder}")
+
+    print(f"Found {len(video_files)} video(s) to upload:")
+    for vf in video_files:
+        print(f"  {vf}")
 
     # Load config
     config = load_config(args.config)
@@ -304,59 +229,72 @@ def main():
     if not playlist_id or playlist_id == "YOUR_PLAYLIST_ID_HERE":
         sys.exit("Please set a valid 'playlist_id' in the config file.")
 
+    base_title = config.get("title", "")
+    if not base_title:
+        sys.exit("Please set a 'title' in the config file.")
+
     # Authenticate
     youtube = authenticate(config, config_dir)
 
-    # Compute schedule time
-    schedule_time = compute_schedule_time(youtube, playlist_id)
-    publish_at = schedule_time.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000Z")
+    # Get current playlist count
+    playlist_count = get_playlist_count(youtube, playlist_id)
+    print(f"\nCurrent playlist has {playlist_count} video(s).")
 
     # Build description with hashtags
     hashtags = config.get("hashtags", [])
     description = build_description(args.description, hashtags)
 
-    # Build video metadata
-    body = {
-        "snippet": {
-            "title": args.title,
+    for idx, file_path in enumerate(video_files):
+        video_number = playlist_count + idx + 1
+        title = f"{base_title} {video_number}"
+
+        snippet = {
+            "title": title,
             "description": description,
             "tags": config.get("tags", []),
             "categoryId": config.get("category_id", "22"),
             "defaultLanguage": config.get("default_language", "en"),
-        },
-        "status": {
-            "privacyStatus": "private",
-            "publishAt": publish_at,
-            "selfDeclaredMadeForKids": config.get("made_for_kids", False),
-            "embeddable": config.get("embeddable", True),
-            "license": config.get("license", "youtube"),
-        },
-    }
+        }
 
-    print(f"\n{'='*50}")
-    print(f"Title:       {args.title}")
-    print(f"Description: {args.description or ''}")
-    print(f"Hashtags:    {' '.join(hashtags)}")
-    print(f"Tags:        {', '.join(body['snippet']['tags'])}")
-    print(f"Scheduled:   {publish_at}")
-    print(f"File:        {args.file}")
-    print(f"{'='*50}\n")
+        game_title = config.get("game_title")
+        if game_title:
+            snippet["gameTitle"] = game_title
 
-    # Upload
-    response = upload_video(youtube, args.file, body)
-    video_id = response["id"]
-    print(f"\nVideo uploaded successfully!")
-    print(f"Video ID: {video_id}")
+        body = {
+            "snippet": snippet,
+            "status": {
+                "privacyStatus": "public",
+                "selfDeclaredMadeForKids": config.get("made_for_kids", False),
+                "embeddable": config.get("embeddable", True),
+                "license": config.get("license", "youtube"),
+            },
+        }
 
-    # Add to playlist
-    add_to_playlist(youtube, playlist_id, video_id)
+        print(f"\n{'='*50}")
+        print(f"[{idx + 1}/{len(video_files)}]")
+        print(f"Title:       {title}")
+        print(f"File:        {file_path}")
+        print(f"{'='*50}\n")
 
-    # Summary
-    print(f"\n{'='*50}")
-    print(f"Video:    https://youtu.be/{video_id}")
-    print(f"Studio:   https://studio.youtube.com/video/{video_id}/edit")
-    print(f"Schedule: {publish_at}")
-    print(f"{'='*50}")
+        # Upload
+        response = upload_video(youtube, file_path, body)
+        video_id = response["id"]
+        print(f"\nVideo uploaded successfully!")
+        print(f"Video ID: {video_id}")
+
+        # Add to playlist
+        add_to_playlist(youtube, playlist_id, video_id)
+
+        # Archive the uploaded file
+        archive_video(file_path, folder)
+
+        # Summary
+        print(f"\n{'='*50}")
+        print(f"Video:    https://youtu.be/{video_id}")
+        print(f"Studio:   https://studio.youtube.com/video/{video_id}/edit")
+        print(f"{'='*50}")
+
+    print(f"\nAll {len(video_files)} video(s) uploaded and archived successfully!")
 
 
 if __name__ == "__main__":

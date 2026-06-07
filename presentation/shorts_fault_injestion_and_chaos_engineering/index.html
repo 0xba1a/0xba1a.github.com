@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fault Injection &amp; Chaos Engineering</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+  <div id="stage">
+
+    <!-- Scene 1: Hook — racks + cable yank -->
+    <div class="scene scene-hook">
+      <div class="hook-stage" id="hookStage"></div>
+      <div class="hook-title">
+        They break it on
+        <span class="hook-purpose" data-text="PURPOSE">PURPOSE</span><span class="hook-period">.</span>
+      </div>
+    </div>
+
+    <!-- Scene 2: Three acts of sabotage -->
+    <div class="scene scene-sabotage">
+      <div class="sabotage-counter" id="sabotageCounter">Faults injected: 0</div>
+      <div class="sabotage-stage" id="sabotageStage"></div>
+    </div>
+
+    <!-- Scene 3: Hacker vs Engineer -->
+    <div class="scene scene-reveal">
+      <div class="reveal-banner">It's an experiment.</div>
+      <div class="reveal-cards">
+        <div class="reveal-card hacker">
+          <div class="reveal-icon">⚠</div>
+          <div class="reveal-label">HACKER</div>
+          <div class="reveal-strike"></div>
+        </div>
+        <div class="reveal-card engineer">
+          <div class="reveal-icon">🧪</div>
+          <div class="reveal-label">ENGINEER</div>
+          <div class="reveal-sub">running an experiment</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scene 4: Fault vs Failure split -->
+    <div class="scene scene-fault-failure">
+      <div class="ff-half ff-fault">
+        <div class="ff-label">FAULT</div>
+        <div class="ff-stage" id="faultStage"></div>
+        <div class="ff-tag good">system stays up</div>
+      </div>
+      <div class="ff-divider"></div>
+      <div class="ff-half ff-failure">
+        <div class="ff-label">FAILURE</div>
+        <div class="ff-stage" id="failureStage"></div>
+        <div class="ff-tag bad">whole system down</div>
+      </div>
+      <div class="ff-summary">
+        <span>Fault</span> = 1 component bad &nbsp;·&nbsp;
+        <span>Failure</span> = whole system down
+      </div>
+    </div>
+
+    <!-- Scene 5: Engineer's job -->
+    <div class="scene scene-job">
+      <div class="job-card">
+        <div class="job-row">
+          <span class="job-status ok">✓</span>
+          <span class="job-key">Faulty components</span>
+          <span class="job-note">unavoidable</span>
+        </div>
+        <div class="job-row strong">
+          <span class="job-status bad">✗</span>
+          <span class="job-key">Failed system</span>
+          <span class="job-note">not on your watch</span>
+        </div>
+      </div>
+      <div class="job-shield" id="jobShield">
+        <svg viewBox="0 0 100 110" preserveAspectRatio="xMidYMid meet">
+          <path class="shield-path" d="M 50 6 L 92 22 L 92 60 Q 92 90 50 104 Q 8 90 8 60 L 8 22 Z"
+                fill="none" stroke="#3fb950" stroke-width="3" />
+          <path class="shield-check" d="M 30 56 L 46 72 L 72 40"
+                fill="none" stroke="#3fb950" stroke-width="5"
+                stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        <div class="shield-label">your job</div>
+      </div>
+    </div>
+
+    <!-- Scene 6: Inject the fault -->
+    <div class="scene scene-inject">
+      <div class="inject-title">inject() →  observe →  recover</div>
+      <div class="inject-stage" id="injectStage"></div>
+      <div class="inject-meter">
+        <span class="inject-meter-label">Recovery</span>
+        <span class="inject-meter-value" id="injectMeter">— ms</span>
+      </div>
+    </div>
+
+    <!-- Scene 7: Workflow loop -->
+    <div class="scene scene-workflow">
+      <div class="workflow-tags">
+        <span class="wf-tag" data-tag="continuously">Continuously</span>
+        <span class="wf-tag" data-tag="production">In Production</span>
+        <span class="wf-tag" data-tag="discipline">With Discipline</span>
+      </div>
+      <div class="workflow-stage" id="workflowStage"></div>
+      <div class="workflow-caption">…and it has a name.</div>
+    </div>
+
+    <!-- Scene 8: Chaos Engineering reveal -->
+    <div class="scene scene-takeaway">
+      <div class="takeaway-words">
+        <div class="takeaway-word w1">CHAOS</div>
+        <div class="takeaway-word w2">ENGINEERING</div>
+      </div>
+      <div class="takeaway-tagline">
+        <div>Break it on purpose.</div>
+        <div class="dim">So it never breaks by accident.</div>
+      </div>
+      <div class="takeaway-cta">Follow for more system design fundamentals</div>
+    </div>
+
+    <!-- Bottom HUD -->
+    <div class="hud">
+      <div id="stepCounter">0 / 8</div>
+      <div id="clickHint">Tap or press → to advance</div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tail-Latency Amplification</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+  <div id="stage">
+
+    <!-- ── Scene 1: Hook ── -->
+    <div class="scene scene-hook">
+      <div class="hook-eyebrow">Your database</div>
+      <div class="hook-metric">
+        <span class="hook-key">p99</span>
+        <span class="hook-eq">=</span>
+        <span class="hook-val">20<span class="hook-unit">ms</span></span>
+      </div>
+      <div class="hook-check">✓</div>
+      <div class="hook-subtitle">You feel pretty good…</div>
+    </div>
+
+    <!-- ── Scene 2: The Complaint ── -->
+    <div class="scene scene-complaint">
+      <div class="complaint-metric">
+        <span class="hook-key">p99</span>
+        <span class="hook-eq">=</span>
+        <span class="hook-val">20<span class="hook-unit">ms</span></span>
+        <span class="complaint-q">?</span>
+      </div>
+      <div class="complaint-row">
+        <div class="avatar avatar-engineer">🧑‍💻</div>
+        <div class="speech-bubble">The service is <em>slow!</em></div>
+      </div>
+      <div class="complaint-caption">…wait, what?</div>
+    </div>
+
+    <!-- ── Scene 3 + 4: Fan-out + bars (shared SVG stage) ── -->
+    <div class="scene scene-fanout">
+      <div class="fanout-title">1 user search → 10 DB queries</div>
+      <div class="fanout-canvas" id="fanoutCanvas"></div>
+      <div class="fanout-bars" id="fanoutBars"></div>
+      <div class="fanout-caption" id="fanoutCaption"></div>
+    </div>
+
+    <!-- ── Scene 5: Math grid ── -->
+    <div class="scene scene-grid">
+      <div class="grid-title">100 queries · 10 users</div>
+      <div class="grid-canvas" id="gridCanvas"></div>
+      <div class="grid-stats">
+        <div class="grid-stat grid-stat-q">
+          <div class="grid-stat-num" id="gridQueryPct">0%</div>
+          <div class="grid-stat-lbl">slow queries</div>
+        </div>
+        <div class="grid-stat-arrow">→</div>
+        <div class="grid-stat grid-stat-u">
+          <div class="grid-stat-num" id="gridUserPct">0%</div>
+          <div class="grid-stat-lbl">slow users</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Scene 6: Amplification reveal ── -->
+    <div class="scene scene-amp">
+      <div class="amp-card amp-card-from">
+        <div class="amp-card-num">1%</div>
+        <div class="amp-card-lbl">slow queries</div>
+      </div>
+      <div class="amp-arrow">⚡</div>
+      <div class="amp-card amp-card-to">
+        <div class="amp-card-num">~10%</div>
+        <div class="amp-card-lbl">slow users</div>
+      </div>
+      <div class="amp-title">Tail-Latency<br>Amplification</div>
+    </div>
+
+    <!-- ── Scene 7: Scaling curve ── -->
+    <div class="scene scene-curve">
+      <div class="curve-title">The more you fan out…</div>
+      <div class="curve-canvas" id="curveCanvas"></div>
+      <div class="curve-caption">slow-user % vs fan-out</div>
+    </div>
+
+    <!-- ── Scene 8: Takeaway ── -->
+    <div class="scene scene-takeaway">
+      <div class="takeaway-strike">Don't watch the average.</div>
+      <div class="takeaway-main">Watch the <span class="takeaway-tail">tail.</span></div>
+      <div class="takeaway-sub">p99 · p999 — that's what users feel.</div>
+      <div class="takeaway-cta">Follow for more system-design fundamentals</div>
+    </div>
+
+    <!-- ── HUD ── -->
+    <div class="hud">
+      <div id="stepCounter">0 / 8</div>
+      <div id="clickHint">Tap or press → to advance</div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -5,11 +5,18 @@
 client_secrets_file: "client_secrets.json"
 
 # Playlist ID to append uploaded videos to and read schedule from
-playlist_id: "PLgh1fhTpjG9pQJa39WZadPZg8rQSTYjh0"
+playlist_id: "PLYdkR5hfy4ZiKTyez-t92GlEgiqhAH8dP"
 
-# YouTube video category ID (27 = Education)
+# Base title for uploaded videos (video number is appended automatically)
+title: "Forza Horizon 6 - Horizon Festival - Gameplay"
+
+# Game title for YouTube game linking (used with Gaming category)
+# This sets the game association on the video
+game_title: "Forza Horizon 6"
+
+# YouTube video category ID (20 = Gaming)
 # See: https://developers.google.com/youtube/v3/docs/videoCategories/list
-category_id: "27"
+category_id: "20"
 
 # Default language for video metadata
 default_language: "en"
@@ -25,28 +32,27 @@ license: "youtube"
 
 # Tags (keywords) attached to every uploaded video
 tags:
-  - "shorts"
-  - "youtubeshorts"
-  - "faang"
-  - "faangm"
-  - "interview"
-  - "interviewprep"
-  - "programming"
-  - "coding"
-  - "Interview preparation for faang"
-  - "Interview preparation for maang"
-  - "problem solving"
-  - "system design"
-  - "distributed systems"
-  - "multithreading"
-  - "concurrency"
-  - "threading"
-  - "operating systems"
-  - "python"
+  - "Forza Horizon 6"
+  - "FH6"
+  - "Forza"
+  - "Forza Horizon"
+  - "gameplay"
+  - "gaming"
+  - "racing"
+  - "racing game"
+  - "open world"
+  - "Horizon Festival"
+  - "Xbox"
+  - "PC gaming"
+  - "Playground Games"
+  - "car game"
+  - "driving"
 
 # Hashtags appended to the video description
 # These are added as a newline-separated block at the end of the description
 hashtags:
-  - "#Shorts"
-  - "#YouTubeShorts"
-  - "#multithreading"
+  - "#ForzaHorizon6"
+  - "#FH6"
+  - "#Forza"
+  - "#Gaming"
+  - "#Gameplay"
