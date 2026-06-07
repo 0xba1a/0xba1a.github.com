@@ -1,0 +1,12 @@
+# Created shorts are local-only — never commit/push generated videos or their
+# per-short source decks. Keep the folder itself via .gitkeep.
+shorts/*
+!shorts/.gitkeep
+
+# Large local model files (re-download via README setup)
+models/*.onnx
+models/*.bin
+
+# Python cache
+__pycache__/
+*.pyc

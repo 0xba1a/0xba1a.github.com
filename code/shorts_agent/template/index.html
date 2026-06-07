@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SHORT_TITLE</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Add libraries the storyboard needs, e.g. D3:
+  <script src="https://d3js.org/d3.v7.min.js"></script> -->
+</head>
+<body>
+  <div id="stage">
+
+    <!-- ============ SAFE-ZONE GUIDE (hidden; shown only for QA preview) ============ -->
+    <div class="safe-guide" aria-hidden="true">
+      <div class="sg-zone sg-top">TOP UI / clock</div>
+      <div class="sg-zone sg-bottom">BOTTOM UI — title · handle · description · CTA</div>
+      <div class="sg-zone sg-right">ACTIONS<br>like<br>comment<br>share</div>
+      <div class="sg-zone sg-left">handle</div>
+      <div class="sg-zone sg-crop">device crop buffer</div>
+      <div class="sg-content">CONTENT-SAFE AREA<br>keep all key text &amp; visuals here</div>
+    </div>
+
+    <!-- ============ SCENES ============ -->
+    <!-- Each .scene is one click-through step and maps to one narration line.
+         Put all meaningful content inside .safe-content so it stays in the
+         mobile-safe area. Use the big type scale (--fs-*). -->
+
+    <section class="scene" data-scene="1">
+      <div class="safe-content">
+        <h1 class="title">Scene one title</h1>
+        <p class="subtitle">Supporting line</p>
+      </div>
+    </section>
+
+    <section class="scene" data-scene="2">
+      <div class="safe-content">
+        <h1 class="title">Scene two</h1>
+      </div>
+    </section>
+
+    <!-- duplicate <section class="scene"> blocks: one per narration line -->
+
+    <!-- ============ HUD (hidden during recording) ============ -->
+    <div class="hud">
+      <div id="stepCounter">0 / 0</div>
+      <div id="clickHint">Tap or press → to advance</div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

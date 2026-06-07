@@ -1,0 +1,163 @@
+/* ============================================================================
+   YouTube Shorts base template — mobile-first, safe-zone aware
+   Canvas: 1080 x 1920 (9:16). Recorded headless at this exact size.
+   ============================================================================ */
+
+:root {
+  /* ---- Canvas ---- */
+  --stage-w: 1080px;
+  --stage-h: 1920px;
+
+  /* ---- Safe zones (reserved for YouTube UI + device crop) ----
+     These are the pixels you must NOT place critical content in.
+       crop   : different phones crop the outer edge -> universal buffer
+       top    : status bar / Shorts top controls
+       right  : like / comment / share / remix / sound action rail
+       bottom : channel handle, title, description, CTA, progress bar
+       left   : channel handle text (bottom-left)
+     Tuned for the 2024+ Shorts layout. Adjust per-short if needed. */
+  --crop-buffer: 54px;   /* ~5% of width, all four edges */
+  --safe-top: 150px;
+  --safe-right: 180px;
+  --safe-bottom: 360px;
+  --safe-left: 60px;
+
+  /* ---- Big mobile type scale (a short is watched on a phone; go large) ---- */
+  --fs-hero: 132px;   /* huge reveal words */
+  --fs-title: 88px;   /* main scene titles */
+  --fs-subtitle: 56px;
+  --fs-body: 46px;
+  --fs-label: 38px;
+  --fs-caption: 32px;
+  --lh-tight: 1.05;
+  --lh-body: 1.25;
+
+  /* ---- Palette (GitHub-dark friendly; override per short) ---- */
+  --bg: #0d1117;
+  --fg: #e6edf3;
+  --muted: #8b949e;
+  --accent: #58a6ff;
+  --good: #3fb950;
+  --bad: #f85149;
+  --warn: #f0883e;
+  --hi: #ffd700;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  background: #000;
+  height: 100%;
+  overflow: hidden;
+}
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  color: var(--fg);
+  cursor: pointer;
+  user-select: none;
+}
+
+/* ---- Stage ---- */
+#stage {
+  position: relative;
+  width: min(56.25vh, 100vw);     /* preview scales; recorder forces 1080x1920 */
+  aspect-ratio: 9 / 16;
+  max-height: 100vh;
+  background: var(--bg);
+  overflow: hidden;
+  /* Use viewport units inside the stage so type scales with the canvas.
+     1080px wide => 1cqw helpers below. */
+  container-type: size;
+}
+
+/* Make the big type scale relative to stage width so it looks identical
+   in the small preview and the full-res recording. */
+#stage { font-size: calc(100cqw / 1080 * 16); } /* 1px ~= base */
+.title    { font-size: calc(var(--fs-title));    line-height: var(--lh-tight); font-weight: 800; }
+.hero     { font-size: calc(var(--fs-hero));     line-height: var(--lh-tight); font-weight: 900; letter-spacing: -1px; }
+.subtitle { font-size: calc(var(--fs-subtitle)); line-height: var(--lh-body);  font-weight: 600; color: var(--muted); }
+.body     { font-size: calc(var(--fs-body));     line-height: var(--lh-body); }
+.label    { font-size: calc(var(--fs-label));    font-weight: 700; }
+.caption  { font-size: calc(var(--fs-caption));  color: var(--muted); }
+
+/* ---- Content-safe container: everything important lives here ---- */
+.safe-content {
+  position: absolute;
+  top: var(--safe-top);
+  right: var(--safe-right);
+  bottom: var(--safe-bottom);
+  left: var(--safe-left);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: calc(var(--fs-body) * 0.6);
+}
+
+/* ---- Scenes ---- */
+.scene {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .45s ease;
+}
+.scene.active { opacity: 1; pointer-events: auto; }
+
+/* ---- HUD (hidden during recording by the builder) ---- */
+.hud {
+  position: absolute;
+  bottom: 0; right: 0;
+  padding: 8px 14px;
+  text-align: right;
+  z-index: 100;
+  pointer-events: none;
+}
+#stepCounter { font-size: 14px; color: #484f58; font-variant-numeric: tabular-nums; }
+#clickHint   { font-size: 11px; color: #30363d; }
+
+/* ============================================================================
+   SAFE-ZONE GUIDE — hidden by default. The builder's --safe-preview flag
+   reveals it to render safezone_preview.png for visual QA.
+   ============================================================================ */
+.safe-guide { display: none; position: absolute; inset: 0; z-index: 200; pointer-events: none;
+  font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+.sg-zone { position: absolute; display: flex; align-items: center; justify-content: center;
+  text-align: center; font-size: 26px; color: #fff; }
+.sg-crop   { inset: 0; border: var(--crop-buffer) solid rgba(255,0,0,.18);
+  color: rgba(255,120,120,.9); align-items: flex-start; padding-top: 8px; }
+.sg-top    { top: 0; left: 0; right: 0; height: var(--safe-top);
+  background: rgba(88,166,255,.18); }
+.sg-bottom { bottom: 0; left: 0; right: 0; height: var(--safe-bottom);
+  background: rgba(248,81,73,.16); }
+.sg-right  { top: 0; bottom: 0; right: 0; width: var(--safe-right);
+  background: rgba(255,215,0,.16); line-height: 1.5; }
+.sg-left   { bottom: var(--safe-bottom); left: 0; width: var(--safe-left); height: 200px;
+  background: rgba(63,185,80,.18); writing-mode: vertical-rl; }
+.sg-content { top: var(--safe-top); right: var(--safe-right); bottom: var(--safe-bottom);
+  left: var(--safe-left); border: 3px dashed rgba(63,185,80,.9); color: rgba(63,185,80,.95);
+  display: flex; align-items: center; justify-content: center; }
+
+/* ---- Karaoke subtitle overlay (auto-injected by build_short.py; no edits needed) ----
+   The builder injects #_sub_bar and ._sub_w / ._sub_w._hi at record time.
+   To DISABLE for a specific short add  "subtitles": false  in voiceover.json.
+   Documented here for reference; override font-size / bottom via voiceover.json
+   or a per-short <style> block in index.html. */
+/*
+#_sub_bar        – absolute, bottom:390px, left:60px, right:180px, z-index:150
+._sub_w          – white 54px bold with black stroke
+._sub_w._hi      – gold #FFD700 with glow (current word being spoken)
+*/
+
+/* ---- shared shake util (optional) ---- */
+#stage.shake { animation: stageShake .5s linear; }
+@keyframes stageShake {
+  0%,100% { transform: translate(0,0); }
+  25% { transform: translate(7px,-4px); }
+  50% { transform: translate(-6px,5px); }
+  75% { transform: translate(5px,3px); }
+}

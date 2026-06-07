@@ -3,7 +3,12 @@ site
 .cache
 __pycache__
 .venv
+.venv-*
 .env
+
+# Shorts agent: local-only virtualenvs and generated short videos/output
+presentation/shorts_*/_build/
+.DS_Store
 
 # YouTube uploader OAuth tokens and secrets
 token.json
