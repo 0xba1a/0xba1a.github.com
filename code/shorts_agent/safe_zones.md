@@ -1,49 +1,47 @@
-# Safe Zones & Mobile Layout — YouTube Shorts (1080×1920)
+# Layout & Edge Margin — YouTube Shorts (1080×1920)
 
-A Short is watched on a phone, inside the YouTube app, whose UI overlays your
-video. Different phones also crop the frame slightly differently. So treat the
-1080×1920 canvas as having a smaller **content-safe area** in the middle.
+**Use the FULL frame.** We do **not** reserve space for the YouTube action rail
+(like/comment/share), the title, the handle, or the description anymore. Those UI
+chrome elements fade/scroll away, and reserving big buffers for them was making
+the visuals small with awkward empty gutters on the right and bottom.
 
-These values are encoded as CSS variables in `template/style.css` and visualized
-by the safe-zone guide (`build_short.py --safe-preview` → `safezone_preview.png`).
+The only thing we keep is a **small uniform edge margin** (~40 px) so nothing
+critical sits on the extreme edge, where some phones crop slightly.
 
-## Reserved regions (do NOT place critical text/visuals here)
+These values are CSS variables in `template/style.css` and visualized by the
+guide (`build_short.py --safe-preview` → `safezone_preview.png`).
 
-| Region | Size | Why it's reserved |
+## The one rule: uniform edge margin
+
+| Region | Size | Why |
 |---|---|---|
-| **Device crop buffer** | 54 px (~5%) on all 4 edges | Phones crop edges differently |
-| **Top** | 150 px | Status bar / Shorts top controls |
-| **Right action rail** | 180 px | Like, Dislike, Comment, Share, Remix, Sound disc |
-| **Bottom** | 360 px | Channel handle, title, description, CTA, progress bar |
-| **Left (lower)** | 60 px | Channel handle text (bottom-left) |
+| **Edge margin** | ~40 px on all four sides | Device crop differs slightly between phones |
 
-## Content-safe box (put everything important here)
+So the usable content box on a 1080×1920 canvas is essentially the whole frame:
 
-With the above, the usable box on a 1080×1920 canvas is roughly:
+- **x:** 40 px → 1040 px  (width ≈ 1000 px)
+- **y:** 40 px → 1880 px  (height ≈ 1840 px)
 
-- **x:** 60 px → 900 px  (width ≈ 840 px)
-- **y:** 150 px → 1560 px (height ≈ 1410 px)
-
-In the template this is the `.safe-content` container — anchor all key text and
-focal visuals inside it. Backgrounds/gradients may fill the full stage, but they
-must remain non-essential (safe to crop).
+In the template this is the `.safe-content` container. Fill it. Backgrounds may
+bleed to the very edge.
 
 ## Practical rules
 
-1. **Center the message.** Vertically center the key line; the eye lands mid-screen.
-2. **Big type only.** Use the `--fs-*` scale (hero 132 / title 88 / subtitle 56 /
-   body 46). If text feels "designed for desktop," it's too small.
-3. **Right side clear.** Don't run text/diagrams into the right 180 px — it sits
-   under the like/share rail.
-4. **Bottom clear.** The lower 360 px is covered by title/description; keep CTAs
-   and key facts above it. A "follow" line is fine but place it just above the
-   bottom zone, not inside it.
-5. **Edge breathing room.** Even decorative elements shouldn't have meaning at the
-   extreme edges (crop buffer).
-6. **High contrast.** Light text on dark, or add a scrim behind text over busy art.
+1. **Go BIG.** A Short is watched on a phone at arm's length. Make icons, images,
+   tables, and diagrams large — fill the width. If it looks "designed for
+   desktop," it's too small. Use the `--fs-*` scale (hero 150 / title 100 /
+   subtitle 62 / body 50).
+2. **Use the whole width and height.** No right gutter, no bottom gutter.
+3. **Arrows for flow.** Show data/control movement with explicit arrowheads, not
+   just lines or proximity.
+4. **Direction is free.** Flows can run **left→right** as well as top→bottom —
+   pick whatever reads most naturally for the step. Horizontal layouts often use
+   the wide frame better for two-stage relationships.
+5. **Edge breathing room only.** Keep meaning out of the extreme ~40 px so a crop
+   never clips something important.
+6. **High contrast.** Light on dark, or a scrim behind text over busy art.
 
 ## Adjusting per short
 
-If a specific layout needs it, override the variables at the top of that short's
-`style.css` (e.g. a full-bleed hook with no bottom text can shrink `--safe-bottom`
-temporarily). Re-run `--safe-preview` to confirm before the final build.
+Override `--safe-edge` at the top of a short's `style.css` if you want even more
+bleed. Re-run `--safe-preview` to confirm before the final build.

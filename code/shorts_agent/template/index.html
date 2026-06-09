@@ -12,13 +12,11 @@
   <div id="stage">
 
     <!-- ============ SAFE-ZONE GUIDE (hidden; shown only for QA preview) ============ -->
+    <!-- No YouTube-UI regions are reserved anymore — use the full frame. The only
+         guide is a uniform edge margin so nothing critical hits the device crop. -->
     <div class="safe-guide" aria-hidden="true">
-      <div class="sg-zone sg-top">TOP UI / clock</div>
-      <div class="sg-zone sg-bottom">BOTTOM UI — title · handle · description · CTA</div>
-      <div class="sg-zone sg-right">ACTIONS<br>like<br>comment<br>share</div>
-      <div class="sg-zone sg-left">handle</div>
       <div class="sg-zone sg-crop">device crop buffer</div>
-      <div class="sg-content">CONTENT-SAFE AREA<br>keep all key text &amp; visuals here</div>
+      <div class="sg-content">USE THE FULL FRAME — keep critical content off the extreme edges</div>
     </div>
 
     <!-- ============ SCENES ============ -->

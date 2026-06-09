@@ -50,15 +50,16 @@ DEFAULTS = {
 # build an ASS file with short caption chunks (≈1–2 lines visible at a time, like
 # withsubtitles.com) timed to each TTS clip, then burn it in during the final
 # encode. Within each chunk, words flip white→gold one-by-one (karaoke \k tags).
-# Position: just above the YouTube safe-bottom zone, clear of the right rail.
+# Position: near the bottom edge, full width minus a small uniform margin (we no
+# longer reserve the YouTube action-rail / title area — use the whole frame).
 _SUB_FONT = "Arial"
-_SUB_FONTSIZE = 54
+_SUB_FONTSIZE = 58
 _SUB_PRIMARY = "&H0000D7FF"    # gold #FFD700 once "sung"
 _SUB_SECONDARY = "&H00FFFFFF"  # white before highlight
 _SUB_OUTLINE = "&H00000000"    # black stroke
-_SUB_MARGIN_L = 60             # clear of left edge
-_SUB_MARGIN_R = 180            # clear of right action-rail
-_SUB_MARGIN_V = 390            # above the 360px YouTube safe-bottom zone
+_SUB_MARGIN_L = 50             # uniform edge margin
+_SUB_MARGIN_R = 50             # uniform edge margin (full width, no right rail)
+_SUB_MARGIN_V = 180            # one line height above the previous bottom placement
 _SUB_MAX_WORDS = 5
 _SUB_MAX_CHARS = 26
 

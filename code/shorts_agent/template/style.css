@@ -8,27 +8,25 @@
   --stage-w: 1080px;
   --stage-h: 1920px;
 
-  /* ---- Safe zones (reserved for YouTube UI + device crop) ----
-     These are the pixels you must NOT place critical content in.
-       crop   : different phones crop the outer edge -> universal buffer
-       top    : status bar / Shorts top controls
-       right  : like / comment / share / remix / sound action rail
-       bottom : channel handle, title, description, CTA, progress bar
-       left   : channel handle text (bottom-left)
-     Tuned for the 2024+ Shorts layout. Adjust per-short if needed. */
-  --crop-buffer: 54px;   /* ~5% of width, all four edges */
-  --safe-top: 150px;
-  --safe-right: 180px;
-  --safe-bottom: 360px;
-  --safe-left: 60px;
+  /* ---- Edge margin (device-crop breathing room ONLY) ----
+     We do NOT reserve space for the YouTube action rail / title / description
+     anymore. Use the FULL frame. Just keep a small uniform margin so nothing
+     critical sits on the extreme edge where some phones crop. Flows may run
+     left->right or top->bottom across this whole area. */
+  --safe-edge: 40px;     /* uniform breathing room on all four sides */
+  --crop-buffer: 40px;
+  --safe-top: var(--safe-edge);
+  --safe-right: var(--safe-edge);
+  --safe-bottom: var(--safe-edge);
+  --safe-left: var(--safe-edge);
 
   /* ---- Big mobile type scale (a short is watched on a phone; go large) ---- */
-  --fs-hero: 132px;   /* huge reveal words */
-  --fs-title: 88px;   /* main scene titles */
-  --fs-subtitle: 56px;
-  --fs-body: 46px;
-  --fs-label: 38px;
-  --fs-caption: 32px;
+  --fs-hero: 150px;   /* huge reveal words */
+  --fs-title: 100px;  /* main scene titles */
+  --fs-subtitle: 62px;
+  --fs-body: 50px;
+  --fs-label: 42px;
+  --fs-caption: 34px;
   --lh-tight: 1.05;
   --lh-body: 1.25;
 
@@ -122,7 +120,8 @@ body {
 
 /* ============================================================================
    SAFE-ZONE GUIDE — hidden by default. The builder's --safe-preview flag
-   reveals it to render safezone_preview.png for visual QA.
+   reveals it to render safezone_preview.png for visual QA. We no longer reserve
+   YouTube-UI regions; the only guide is the uniform edge margin + content box.
    ============================================================================ */
 .safe-guide { display: none; position: absolute; inset: 0; z-index: 200; pointer-events: none;
   font-family: 'JetBrains Mono', monospace; font-weight: 700; }
@@ -130,25 +129,16 @@ body {
   text-align: center; font-size: 26px; color: #fff; }
 .sg-crop   { inset: 0; border: var(--crop-buffer) solid rgba(255,0,0,.18);
   color: rgba(255,120,120,.9); align-items: flex-start; padding-top: 8px; }
-.sg-top    { top: 0; left: 0; right: 0; height: var(--safe-top);
-  background: rgba(88,166,255,.18); }
-.sg-bottom { bottom: 0; left: 0; right: 0; height: var(--safe-bottom);
-  background: rgba(248,81,73,.16); }
-.sg-right  { top: 0; bottom: 0; right: 0; width: var(--safe-right);
-  background: rgba(255,215,0,.16); line-height: 1.5; }
-.sg-left   { bottom: var(--safe-bottom); left: 0; width: var(--safe-left); height: 200px;
-  background: rgba(63,185,80,.18); writing-mode: vertical-rl; }
 .sg-content { top: var(--safe-top); right: var(--safe-right); bottom: var(--safe-bottom);
   left: var(--safe-left); border: 3px dashed rgba(63,185,80,.9); color: rgba(63,185,80,.95);
-  display: flex; align-items: center; justify-content: center; }
+  display: flex; align-items: flex-start; justify-content: center; padding-top: 8px; }
 
 /* ---- Karaoke subtitle overlay (auto-injected by build_short.py; no edits needed) ----
    The builder injects #_sub_bar and ._sub_w / ._sub_w._hi at record time.
    To DISABLE for a specific short add  "subtitles": false  in voiceover.json.
-   Documented here for reference; override font-size / bottom via voiceover.json
-   or a per-short <style> block in index.html. */
+   Sits near the bottom edge (full width minus the uniform edge margin). */
 /*
-#_sub_bar        – absolute, bottom:390px, left:60px, right:180px, z-index:150
+#_sub_bar        – absolute, near bottom edge, full width minus --safe-edge, z-index:150
 ._sub_w          – white 54px bold with black stroke
 ._sub_w._hi      – gold #FFD700 with glow (current word being spoken)
 */
