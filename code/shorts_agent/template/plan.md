@@ -7,7 +7,8 @@
 ## Meta
 - **Slug:** <slug>
 - **Duration:** ~XXs   **Resolution:** 1080×1920 (9:16)
-- **Voice:** <kokoro_voice> — _why this fits the narrative_
+- **Voice:** Chatterbox built-in narrator (or voice clone from .wav) — _why this tone fits the narrative_
+- **Tone:** exaggeration <0.3-0.5>, cfg_weight <~0.5> — _calm/measured or animated_
 - **Music:** mood `<mood>`, seed `<slug>`, gain ≈ −24 dB
 - **Audience / tone:** <...>
 - **Takeaway / CTA:** <...>

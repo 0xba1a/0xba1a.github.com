@@ -82,40 +82,34 @@ the user states a preference, corrects something, or a build reveals a lesson.
   `flow` (packet along waypoints), `hlRow`, `readStage`. Copy it as a starting point.
 
 ## TTS engine notes (Chatterbox — current)
-- Env: `.venv-tts` (Python 3.12). Install: `pip install chatterbox-tts soundfile
-  numpy playwright` then `pip install "setuptools<81"` (CRITICAL — perth, the
-  Chatterbox watermarker, imports `pkg_resources`, removed in setuptools 81+;
-  without the downgrade `perth.PerthImplicitWatermarker` is None →
-  `TypeError: 'NoneType' object is not callable` at model load). Also
-  `python -m playwright install chromium`.
-- Weights auto-download from HuggingFace (~3.2 GB) on first `from_pretrained`, cached.
-- CPU-only here (no GPU): ~25-30s to synth a ~5s line; a ~75s 11-line short took
-  ~3m45s end-to-end (TTS dominates). Fine, just not instant.
+- **Env: `.venv-tts` (Python 3.12) — READY & VERIFIED (June 14, 2026).**
+  Install: `pip install chatterbox-tts torchaudio soundfile numpy playwright` then
+  `pip install "setuptools<81"` (CRITICAL — perth, the Chatterbox watermarker,
+  imports `pkg_resources`, removed in setuptools 81+; without the downgrade
+  `perth.PerthImplicitWatermarker` is None → `TypeError: 'NoneType' object is not
+  callable` at model load). Also `python -m playwright install chromium`.
+- Weights auto-download from HuggingFace (~3.2 GB) on first `from_pretrained`,
+  cached in `~/.cache/huggingface/`. **Models downloaded and cached.**
+- CPU-only here (no GPU): ~25-30s to synth a ~5s line; a ~75s 11-line short takes
+  ~3-4 min end-to-end (TTS dominates). Synthesis verified working.
 - Tone tuned via `exaggeration` (0.3-0.4 = calm/measured; 0.5 default = animated)
-  and `cfg_weight` (~0.5 steady pacing) in `vo_tts.DEFAULTS`.
+  and `cfg_weight` (~0.5 steady pacing) in `vo_tts.DEFAULTS` and `build_short.py`.
 - `voice` param now = optional path to a reference .wav for voice cloning
-  (`audio_prompt_path`); `null`/missing → built-in narrator. Kokoro `am_*`/`af_*`
-  voice names NO LONGER apply. `lang` is ignored (English model).
+  (`audio_prompt_path`); `null`/missing → built-in narrator (high quality default).
+  Kokoro `am_*`/`af_*` voice names NO LONGER apply. `lang` is ignored (English model).
 - Speed handled by ffmpeg `atempo` chain in `vo_tts.synth` (not the model).
+  Default speed now 1.1 (was 1.2 for Kokoro; Chatterbox is naturally more expressive).
+- **Migration complete:** All docs updated (README, agent file, template). See
+  `CHATTERBOX_MIGRATION.md` for full setup details.
 
-## Voice guide (Kokoro — LEGACY, pre-Chatterbox; names no longer used)
-Pick by narrative tone. Sampled favorites:
-- `am_fenrir` — US male, deep & dramatic → bold hooks, "trailer" energy.
-- `am_puck` — US male, bright & punchy → energetic explainers.
-- `am_onyx` — US male, deep & smooth → authoritative, calm gravitas.
-- `am_michael` — US male, clear neutral → default explainer.
-- `af_heart` — US female, warm & expressive → friendly/inviting.
-- `af_bella` — US female, lively → upbeat storytelling. (User liked this one.)
-- `af_nicole` — US female, soft/intimate → calm, close-mic.
-- `bm_george` / `bm_fable` — UK male → documentary tone.
-- `bf_emma` / `bf_isabella` — UK female → crisp, polished.
-54 voices total; list with `Kokoro.get_voices()`.
-
-## Music moods (vo_music.py)
+## Music moods (vo_music.py — currently DISABLED by default)
 `dark` (tense/serious), `tense` (suspense), `calm` (gentle), `bright` (upbeat),
 `mystery` (curious). Seed = slug → unique track per video. Mix gain ≈ −24 dB.
 
-## Per-video log (keep variety; avoid repeating the last voice/mood)
+## Per-video log (historical — newer videos use Chatterbox built-in narrator)
+**Note:** Videos from "cqrs-command-query-segregation" onwards use Chatterbox TTS.
+Older videos used Kokoro with the voice names listed below (for reference only).
+
 | slug | voice | notes |
 |---|---|---|
 | shorts_fault_injestion_and_chaos_engineering | af_bella | first build; chaos-engineering explainer (lives under presentation/, pre-agent) |
@@ -131,6 +125,7 @@ Pick by narrative tone. Sampled favorites:
 | sql-vs-nosql-linkedin | am_michael @ 1.2x | **BUILT — final.mp4 1080×1920, 82.2s.** "SQL vs NoSQL — one LinkedIn profile, two ways" explainer. Built fresh from template scaffold (no D3 — pure inline-SVG toolkit). 12 scenes — (1) one profile → SQL+NoSQL split, (2) profile = related data (experience/skills/connections chips), (3) relational splits into 4 tables (2×2), (4) users table + PRIMARY KEY badge, (5) experience + FOREIGN KEY curved gold arrow, (6) skills+connections all linked by user id, (7) JOIN converging arrows rebuild profile, (8) relational upside (no dupes + integrity), (9) relational cost (rigid schema + ×N joins), (10) NoSQL one JSON document (nested arrays), (11) NoSQL upside (one read + flexible schema/new field), (12) NoSQL cost (dupes + cross-profile queries) + side-by-side takeaway card. Reusable SVG toolkit in script.js: `E/T` (el+text), `mkSvg` (with arrowhead markers arrGold/arrSql/arrNoSql/arrRed), `avatar`, `profileCard`, `table` (titled grid, keyCol gold highlight, `_geom`), `jsonDoc`, `badge`, `arrow` (drawn path + marker), `proCon`, `chip`, anim helpers `appear/drawArrow/goldPulse`. SQL=blue #58a6ff, NoSQL=green #3fb950, links/joins=gold #ffd700. Clear neutral explainer voice for a balanced comparison; keeps variety vs af_heart/am_puck/bm_george. |
 | cqrs-command-query-segregation | Chatterbox (built-in narrator) @ 1.1x | **BUILT — final.mp4 1080×1920, 75.2s.** **FIRST short on Chatterbox TTS** (switched from Kokoro per user: dull + mispronounced). Calm/authoritative architect tone (exaggeration 0.35, cfg_weight 0.5). 11-scene step-by-step CQRS explainer (e-commerce orders). write=blue #58a6ff / read=green #3fb950 / events=gold #ffd700 / problem=red #f85149 / emphasis-text=purple #d2a8ff. Scenes: (1) overloaded single DB w/ write+read arrow storm, (2) COMMAND vs QUERY cards, (3) one shared Order Model + table, (4) opposite needs chips + 1:100 ratio bar, (5) split into WRITE/READ models, (6) command write-path packet, (7) query read-path + denormalized view tables, (8) gold event arrow syncing stores (projection), (9) eventual-consistency lag→catch-up, (10) independent scaling: 1 write vs ×N green read replicas, (11) takeaway ✓diverge/✗CRUD. Narration spells "C-Q-R-S" so letters read cleanly. Inline-SVG toolkit in script.js: E/txt/mkSvg(arrow markers)/box/dbCyl/arrow/drawIn/appear/packet(WAAPI transform)/badge + splitBase fixed-layout helper. Lesson reused: ratio bar grows via transform scaleX, NOT WAAPI width on SVG rect (doesn't tween). |
 | star-schema-fact-and-dimensions | af_bella @ 1.2x | **BUILT — final.mp4 1080×1920, 84.1s.** 12-scene **radial-star (D3)** explainer of the star schema; user explicitly asked for af_bella + literal star/snowflake memory anchors. The schema diagram ITSELF is the star: gold `SALES` fact at the CENTER, 4 blue dimension tables on the glowing arm tips (Customer/Product/Store/Date); arms light up one-by-one. Scenes: (1) ⭐ hook, (2) big fact wideTable, (3) FK vs measures colSpan highlights, (4) row counter ramp to 1B+, (5) **name the Star Schema** — dims on arms + a `dimension table` callout badge, (6) inside a dimension (Product detail), (7) arms = dimensions, the shape is a STAR, (8) query: only Product+Date arms light gold → SUM result bars, (9) why analysts love it (intuitive/simple joins/fast — green cards), (10) **reverse drill-down** advantage (green TOTAL pill → drill arrow center→Store → rows highlight), (11) **snowflake**: fact STAYS at center hub (faint star arms), ONE highlighted gold arm → 1st-level dim (Product), one highlighted orange 2nd-level arm → 2nd-level dim (Category) + faint ❄ crystal, (12) takeaway: **a snowflake is just a more normalized star** (STAR → normalize → SNOWFLAKE, no pros/cons diff list). Built on the normalization-vs-denormalization toolkit + D3 v7 (CDN) for staggered arm reveals. fact=gold/dim=blue/snow=orange/good=green. af_bella reused (also normalization short) but user requested it here. |
+| designing-a-hash-map | Chatterbox (built-in narrator) @ 1.1x | **BUILT — final.mp4 1080×1920, 130.6s (~2:11, longest yet — user said time not a hard constraint).** Beginner-friendly, interview-framed explainer of **how Python's dict really works** (open addressing, NOT generic chaining). Animated narrator tone (exaggeration 0.42, cfg_weight 0.5). **ILLUSTRATION-FIRST redesign (v2)** after user rejected v1: "Too much text, text too big, images too small." v2 = each scene is a bare full-frame SVG diagram with only a tiny 54px `kicker` label at top; narration + burned-in subtitles carry all words. **Tall viewBox 1000×1690** matching the full-frame container (no letterbox); `.diagram` absolute full-bleed with 150px bottom clearance for subtitle. 17 scenes: (1) `d["alice"]→42→?`, (2) KEY→VALUE+⚡+O(1) badge, (3) BIG full-width 8-slot array, slot 5 jump, (4) `"apple"→⚙HASH→big number`, (5) number→mod box→drop in slot 3, (6) 3 hash-property rows + clumped-vs-even compare, (7) collision two keys→slot 3 red, (8) chaining (dimmed) vs Python's open-addressing (bright, "one array"), (9) probing cherry slot3→hop slot4, (10) lookup replay hops→found, (11) **compact dict**: sparse indices strip → dense insertion-ordered entries, clean ORTHOGONAL pointers routed through left gutter (v1 had crossing curved arrows over text — rerouted), (12) load factor fill→meter 75%, (13) grow 8→16 rehash dual arrays, (14) shrink 16→8, (15) amortized O(1) chart (green ticks + 1 red resize spike + purple avg line), (16) 4-step interview checklist (numbered badges), (17) trade-off Average O(1) vs Worst O(n) + "O(1) is best-effort, not a guarantee." Inline-SVG toolkit in script.js: mkSvg(viewBox 1000×1690, markers arrGold/arrKey/arrGood/arrBad/arrMuted), rect/txt/line/path/kicker, anims appear/pop/drawLine/flash/glow, slotArray(big sw=114 h=178)/fillSlot/keyChip. key/hash=blue #58a6ff, filled/grow=green #3fb950, collision/worst=red #f85149, probe/flow=gold #ffd700, emphasis TEXT=purple #d2a8ff. **Lesson: for "too much text" feedback, strip ALL h1/captions from HTML, make diagram full-bleed with tall viewBox matching container aspect, keep one small kicker only.** |
 
 ## Highlighted subtitles (word-by-word karaoke)
 Added to `build_short.py` — enabled for ALL shorts by default (no index.html changes needed).
@@ -184,7 +179,8 @@ Added to `build_short.py` — enabled for ALL shorts by default (no index.html c
 - Hold each scene for (TTS clip length + ~0.8s gap); keep sub-animations shorter
   than the spoken line so they finish before advancing.
 - Record headless at exactly 1080×1920; the builder hides the HUD and stage chrome.
-- Kokoro needs Python 3.12 venv (`.venv-tts`) + espeak-ng; ffmpeg via Homebrew.
+- **Environment ready:** `.venv-tts` with Chatterbox TTS, all dependencies installed.
+  See `CHATTERBOX_MIGRATION.md` for setup details. Synthesis verified working.
 - **Music is DISABLED** — procedural music sounds monotonic, not musical. Focus on
   visual richness (animations, diagrams, icons, transitions) instead.
 - **Subtitles are burned in via ffmpeg ASS karaoke** (not HTML injection). The builder

@@ -35,9 +35,11 @@ FFMPEG = shutil.which("ffmpeg") or "/opt/homebrew/bin/ffmpeg"
 FFPROBE = shutil.which("ffprobe") or "/opt/homebrew/bin/ffprobe"
 
 DEFAULTS = {
-    "voice": "am_michael",
-    "speed": 1.2,
-    "lang": "en-us",
+    "voice": None,  # None = Chatterbox built-in narrator; or path to .wav for cloning
+    "speed": 1.1,
+    "lang": "en-us",  # ignored by Chatterbox (English-only model); kept for compatibility
+    "exaggeration": 0.35,  # 0.3-0.4 calm/measured, 0.5 animated
+    "cfg_weight": 0.5,  # steady pacing
     "intro": 0.5,
     "gap": 0.8,
     "outro": 1.6,
@@ -190,7 +192,14 @@ def synth(lines, cfg, work):
     for i, text in enumerate(lines, 1):
         raw = os.path.join(work, f"seg_{i:02d}_raw.wav")
         wav = os.path.join(work, f"seg_{i:02d}.wav")
-        vo_tts.synth(text, raw, voice=cfg["voice"], speed=cfg["speed"], lang=cfg["lang"])
+        vo_tts.synth(
+            text, raw,
+            voice=cfg["voice"],
+            speed=cfg["speed"],
+            lang=cfg["lang"],
+            exaggeration=cfg.get("exaggeration"),
+            cfg_weight=cfg.get("cfg_weight")
+        )
         run([FFMPEG, "-y", "-loglevel", "error", "-i", raw,
              "-ar", str(SR), "-ac", "2", wav])
         dur = wav_duration(wav)
