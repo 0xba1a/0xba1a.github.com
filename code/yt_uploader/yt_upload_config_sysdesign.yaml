@@ -1,0 +1,100 @@
+# YouTube Shorts Upload Configuration — System Design Interview series
+# --------------------------------------------------------------------
+
+# Path to your OAuth 2.0 client secrets file (from Google Cloud Console)
+client_secrets_file: "../shorts_agent/client_secrets.json"
+
+# Target channel. The uploader aborts if the authenticated YouTube channel's
+# title does not match this (case-insensitive) — prevents uploading to the
+# wrong channel when one Google account owns several channels.
+channel_name: "Command Line"
+
+# No playlist for these videos. Leave empty -> videos are NOT added to any
+# playlist, and the schedule is computed from the channel's own uploads.
+playlist_id: ""
+
+# YouTube video category ID (27 = Education)
+category_id: "27"
+
+# Language for video metadata, narration audio, and the Short itself (English)
+default_language: "en"
+default_audio_language: "en"
+
+# Whether the video is made for kids (COPPA compliance)
+made_for_kids: false
+
+# Whether the video is embeddable on other sites
+embeddable: true
+
+# Video license: "youtube" (standard) or "creativeCommon"
+license: "youtube"
+
+# Scheduling: one video per day, at the next free day, 08:15 local time.
+# The next free day is the day after the latest already-scheduled upload on the
+# channel (or tomorrow if nothing is scheduled yet).
+schedule_hour: 8
+schedule_minute: 15
+
+# Uploaded as private + publishAt so YouTube auto-publishes at the scheduled time
+privacy_status: "private"
+
+# Tags (keywords) attached to every uploaded video
+tags:
+  - "system design"
+  - "system design interview"
+  - "system design interview questions"
+  - "database internals"
+  - "lsm tree"
+  - "lsm-tree"
+  - "sstable"
+  - "hash index"
+  - "append only log"
+  - "memtable"
+  - "ddia"
+  - "designing data intensive applications"
+  - "backend engineering"
+  - "software engineering interview"
+  - "faang interview"
+  - "distributed systems"
+  - "storage engine"
+  - "databases"
+  - "shorts"
+  - "youtubeshorts"
+
+# Hashtags appended to the video description (newline-separated block)
+hashtags:
+  - "#SystemDesign"
+  - "#SystemDesignInterview"
+  - "#Database"
+  - "#LSMTree"
+  - "#SSTable"
+  - "#DatabaseInternals"
+  - "#DDIA"
+  - "#BackendEngineering"
+  - "#DistributedSystems"
+  - "#SoftwareEngineering"
+  - "#CodingInterview"
+  - "#FAANG"
+  - "#Shorts"
+  - "#YouTubeShorts"
+
+# Per-video metadata. Videos are uploaded in this order, one per day.
+# `file` paths are resolved relative to this config file's directory.
+# NOTE: parts 1-3 already uploaded (06-15/16/17) and their final.mp4 files were
+# moved to per-folder ARCHIVE/. The uploader hard-exits on a missing file, so
+# only the not-yet-uploaded video stays in this manifest.
+videos:
+  - file: "../shorts_agent/shorts/lsm-tree/lsm-tree-tombstones-bloom-filters/final.mp4"
+    title: "How LSM Trees Delete Data | Tombstones + Bloom Filters"
+    publish_at: "2026-06-18 08:15"
+    description: |
+      How do you delete a key when the files on disk can never be changed? You
+      don't erase it — you write a tombstone, a marker that says the key is gone.
+      Reads honor it because the newest write always wins, and compaction later
+      drops the key for good. Then bloom filters make reads fast: a tiny in-memory
+      filter per segment that can say a key is definitely not here, so you skip
+      pointless disk reads. Together they complete the LSM-tree — the engine behind
+      LevelDB, RocksDB, and Cassandra.
+
+      Part 4 of the LSM-Tree series (based on Designing Data-Intensive Applications,
+      Chapter 4). Essential for backend and system design interview prep.

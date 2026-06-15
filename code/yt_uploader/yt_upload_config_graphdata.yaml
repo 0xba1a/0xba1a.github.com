@@ -1,0 +1,98 @@
+# YouTube Shorts Upload Configuration — Graph data models (triple stores + property graphs)
+# ----------------------------------------------------------------------------------------
+
+# Path to your OAuth 2.0 client secrets file (from Google Cloud Console)
+client_secrets_file: "../shorts_agent/client_secrets.json"
+
+# Target channel guard (aborts if authenticated channel title differs)
+channel_name: "Command Line"
+
+# No playlist for these videos.
+playlist_id: ""
+
+# YouTube video category ID (27 = Education)
+category_id: "27"
+
+# Language for metadata, audio, and the Short (English)
+default_language: "en"
+default_audio_language: "en"
+
+made_for_kids: false
+embeddable: true
+license: "youtube"
+
+# Default auto-schedule (used only for videos without an explicit publish_at)
+schedule_hour: 8
+schedule_minute: 15
+
+# Uploaded as private + publishAt so YouTube auto-publishes at the scheduled time
+privacy_status: "private"
+
+# Tags (keywords) attached to every uploaded video
+tags:
+  - "system design"
+  - "system design interview"
+  - "system design interview questions"
+  - "database internals"
+  - "graph database"
+  - "property graph"
+  - "triple store"
+  - "rdf"
+  - "sparql"
+  - "knowledge graph"
+  - "data model"
+  - "ddia"
+  - "designing data intensive applications"
+  - "backend engineering"
+  - "software engineering interview"
+  - "faang interview"
+  - "distributed systems"
+  - "databases"
+  - "shorts"
+  - "youtubeshorts"
+
+# Hashtags appended to the video description (newline-separated block)
+hashtags:
+  - "#SystemDesign"
+  - "#SystemDesignInterview"
+  - "#GraphDatabase"
+  - "#Database"
+  - "#KnowledgeGraph"
+  - "#DatabaseInternals"
+  - "#DDIA"
+  - "#BackendEngineering"
+  - "#DistributedSystems"
+  - "#SoftwareEngineering"
+  - "#CodingInterview"
+  - "#FAANG"
+  - "#Shorts"
+  - "#YouTubeShorts"
+
+# Per-video metadata. `publish_at` (local time) overrides the auto schedule.
+videos:
+  - file: "../shorts_agent/shorts/03_triple_stores.mp4"
+    title: "Triple Stores Explained | Subject - Predicate - Object"
+    publish_at: "2026-06-19 08:15"
+    description: |
+      Every database is really just storing facts about things — and triple stores
+      take that literally. In this system design interview short, we break down the
+      triple store data model: each fact is a Subject - Predicate - Object, facts
+      link into a knowledge graph, and a simple pattern query walks the graph to
+      answer questions a rigid schema never could. We also touch SPARQL, schema-free
+      evolution, and where triple stores show up in production (Google's Knowledge
+      Graph, Wikidata, BBC, UniProt).
+
+      Great for backend and system design interview prep on graph data models.
+
+  - file: "../shorts_agent/shorts/01_property_graphs_connect_everything.mp4"
+    title: "Property Graphs | Connect Everything with Vertices and Edges"
+    publish_at: "2026-06-19 15:15"
+    description: |
+      What if your data model was built for relationships first? In this system
+      design interview short, we explore the labeled property graph model from DDIA:
+      vertices and edges that each carry labels and properties, a schema-free
+      structure that lets you connect anything to anything, traverse relationships
+      in both directions, and evolve the graph as requirements change — without
+      painful migrations.
+
+      Perfect for backend and system design interview prep on graph databases.
