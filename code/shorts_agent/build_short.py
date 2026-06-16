@@ -16,6 +16,7 @@ Run from the repo root with the TTS venv active:
     python code/shorts_agent/build_short.py code/shorts_agent/shorts/<slug>
 """
 import contextlib
+import hashlib
 import json
 import os
 import shutil
@@ -33,6 +34,19 @@ W, H = 1080, 1920
 SR = 44100
 FFMPEG = shutil.which("ffmpeg") or "/opt/homebrew/bin/ffmpeg"
 FFPROBE = shutil.which("ffprobe") or "/opt/homebrew/bin/ffprobe"
+MUSIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "music")
+
+# Strip leading/trailing silence from a TTS clip while keeping a small natural
+# pad (so words aren't clipped). Trailing silence is removed by reversing the
+# stream, trimming its (now leading) silence, then reversing back.
+_TRIM_AF = (
+    "silenceremove=start_periods=1:start_threshold=-45dB:"
+    "start_silence=0.05:detection=peak,"
+    "areverse,"
+    "silenceremove=start_periods=1:start_threshold=-45dB:"
+    "start_silence=0.10:detection=peak,"
+    "areverse"
+)
 
 DEFAULTS = {
     "voice": None,  # None = Chatterbox built-in narrator; or path to .wav for cloning
@@ -41,10 +55,27 @@ DEFAULTS = {
     "exaggeration": 0.35,  # 0.3-0.4 calm/measured, 0.5 animated
     "cfg_weight": 0.5,  # steady pacing
     "intro": 0.5,
-    "gap": 0.8,
+    "gap": 0.35,
     "outro": 1.6,
     "subtitles": True,
-    "music": {"enabled": False, "mood": "dark", "seed": None, "gain_db": -15.0},
+    # Trim baked-in leading/trailing silence from each TTS clip so speech butts
+    # right up to the (now small) inter-scene gap. Chatterbox pads clips with
+    # silence that stacked on top of `gap`, making pauses between sentences feel
+    # long. Set false to keep raw clips.
+    "trim_silence": True,
+    # Background music. Default = real public-domain (CC0) lowkey-upbeat tracks from
+    # the music/ library, rotated per video (track chosen deterministically from the
+    # slug). Set "source": "procedural" to use the old seeded synth instead, or pin a
+    # specific file with "track": "<name>.mp3". Disable with "enabled": false.
+    "music": {
+        "enabled": True,
+        "source": "library",   # "library" (file rotation) or "procedural" (synth)
+        "track": None,          # pin a specific library file; None = auto-rotate
+        "mood": "dark",         # only used when source == "procedural"
+        "seed": None,           # rotation/synth seed; None = slug
+        "gain_db": -26.0,       # music level under the voice
+        "fade": 1.5,            # fade in/out seconds
+    },
 }
 
 # ── Karaoke subtitle overlay (post-processed, burned in with ffmpeg) ───────────
@@ -200,8 +231,11 @@ def synth(lines, cfg, work):
             exaggeration=cfg.get("exaggeration"),
             cfg_weight=cfg.get("cfg_weight")
         )
-        run([FFMPEG, "-y", "-loglevel", "error", "-i", raw,
-             "-ar", str(SR), "-ac", "2", wav])
+        enc = [FFMPEG, "-y", "-loglevel", "error", "-i", raw]
+        if cfg.get("trim_silence", True):
+            enc += ["-af", _TRIM_AF]
+        enc += ["-ar", str(SR), "-ac", "2", wav]
+        run(enc)
         dur = wav_duration(wav)
         clips.append((wav, dur))
         print(f"  seg {i:02d}: {dur:5.2f}s  {text[:54]}")
@@ -237,19 +271,73 @@ def build_voice_track(clips, cfg, work):
     return track, wav_duration(track)
 
 
+def list_music_library():
+    """Return sorted list of playable track paths in the music/ library."""
+    if not os.path.isdir(MUSIC_DIR):
+        return []
+    tracks = [f for f in os.listdir(MUSIC_DIR)
+              if f.lower().endswith((".mp3", ".wav", ".ogg", ".m4a", ".flac"))]
+    return [os.path.join(MUSIC_DIR, f) for f in sorted(tracks)]
+
+
+def pick_music_track(music, seed):
+    """Resolve which library track to use.
+
+    Priority: explicit `track` in config → otherwise rotate deterministically from
+    the seed (slug) so each video gets a stable, well-spread choice.
+    """
+    track = music.get("track")
+    if track:
+        cand = track if os.path.isabs(track) else os.path.join(MUSIC_DIR, track)
+        if os.path.isfile(cand):
+            return cand
+        print(f"  ! music track not found: {track} — falling back to rotation")
+    library = list_music_library()
+    if not library:
+        return None
+    key = str(music.get("seed") or seed or "default")
+    idx = int.from_bytes(hashlib.sha256(key.encode()).digest()[:8], "big") % len(library)
+    return library[idx]
+
+
+def prepare_music_file(track, total, out_wav, fade=1.5):
+    """Loop/trim `track` to `total` seconds with fade in/out → stereo wav at SR."""
+    fade = max(0.0, float(fade))
+    fade_out_start = max(0.0, total - fade)
+    af = (f"afade=t=in:st=0:d={fade:.3f},"
+          f"afade=t=out:st={fade_out_start:.3f}:d={fade:.3f}")
+    run([FFMPEG, "-y", "-loglevel", "error",
+         "-stream_loop", "-1", "-i", track,
+         "-t", f"{total:.3f}", "-af", af,
+         "-ar", str(SR), "-ac", "2", out_wav])
+    return out_wav
+
+
 def mix_music(voice_wav, cfg, seed, total, work):
-    """Mix the voice track with seeded ambient music. Returns mixed wav path."""
+    """Mix the voice track with background music. Returns mixed wav path."""
     music = cfg["music"]
     if not music.get("enabled", True):
         return voice_wav
     music_wav = os.path.join(work, "music.wav")
-    vo_music.generate(music_wav, total + 0.2,
-                      seed=music.get("seed") or seed,
-                      mood=music.get("mood", "dark"))
+    source = music.get("source", "library")
+    if source == "procedural":
+        vo_music.generate(music_wav, total + 0.2,
+                          seed=music.get("seed") or seed,
+                          mood=music.get("mood", "dark"))
+    else:
+        track = pick_music_track(music, seed)
+        if not track:
+            print("  ! music library empty — skipping background music")
+            return voice_wav
+        print(f"  ♪ background music: {os.path.basename(track)}")
+        prepare_music_file(track, total + 0.2, music_wav,
+                           fade=music.get("fade", 1.5))
     v, _ = sf.read(voice_wav, dtype="float32", always_2d=True)
     m, _ = sf.read(music_wav, dtype="float32", always_2d=True)
+    if m.shape[1] == 1 and v.shape[1] == 2:
+        m = np.repeat(m, 2, axis=1)
     n = min(len(v), len(m))
-    gain = 10 ** (float(music.get("gain_db", -15.0)) / 20.0)
+    gain = 10 ** (float(music.get("gain_db", -26.0)) / 20.0)
     mixed = v[:n] + m[:n] * gain
     peak = float(np.max(np.abs(mixed))) or 1.0
     if peak > 0.99:

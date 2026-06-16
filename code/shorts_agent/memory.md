@@ -14,10 +14,27 @@ the user states a preference, corrects something, or a build reveals a lesson.
 - **Speed: 1.1x** (applied via ffmpeg atempo since Chatterbox has no speed knob).
   Older Kokoro builds used 1.2x. Scene hold times still match (builder uses TTS
   clip duration + gap per step).
+- **Inter-scene pauses must be SHORT (viewer complaint June 2026).** Two fixes baked
+  into `build_short.py`: (1) default `gap` lowered 0.8 → **0.35s**; (2) **`trim_silence`
+  (default ON)** strips Chatterbox's baked leading/trailing silence from each clip via
+  ffmpeg `silenceremove` (keeps ~0.05s lead / 0.10s tail pad) BEFORE durations are
+  measured — so speech butts right up to the small gap and audio/video stay in sync.
+  Do NOT pin `"gap": 0.8` in new `voiceover.json` files. Tune feel with `gap`; disable
+  trimming with `"trim_silence": false` only if a clip sounds clipped.
 - **Spell out acronyms in narration** (e.g. write `C-Q-R-S`, not `CQRS`) so the TTS
   reads the letters instead of a garbled word.
-- **NO background music** — the procedural music sounds monotonic and not musical.
-  Focus on visual richness (animations, diagrams, icons) instead.
+- **BACKGROUND MUSIC = ON, using REAL downloaded CC0 tracks (June 15, 2026).** The
+  user reversed the earlier "no music" stance: the *procedural* synth sounded
+  monotonic/unmusical, so they asked to download copyright-free lowkey-upbeat scores
+  and ROTATE them across videos. Now `music/` holds 8 public-domain (CC0 / PD-Mark,
+  NO attribution required) lowkey-upbeat tracks from David Zorff's "Uncopyrighted
+  Music" (archive.org/details/uncopyrighted-music). `build_short.py` mixes them by
+  DEFAULT: picks one track per video deterministically from the slug (so it rotates
+  + spreads + is reproducible), loops/trims to length, fades in/out, mixes at
+  `gain_db` ≈ −26 under the voice. Config: `music.source` = `library` (default) or
+  `procedural`; pin a file with `music.track`; mute with `"enabled": false`. See
+  `music/CREDITS.md` + `music/manifest.json`. Procedural synth (`vo_music.py`) kept
+  only as an alternative source.
 - Shorts are viewed on mobile → fonts and visuals must be large.
 - **USE THE FULL FRAME. Do NOT reserve YouTube-UI safe zones** (right action rail,
   bottom title/description). The user explicitly asked to remove that buffer
@@ -102,7 +119,16 @@ the user states a preference, corrects something, or a build reveals a lesson.
 - **Migration complete:** All docs updated (README, agent file, template). See
   `CHATTERBOX_MIGRATION.md` for full setup details.
 
-## Music moods (vo_music.py — currently DISABLED by default)
+## Music library (music/ — ENABLED by default)
+Real CC0 / public-domain lowkey-upbeat tracks (David Zorff, "Uncopyrighted Music";
+no attribution required). `build_short.py` rotates ONE per video (slug-hashed pick),
+loops/trims/fades, mixes at gain_db ≈ −26. Tracks: believe-in-yourself,
+confident-session, free-and-lucky, light-as-a-feather, summertime-happiness,
+think-positive, yes-we-can-do-that, joker. Pin one with `music.track`; add more by
+dropping a CC0 .mp3 in music/ (rotation auto-picks it up). To vary which track a
+short gets, change the seed or set `music.track` explicitly.
+
+## Procedural music moods (vo_music.py — alternative source, `music.source: procedural`)
 `dark` (tense/serious), `tense` (suspense), `calm` (gentle), `bright` (upbeat),
 `mystery` (curious). Seed = slug → unique track per video. Mix gain ≈ −24 dB.
 
@@ -241,13 +267,15 @@ Added to `build_short.py` — enabled for ALL shorts by default (no index.html c
 - **SVG presentation-attribute transitions don't tween:** `rect.setAttribute('width',N)`
   + CSS `transition:width` does NOT animate. Use CSS `transform:scaleX()` or a static
   before/after comparison instead.
-- Hold each scene for (TTS clip length + ~0.8s gap); keep sub-animations shorter
+- Hold each scene for (TTS clip length + the `gap`); keep sub-animations shorter
   than the spoken line so they finish before advancing.
 - Record headless at exactly 1080×1920; the builder hides the HUD and stage chrome.
 - **Environment ready:** `.venv-tts` with Chatterbox TTS, all dependencies installed.
   See `CHATTERBOX_MIGRATION.md` for setup details. Synthesis verified working.
-- **Music is DISABLED** — procedural music sounds monotonic, not musical. Focus on
-  visual richness (animations, diagrams, icons, transitions) instead.
+- **Music is ON — real CC0 library tracks, rotated per video** (see Music library
+  section). The old procedural synth sounded monotonic so the user asked for real
+  downloaded lowkey-upbeat scores; `build_short.py` now mixes one per video by
+  default at gain_db ≈ −26. Still pair with rich visuals (animations, diagrams).
 - **Subtitles are burned in via ffmpeg ASS karaoke** (not HTML injection). The builder
   generates `_work/subs.ass`: short ≤5-word chunks, one line at a time, words flip
   white→gold (`\k` tags), placed at MarginV 390 (above the 360px bottom safe zone),

@@ -9,8 +9,9 @@
   "exaggeration": 0.35,
   "cfg_weight": 0.5,
   "intro": 0.5,
-  "gap": 0.8,
+  "gap": 0.35,
   "outro": 1.6,
+  "trim_silence": true,
   "subtitles": true,
   "music": {
     "enabled": false

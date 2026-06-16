@@ -42,13 +42,13 @@ Have a short conversation. Ask only what you still need (check memory first):
 - Audience & tone (e.g. punchy dev-explainer, calm, dramatic hook).
 - Any must-include facts, terms, or the final takeaway/CTA.
 Then propose: a working **title**, a **slug** (kebab-case), a chosen **voice**, and
-a **music mood** — and briefly say WHY (tie voice/mood to the narrative). Confirm
-the slug before writing files.
+a **music track** from the CC0 `music/` library (or let it auto-rotate) — and briefly
+say WHY (tie voice/track to the narrative). Confirm the slug before writing files.
 
 ### Phase 2 — Plan (write plan.md) → ⛔ CHECKPOINT 1: script approval
 Create `code/shorts_agent/shorts/<slug>/plan.md` containing:
 - **Meta:** title, slug, duration, resolution 1080×1920, chosen voice + reason,
-  music mood + seed, target audience/tone.
+  music track (or auto-rotate) + seed, target audience/tone.
 - **Voiceover script:** numbered, ONE line per scene/step. This is exactly what
   the TTS speaks; keep lines tight and natural for the chosen voice.
 - **Storyboard:** for each scene — **visual description** (specific diagrams, icons,
@@ -75,14 +75,20 @@ recording, no video.
    - Add per-scene entrance animations via `window.SCENE_HOOKS` — animate both text
      AND visual elements (shapes morphing, diagrams building, icons appearing, etc.).
 2. Write `shorts/<slug>/narration.txt` — one voiceover line per row (order = scenes).
-3. Write `shorts/<slug>/voiceover.json` — voice and speed only. Do NOT include music
-   config (music is disabled). Example:
+3. Write `shorts/<slug>/voiceover.json` — voice + speed. Music is ON by default
+   (real CC0 library tracks, auto-rotated from the slug), so you normally DON'T need
+   a music block. Add one only to pin a track, change the level, or mute. Example:
    ```json
    {
-     "voice": "am_fenrir",
-     "speed": 1.0
+     "voice": null,
+     "speed": 1.1
    }
    ```
+   Optional music overrides (defaults: enabled, source "library", auto-rotate,
+   gain_db -26): `"music": { "track": "think-positive.mp3" }` to pin a file,
+   `"music": { "gain_db": -28 }` to soften, or `"music": { "enabled": false }` to mute.
+   Pick a DIFFERENT track than recent shorts (check memory) unless the user wants
+   consistency. See `music/CREDITS.md` for the catalog.
 4. **Self-QA first (optional but recommended).** You may headlessly screenshot every
    scene (press → to advance, wait for entrances, capture) and fix any layout bug —
    text-heavy slides, overlaps, anything outside the content-safe box — BEFORE
@@ -113,8 +119,10 @@ render cycle — it is the #1 mistake. Apply edits, re-open, and re-confirm as n
    never use tiny text. Assume a phone screen held at arm's length.
 2. **Voice per video:** pick the voice from the narrative (see memory's voice
    guide). Vary it across videos unless told otherwise.
-3. **NO background music:** Music generation is disabled. Do NOT add music config
-   to voiceover.json. Focus on visual richness instead.
+3. **Background music ON (real CC0 tracks):** the builder mixes a lowkey-upbeat
+   public-domain track from `music/`, rotated per video (slug-picked), looped/faded
+   and mixed low (gain_db ≈ −26) under the voice. Vary the track across consecutive
+   shorts (check memory); pin/soften/mute via the `music` block in voiceover.json.
 4. **YouTube UI safe zones:** keep key content out of the right action-rail and
    bottom title/description areas (see `safe_zones.md`).
 5. **Device-crop buffer:** keep critical content away from all four edges; nothing

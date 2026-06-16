@@ -1,0 +1,16 @@
+{
+  "_comment": "Background-music library for the shorts builder. build_short.py rotates through these tracks (one per video, picked deterministically from the slug). All tracks are public-domain / CC0 — free for commercial use, no attribution required. See CREDITS.md.",
+  "source": "David Zorff – 'Uncopyrighted Music' (archive.org/details/uncopyrighted-music)",
+  "license": "Public Domain Mark 1.0 — no attribution required",
+  "default_gain_db": -26.0,
+  "tracks": [
+    { "file": "believe-in-yourself.mp3", "duration": 101, "mood": ["upbeat", "motivational"] },
+    { "file": "confident-session.mp3",   "duration": 153, "mood": ["lowkey", "upbeat", "steady"] },
+    { "file": "free-and-lucky.mp3",       "duration": 148, "mood": ["upbeat", "light"] },
+    { "file": "light-as-a-feather.mp3",   "duration": 163, "mood": ["lowkey", "gentle"] },
+    { "file": "summertime-happiness.mp3", "duration": 57,  "mood": ["upbeat", "happy"] },
+    { "file": "think-positive.mp3",       "duration": 155, "mood": ["upbeat", "warm"] },
+    { "file": "yes-we-can-do-that.mp3",   "duration": 135, "mood": ["lowkey", "upbeat"] },
+    { "file": "joker.mp3",                "duration": 147, "mood": ["playful", "light"] }
+  ]
+}

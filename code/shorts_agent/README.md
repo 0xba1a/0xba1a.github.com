@@ -5,7 +5,9 @@ vertical **YouTube Short** (1080×1920) — entirely locally.
 
 - **Voice:** Chatterbox neural TTS (Resemble AI, offline), with natural expressive
   voice and excellent text normalization.
-- **Music:** procedural ambient generator (currently disabled by default).
+- **Music:** real public-domain (CC0) lowkey-upbeat tracks from the local `music/`
+  library, rotated per video (looped/trimmed/faded and mixed under the voice).
+  A seeded procedural synth is still available as an alternative.
 - **Layout:** mobile-first template with full-frame design and big fonts.
 - **Recording:** Playwright renders the HTML deck headlessly at 1080×1920;
   `ffmpeg` muxes voice with karaoke subtitles.
@@ -28,7 +30,8 @@ code/shorts_agent/
   safe_zones.md              # full-frame layout spec (edge margin only)
   build_short.py             # TTS + music + record + mux pipeline
   vo_tts.py                  # Chatterbox neural TTS wrapper
-  vo_music.py                # seeded procedural ambient music
+  vo_music.py                # seeded procedural ambient music (alternative source)
+  music/                     # public-domain (CC0) background tracks + manifest/credits
   template/                  # base deck: index.html, style.css, script.js, plan.md
   shorts/<slug>/             # one folder per video: deck + narration.txt +
                              #   voiceover.json + _work/ + final.mp4
@@ -41,16 +44,21 @@ code/shorts_agent/
   {
     "voice": null,
     "speed": 1.1,
-    "intro": 0.5, "gap": 0.8, "outro": 1.6,
+    "intro": 0.5, "gap": 0.35, "outro": 1.6,
+    "trim_silence": true,
     "exaggeration": 0.35,
     "cfg_weight": 0.5,
-    "music": { "enabled": false, "mood": "dark", "seed": "<slug>", "gain_db": -24.0 },
+    "music": { "enabled": true, "source": "library", "track": null, "gain_db": -26.0 },
     "subtitles": true
   }
   ```
   - `voice`: optional path to a .wav file for voice cloning; `null` uses built-in narrator
   - `exaggeration`: 0.3-0.4 for calm/measured, 0.5 for animated (default 0.35)
   - `cfg_weight`: ~0.5 for steady pacing (default 0.5)
+  - `music`: ON by default. `source: "library"` rotates the CC0 tracks in `music/`
+    (one per video, chosen from the slug); `track` pins a specific file; `gain_db`
+    sets the level under the voice (≈ −24…−28). Use `source: "procedural"` + `mood`
+    for the synth, or `"enabled": false` to mute. See `music/CREDITS.md`.
 
 ## Build commands
 ```bash
